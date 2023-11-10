@@ -1,0 +1,42 @@
+#!/bin/bash
+
+#
+set -euo pipefail
+
+
+#####
+# Action before deploying the program 
+#####
+
+
+# Declaration variables
+getOS=""
+
+### Action on the directory `/tmp` and others  [tag0]
+if [[ ! ( -e "/tmp" ) ]]
+then
+
+    sudo mkdir -p /tmp 2> /dev/null
+
+    # Return the value of the command <<mkdir>>
+    if [[ $? -ne 0 ]]
+    then
+        echo "~"
+        echo "This program is not compatible with your system ."
+        exit 1
+    fi
+
+    # Get kernel
+    getOS=` uname --operating-system `
+
+    #
+    if [[ $getOS != "GNU/Linux" ]]
+    then
+        echo "~"
+        echo "This program is not compatible with your system ."
+        exit 1
+    fi
+
+fi
+
+### End of [tag0]
