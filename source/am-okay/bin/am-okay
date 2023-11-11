@@ -264,7 +264,8 @@ function alertNonEffectiveAction
             then
                 echo "~"
                 echo -en "Something wrong \U001F9D0, please make sure you have a permission to \nexecute the <am-okay> program "
-                echo -en "or you have write permission on the target directory ."
+                echo -en "or you have write permission on the target directory, or the source dir \ndoes not include "
+                echo -en "in the target dir ."
 
                 #
                 setterm -cursor on
@@ -715,6 +716,9 @@ function pasteAction
                     # Copy the files/directories towards the given directory
                     cp -ra "$readLine" "$targetDir" 2> $fileCodeCommandReturn &
 
+                    #
+                    sleep 0.0005
+
                     # Call the function ->  ` alertNonEffectiveAction `
                     alertNonEffectiveAction $fileCodeCommandReturn
                 
@@ -785,7 +789,7 @@ function pasteAction
                 # Get the end file/target from the path ...
                 getEndFileDir=` echo "$readLine" | tac -s "/" | head -n 1 `
                 
-                # Copy only the files/dirs that exist
+                # Move only the files/dirs that exist
                 if [[ -e "$readLine" ]]
                 then
 
@@ -799,10 +803,13 @@ function pasteAction
                     truncate -s 0 $fileCodeCommandReturn 2> /dev/null
                     rm -r "$targetDir/.test-write-from-am-okay" 2> /dev/null
 
-                    # Copy the files/directories towards the given directory
+                    # Move the files/directories towards the given directory
                     if [[ ! ( "$readLine" == "$targetDir" ) ]]
                     then
-                        mv --backup=numbered "$readLine" "$targetDir" 2> /tmp/.am-okay/error_move
+                        mv --backup=numbered "$readLine" "$targetDir" 2> /tmp/.am-okay/error_move &
+
+                        #
+                        sleep 0.0005
 
                         if [[ -s "/tmp/.am-okay/error_move" ]]
                         then

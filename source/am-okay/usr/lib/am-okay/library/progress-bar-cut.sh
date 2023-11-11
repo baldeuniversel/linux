@@ -13,7 +13,7 @@
 #
 # Version :
 # --------
-# @version 3.0.5 (8 sept 2023)
+# @version 3.0.6 (11 november 2023)
     '
 #####
 
