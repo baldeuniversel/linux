@@ -714,10 +714,10 @@ function pasteAction
                 if [[ -e "$readLine" ]]
                 then
                     # Copy the files/directories towards the given directory
-                    cp -ra "$readLine" "$targetDir" 2> $fileCodeCommandReturn &
+                    cp -r "$readLine" "$targetDir" 2> $fileCodeCommandReturn &
 
                     #
-                    sleep 0.0005
+                    sleep 0.005
 
                     # Call the function ->  ` alertNonEffectiveAction `
                     alertNonEffectiveAction $fileCodeCommandReturn
@@ -809,7 +809,7 @@ function pasteAction
                         mv --backup=numbered "$readLine" "$targetDir" 2> /tmp/.am-okay/error_move &
 
                         #
-                        sleep 0.0005
+                        sleep 0.005
 
                         if [[ -s "/tmp/.am-okay/error_move" ]]
                         then
