@@ -1,5 +1,6 @@
 /**
 * The <<lumus>> program allows to manage the luminosity of the Linux system(Use from the terminal) .
 *
-* To see how to use <<lumus>> program, encode from the terminal `lumus --help` or `man lumus` .
+* To see how to use <<lumus>> program, encode from the terminal(of course after installing the program) 
+* `lumus --help` or `man lumus` .
 */
