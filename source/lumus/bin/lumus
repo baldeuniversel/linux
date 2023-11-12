@@ -1,9 +1,9 @@
-#!/bin/bash 
+#!/usr/bin/bash 
 
 ##### This script increases or decreases the luminosity of the screen 
 #####
 # Author : Baldé Amadou
-# Version : 1.5 (24.03.22)
+# Version : 1.2.0 (2023-11-12)
 #####
 
 ##### Use case 
@@ -13,24 +13,23 @@
 # Example to know the current percent of the luminosity ---> lumus --status
 #####
 
-# Checking if preinst is okay
+# Checking if `preinst` is okay
 
-if [[ ! -e  "/usr/share/doc/info/lumus_status" ]]
+if [[ ! -e  "/usr/share/lumus/doc/info/lumus_status" ]]
 then
     
-    rm -r /usr/share/doc/info/README.lumus 2> /dev/null
-    rm -r /usr/share/doc/info/lumus_status 2> /dev/null
-    rm -r /bin/lumus         2> /dev/null
+    #
+    rm -r /usr/share/lumus/doc/info/README.lumus 2> /dev/null
+    rm -r /usr/share/lumus/doc/info/lumus_status 2> /dev/null
+    rm -r /usr/bin/lumus 2> /dev/null
     
     echo "The program seems to compromize "
     exit 1
-
 fi
 
 ## Set the brightness(luminosity) according the value entered
 
 # Declaration variables
-
 total_brightness=` cat /sys/class/backlight/*/max_brightness `
 get_actual_brightness=` cat /sys/class/backlight/*/brightness `
 get_param=$1 # Input parameter
@@ -40,22 +39,33 @@ get_param=$1 # Input parameter
 if [[ $# -ne 1 ]]
 then
 
+    #
     echo "Incorrect argument(s) !"
     exit 1
-
 fi
 
 # For action help
-
 if [[ $get_param == "--help" ]]
 then
+    
+    #
+    cat /usr/share/lumus/doc/info/README.lumus
 
-    cat /usr/share/doc/info/README.lumus
     echo ""
+
     tput setaf 2; tput bold;echo "By Baldé ~" `tput sgr0` 2> /dev/null
 	
     exit 0
 
+elif [[ $get_param == "--version" ]]
+then
+
+    #
+    cat /usr/share/lumus/doc/info/lumus_version
+
+    echo ""
+	
+    exit 0
 fi
 
 
@@ -65,7 +75,7 @@ fi
 if [[ $get_param = +([+])+([0-9])*([0-9]) ]]
 then
 
-    get_value_nb=${get_param:1} # Get value from index 1 to ..(end)
+    get_value_nb=${get_param:1}
     get_value_proper=$( echo "($get_value_nb*$total_brightness)/100" | bc )
     get_value_proper_increment=$(( $get_value_proper+$get_actual_brightness ))
     
@@ -77,7 +87,6 @@ then
         exit 0
 
     else
-        
         echo "Overflow value !"
 
         exit 1
@@ -87,30 +96,34 @@ then
 elif [[ $get_param = +([-])+([0-9])*([0-9]) ]]
 then
 
+    #
     get_value_nb=${get_param:1}
-    get_value_proper=$( echo "($get_value_nb*$total_brightness)/100" | bc ) # The request decreasing(in percent) to a real value --> Conversion
-    get_one_percent_from_backlight=$( echo "(1*$total_brightness)/100" | bc ) # The value for 1 unit of percent
-    get_value_proper_decrement=$(( $get_actual_brightness-$get_value_proper ))  # Okay
+
+    #
+    get_value_proper=$( echo "($get_value_nb*$total_brightness)/100" | bc ) # The request decreasing(in percent) \
+        # to a real value --> Conversion
+
+    #
+    get_one_percent_from_backlight=$( echo "(1*$total_brightness)/100" | bc ) # 1 unit of percent
+
+    #
+    get_value_proper_decrement=$(( $get_actual_brightness-$get_value_proper ))
     
     # Check if some conditions are correct (for security and others ), if everything is okay, apply the modifications .
-
     if [[ $get_value_proper_decrement -le $total_brightness ]] && [[ $get_value_proper_decrement -ge $get_one_percent_from_backlight ]]
     then
-
+        
+        #
         echo "$get_value_proper_decrement" > /sys/class/backlight/*/brightness
 
         exit 0
-
     else
-        
         echo "Overflow value !"
 
         exit 1
     fi
 
-
 # Equalizing action 
-
 elif [[ $get_param = +([=])+([0-9])*([0-9]) ]]
 then
 
@@ -121,6 +134,7 @@ then
     if [[ $get_value_proper_equal -le $total_brightness ]] && [[ $get_value_nb -ne 0 ]]
     then
 
+        #
         echo "$get_value_proper_equal" > /sys/class/backlight/*/brightness 
 
         exit 0
@@ -128,29 +142,24 @@ then
     elif [[ $get_value_nb -lt 1 ]]
     then
 
+        #
         echo -e "Request ignored to avoid a black screen ."
 
-	exit 1
-
-    else
-        
+	    exit 1
+    else  
         echo "Overflow value !"
 
         exit 1
     fi
-
  
 # Status of the luminosity
-
 elif [[ "$get_param" == "--status" ]]
 then
-
+    
+    #
     get_current_percent=`echo "($get_actual_brightness*100)/($total_brightness)" | bc `
+
     echo "---> $get_current_percent % "
-
-# Else 
 else
-
     echo "Invalid format !"
-
-fi # End Increasing , decreasing and equal action
+fi 

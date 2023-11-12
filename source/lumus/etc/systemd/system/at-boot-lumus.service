@@ -2,7 +2,7 @@
 After=display-manager.service
 
 [Service]
-ExecStart=/usr/bin/at-boot
+ExecStart=/usr/bin/at-boot-lumus
 
 [Install]
 WantedBy=default.target

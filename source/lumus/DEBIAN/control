@@ -1,8 +1,8 @@
 Package: lumus
-Version: 1.1.6
+Version: 1.2.0
 Section: base   
 Priority: optional
 Architecture: all
 Maintainer: Baldé <baldeuniversel@protonmail.com>
 Depends: bash , coreutils , systemd , software-properties-common
-Description: <This package allows to an user to manage the luminosity of his Linux machine(From terminal)>
+Description: <This package allows to an user to manage the luminosity of his Linux machine(From the terminal)>
