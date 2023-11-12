@@ -83,7 +83,7 @@ function get_size
     # Get the size of target dir/file
     if [[ -e "$target_elem" ]]
     then
-        v_total_size=`du -sb "$target_elem" | tr -s "[[:space:]]" ":" | cut -d ":" -f1`
+        v_total_size=`du -sk "$target_elem" | tr -s "[[:space:]]" ":" | cut -d ":" -f1`
     fi
 
     # print the total size of the directory
@@ -215,6 +215,33 @@ function display_progress_bar
         #
         if [[ $a_length_ongoing_data -eq $a_size_source  ]] || [[ $a_size_source -eq 0 ]]
         then
+
+            #
+            a_terminate_process="FALSE"
+            
+            # Set the color to white then to green
+            echo -en "\033[37m\r|"
+            echo -en "\033[0m\033[32m"
+            
+            # Display the front character according the index and ..
+            for counter in {1..50}
+            do
+                echo -en "${a_character_bar_front_list[2]}"
+            done
+
+            # Set the color to white
+            echo -en "\033[37m"
+            
+            #
+            printf "|  %d" $(( 2 * 50 ))
+            echo -en " %"
+
+        elif  [[ ` echo "$a_size_source-$a_length_ongoing_data" | bc ` -lt 256 ]]
+        then
+
+            #
+            sleep 1
+
             #
             a_terminate_process="FALSE"
             
