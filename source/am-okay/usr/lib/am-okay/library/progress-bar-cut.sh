@@ -240,7 +240,7 @@ function display_progress_bar
         then
 
             #
-            sleep 1
+            sleep 3
 
             #
             a_terminate_process="FALSE"
