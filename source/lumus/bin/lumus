@@ -62,8 +62,6 @@ then
 
     #
     cat /usr/share/lumus/doc/info/lumus_version
-
-    echo ""
 	
     exit 0
 fi
