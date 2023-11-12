@@ -1,0 +1,108 @@
+#!/bin/bash
+# preinst script for lumus
+
+set -e
+
+
+#####
+# Action for deploying program (before deployment) 
+#####
+
+# Check if bash is installed
+
+get_request=` whereis bash `
+
+if [[ ! ` echo "$get_request" | grep -i "bash" ` ]]
+then
+    
+    echo "You have to install bash !"
+    exit 1
+
+elif [[ ! -e "/tmp" ]]
+then
+
+    echo "You have to have the directory /tmp"
+
+    exit 1
+
+fi
+
+# Variables
+total_brightness=` cat /sys/class/backlight/*/max_brightness `
+get_actual_brightness=` cat /sys/class/backlight/*/brightness `
+
+# Check if the variables above contain something, and deploying of the program
+if [[ -n $get_actual_brightness ]] && [[ -n $total_brightness ]]
+then
+    
+    ## Getting the necessary permissions
+
+    if  [[ ! -e "/usr/bin/lumus" ]] 
+    then
+
+        ## Change own of the file
+
+	    sudo chmod 664 /sys/class/backlight/*/brightness
+
+	    # Get all users belonging to sudo group
+	    grep 'sudo' /etc/group | cut  -d ":" -f4 | tr  "," "\n" > /tmp/.lumus_perm_tmp
+	
+	    # Get the first user in the /tmp/.lumus_perm_tmp file
+	    get_first_user=`cat /tmp/.lumus_perm_tmp | head -n 1 `
+	
+	    # Define get_first_user like the group of the file /sys/class/backlight/*/brightness 
+	    sudo chgrp $get_first_user /sys/class/backlight/*/brightness
+
+	    # Remove the file /tmp/.lumus_perm_tmp
+	    sudo rm -r /tmp/.lumus_perm_tmp
+
+        
+        if [[ ! -e "/usr/bin" ]]
+        then
+
+            sudo mkdir -p /usr/bin
+
+        fi
+
+        if [[ ! -e "/usr/share/doc/info" ]]
+        then
+
+            sudo mkdir -p /usr/share/doc/info
+	  
+	        sudo chmod -R 755 /usr/share/doc/info
+
+        fi
+
+        if [[ $? -eq 0 ]]
+        then
+	    
+	        echo ""
+	        echo "~"
+            echo "Try now with the command <<lumus>> then your argument !"
+            echo "To see how to use this program, encode from your terminal -> lumus --help"
+            echo ""
+	        echo ""
+            echo "YES" >  /usr/share/doc/info/lumus_status
+	        echo ""
+
+            exit 0
+
+        fi
+
+    else 
+
+        exit 0
+
+    fi
+
+else
+	
+    echo ""
+    echo "This program seems to be not compatible with your system !"
+
+    exit 1
+
+fi
+
+##
+

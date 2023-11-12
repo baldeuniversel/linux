@@ -1,0 +1,7 @@
+##### Use case 
+
+# Example of increasing of the backlight of 10 percent from the actual backlight   --->  lumus +10
+# Example of decreasing of the backlight of 10 percent from the actual backlight   --->  lumus -10
+# Example to equalize the backlight to 50 percent                                  --->  lumus =50
+# Example to know the current percent of the luminosity                            --->  lumus --status
+#####

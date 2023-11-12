@@ -1,0 +1,9 @@
+[Unit]
+After=display-manager.service
+
+[Service]
+ExecStart=/usr/bin/at-boot
+
+[Install]
+WantedBy=default.target
+
