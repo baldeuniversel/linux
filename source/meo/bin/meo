@@ -266,8 +266,8 @@ function refreshPackageFile
     ### Download the available packages and store the name of these packages with their version -> start tag[d0]
     
     # Declarations variables
-    meoTmpDir="/tmp/.meo/github"
-    fileGithubAction="$meoTmpDir/github-action"
+    local meoTmpDir="/tmp/.meo/github"
+    local fileGithubAction="$meoTmpDir/github-action"
     
     #
     if [[ ! ( -e "$meoTmpDir" ) ]]
@@ -353,6 +353,7 @@ then
     
     # Declaration variables
     local getMeoRefreshVersion=""
+    local meoTmpDir="/tmp/.meo/github"
 
 
     # Call the function
@@ -377,7 +378,7 @@ then
 
 
             # Remove the package in /tmp/.meo
-            if [[ -e "$meoTmpDir/linux"  ]]
+            if [[ -e "$meoTmpDir/linux" ]]
             then
                 rm -rf "$meoTmpDir/linux" 2> /null
             fi
