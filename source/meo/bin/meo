@@ -9,12 +9,12 @@
     *
     *
     *
-    * @requires The only options supported are [ self-update, self-upgrade, self-remove, install, update, 
-    *                                            upgrade, remove, download, list, list-installed, search, 
+    * @requires The only options supported are [ self-update, self-remove, install, update, upgrade
+    *                                            remove, download, list, list-installed, search, 
     *                                            show, --help, --doc, --version ] 
     * && the <<meo>> command has to have at least one option .  Ex: meo self-update
     * && with the options [ install, remove, search, show, download ] you have to give the package(s)
-    * && with the options [ self-update, self-upgrade, self-remove, update, list, list-installed, --help, 
+    * && with the options [ self-update, self-remove, update, list, list-installed, --help, 
     *                       --doc, --version ] there is not another parameter
     * && with the option [ upgrade ], you can either upgrade all the installed packages by `meo` or
     *                                                            upgrade target installed packages 
@@ -30,9 +30,6 @@
     *                                that is ready to upgrade, and it also allows to update the list of 
     *                                packages available on the Github repository
     *                                Ex : meo self-update
-    *
-    * @param {string} self-upgrade // This option allows upgrading `meo` program
-    *                                 Ex : meo self-upgrade
     * 
     * @param {string} self-remove // This option allows removing `meo` program
     *                                Ex : meo self-remove
@@ -116,7 +113,7 @@ fi
 
 
 # Declaration variables
-listOfParams=("self-update" "self-upgrade" "self-remove" "install" "update" "upgrade" "remove" "download" \
+listOfParams=("self-update" "self-remove" "install" "update" "upgrade" "remove" "download" \
     "list" "list-installed" "search" "show" "--help" "--doc" "--version")
 
 counterOption=0
@@ -142,7 +139,7 @@ do
     fi
 
     #
-    if [[ $counterOption -eq 15  ]]
+    if [[ $counterOption -eq 14  ]]
     then
         echo "~"
         echo -e "Unknown `tput setaf 3; tput bold`$1` tput sgr0 ` option \U001F9D0 "
@@ -388,7 +385,8 @@ then
             echo "~"
             echo -e "A new version($getMeoRefreshVersion) \e[36;1m⬆\e[0m is available for the \e[32;1mmeo\e[0m program "
             echo ""
-            echo -e "Do \e[32;1mmeo self-upgrade\e[0m to upgrade the \e[32;1mmeo\e[0m program "
+            echo -e "Go to this github \e[32;1mhttps://github.com/baldeuniversel/linux/tree/main/packages\e[0m repository " 
+            echo -e "to upgrade the \e[32;1mmeo\e[0m program "
 
             # Remove the package in /tmp/.meo
             if [[ -e "$meoTmpDir/linux"  ]]
@@ -404,47 +402,6 @@ then
 
         exit 1
     fi
-
-elif [[ $1 == "self-upgrade" ]] && [[ $# -eq 1 ]]
-then
-    # Declaration variables
-    local getMeoRefreshVersion=""
-    local getMeoVersionPkgInstalled=""
-    local getMeoPathDeb=""
-
-
-    # Call the function
-    $( refreshPackageFile )
-
-    #
-    if [[ -e "$meoListAvailablePkgs" ]]
-    then
-        
-        getMeoRefreshVersion=` cat $meoListAvailablePkgs | grep -i "meo" | \
-            cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
-
-        getMeoVersionPkgInstalled=` meo --version `
-
-            
-        # Verify the versions match, then do ...
-        if [[ ` echo -e "\e[36m$getMeoRefreshVersion\e[0m" | tr -s "[[:space:]]" ` == \
-            ` echo "$getMeoVersionPkgInstalled" | tr -s "[[:space:]]" ` ]]
-        then
-            echo "~"
-            echo -e "The job is clean, \e[32;1mmeo\e[0m program is already up to date \U002705 "
-            
-            exit 0
-        else
-             getMeoPathDeb=` find "$meoTmpDir/linux"  -name "meo*.deb" -type f `
-
-             # Upgrading the package
-             if [[ -e  "$getMeoPathDeb" ]]
-             then
-                 /usr/lib/meo/library/depends/upgrade-meo.sh $getMeoPathDeb
-             fi
-        fi
-    fi
-
 fi
 
 ### Action based to the `meo` itself -> end tag[s0]
