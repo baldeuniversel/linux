@@ -1,0 +1,78 @@
+
+[32mOPTIONS[0m
+       [36m--copy[0m        type(string) // This option allows to copy the target file/files or
+                     directory/directories(that are its targets), you can use the joker [36m<*>[0m to indicate
+                     everything that is in the current directory .
+                          [36mEx : [0m[35mam-okay[0m [36m--copy[0m [36m<your-target-dir-or-file>[0m [36m<..>[0m
+
+       [36m--cut[0m         type(string) // This option allows to cut the target file/files or
+                     directory/directories(that are its targets), you can use the joker [36m<*>[0m to indicate
+                     everything that is in the current directory .
+                          [36mEx : [0m[35mam-okay[0m [36m--cut[0m [36m<your-target-dir-or-file>[0m [36m<..>[0m
+
+       [36m--paste-copy[0m  type(string) // This option allows to paste a copy action .
+                          [36mEx : [0m[35mam-okay[0m [36m--paste-copy[0m [36m<your-target-directory>[0m
+                     You can use the dot [36m<.>[0m to indicate the current directory. This option([36m--paste-copy)[0m is
+                     linked to the [36m<[36m--copy>[0m[0m option .
+                     Use case :
+                         Action 1 ->  [36mEx : [0m[35mam-okay[0m [36m--copy[0m [36m<my-file>[0m
+                         Action 2 ->  [36mEx : [0m[35mam-okay[0m [36m--paste-copy[0m [36m<my-target-dir>[0m
+
+       [36m--paste-cut[0m   type(string) // This option allows to paste a cut action .
+                             [36mEx : [0m[35mam-okay[0m [36m--paste-cut[0m [36m<your-target-directory>[0m
+                     You can use the dot [36m<.>[0m to indicate the current directory. This option([36m--paste-cut)[0m is
+                     linked to the [36m<[36m--cut>[0m[0m option .
+                     Use case :
+                         Action 1 ->  [36mEx : [0m[35mam-okay[0m [36m--cut[0m [36m<my-file>[0m
+                         Action 2 ->  [36mEx : [0m[35mam-okay[0m [36m--paste-cut[0m [36m<my-target-dir>[0m
+
+       [36m--array[0m       type(String> // This option allows to copy or cut files or directories in a
+                     separate way(form of index) .
+                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0 [36m--copy[0m [36m<file-1>[0m [36m<dir-1>[0m [36m<dir-2>[0m [36m<..>[0m
+                     For pasting according to the previous action you have to do :
+                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0 [36m--put[0m [36m<your-target-dir>[0m
+
+       [36m--index[0m       type(String> // This option allows to target the index of the array .
+                     Use case :
+                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0 [36m--copy[0m [36m<file-1>[0m [36m<dir-1>[0m [36m<dir-2>[0m [36m<..>[0m
+                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 1 [36m--put[0m [36m<your-target-dir>[0m
+                         Note :
+                             1.0 You can not do this ->  [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0-1 [36m--copy[0m [36m<your-dir>[0m [36m<..>[0m
+                             1.1 You can do this     ->  [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0-1 [36m--put[0m [36m<your-dir>[0m
+                             1.2 In the previous action(1.1) the [36m<[36m--put>[0m[0m option will manage all actions with the
+                                 [36m<[36m--array>[0m[0m option that associated with the [36m<[36m--index>,[0m[0m [36m<[36m--copy>[0m[0m
+                                 and [36m<[36m--cut>[0m[0m options .
+
+       [36m--put[0m         type(string) // This option allows to put directory/directories or file/files that have
+                     been targeted by the [36m<[36m--array>[0m[0m option associated with the [36m<[36m--copy>[0m[0m
+                     and [36m<[36m--cut>[0m[0m options .
+                     Use case :
+                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0 [36m--put <your_dir>[0m
+                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0-3 [36m--put <your_dir>[0m // The indexes between `0` and `3`.
+                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0,3 [36m--put <your_dir>[0m // The index `0` and `3`.
+
+       [36m--stat-copy[0m   type(string) // To see the status of an action done with the [36m<[36m--copy>[0m[0m option as first
+                     parameter .
+                          [36mEx : [0m[35mam-okay[0m [36m--stat-copy[0m
+
+       [36m--stat-cut[0m    type(string) // To see the status of an action done with the [36m<[36m--cut>[0m[0m option as first
+                     parameter .
+                          [36mEx : [0m[35mam-okay[0m [36m--stat-cut[0m
+
+       [36m--stat[0m        type(string) // To see the status of an action done with the [36m<[36m--array>[0m[0m option as first
+                     parameter and along with the [36m<[36m--copy>[0m[0m and [36m<[36m--cut>[0m[0m options or between them .
+                     Use case :
+                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0 [36m--stat[0m
+                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0-2 [36m--stat[0m // The indexes between `0` and `2`.
+                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0,2 [36m--stat[0m // The index `0` and `2`.
+
+
+       [36m--reset[0m       type(string) // To reset your desired action(s), there will be a prompt for the
+                     possible choices (note : you have to enter expressly the `request` word) .
+                          [36mEx : [0m[35mam-okay[0m [36m--reset[0m [36mrequest[0m
+
+       [36m--doc[0m         type(string) // To see the documentation of the program [35mam-okay[0m
+                          [36mEx : [0m[35mam-okay[0m [36m--doc[0m
+
+       [36m--help[0m        type(sting) // To get help
+                          [36mEx : [0m[35mam-okay[0m [36m--help[0m
