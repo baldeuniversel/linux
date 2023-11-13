@@ -128,7 +128,7 @@ do
     fi
 
     #
-    if [[ $counterOption -eq 13  ]]
+    if [[ $counterOption -eq 15  ]]
     then
         echo "~"
         echo -e "Unknown `tput setaf 3; tput bold`$1` tput sgr0 ` option \U001F9D0 "
@@ -276,7 +276,7 @@ function refreshPackageFile
         # Remove the current data in the file that contains the list of available packages
         if [[ -e "$meoListAvailablePkgs" ]]
         then
-            truncate -s 0 "$meoListAvailablePkgs"
+            sudo truncate -s 0 "$meoListAvailablePkgs"
         fi
     
         # Action to store the available packages and their version on the specific file
@@ -287,7 +287,7 @@ function refreshPackageFile
     
             getVersionOfPkg=` echo -e $lineFile | gawk '{ split($0, array, "-" ); print array[length(array)] }' `
     
-            echo -e "\e[32;1m$getNameOfPkg\e[0m : \e[36;1mv($getVersionOfPkg)\e[0m" >> $meoListAvailablePkgs 2> /dev/null
+            sudo echo -e "\e[32;1m$getNameOfPkg\e[0m : \e[36;1mv($getVersionOfPkg)\e[0m" >> $meoListAvailablePkgs 2> /dev/null
     
         done < $fileGithubAction
     

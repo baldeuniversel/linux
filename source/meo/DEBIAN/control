@@ -4,6 +4,6 @@ Section: base
 Priority: optional
 Architecture: all
 Maintainer: Baldé <baldeuniversel@protonmail.com>
-Depends: bash, coreutils, systemd, software-properties-common, dpkg, curl, bc, python3, gzip, awk, gawk, zsh, util-linux
+Depends: bash, coreutils, systemd, software-properties-common, dpkg, curl, bc, python3, git, gzip, awk, gawk, zsh, util-linux
 Description: <The <<meo>> program allows to manage packages installed from the Github \
               repository `https://github.com/baldeuniversel/linux.git` (Use from the terminal)>
