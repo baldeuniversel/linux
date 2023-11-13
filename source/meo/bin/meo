@@ -383,10 +383,10 @@ then
             exit 0
         else
             echo "~"
-            echo -e "A new version($getMeoRefreshVersion) \e[36;1m⬆\e[0m is available for the \e[32;1mmeo\e[0m program "
+            echo -e "A new version($getMeoRefreshVersion)\e[36;1m⬆\e[0m for the \e[32;1mmeo\e[0m program is available "
             echo ""
-            echo -e "Go to this github \e[32;1mhttps://github.com/baldeuniversel/linux/tree/main/packages\e[0m repository " 
-            echo -e "to upgrade the \e[32;1mmeo\e[0m program "
+            echo -e "Go to this Github \e[32;1mhttps://github.com/baldeuniversel/linux/tree/main/packages\e[0m repository " 
+            echo -e "to download, then install the new version of the \e[32;1mmeo\e[0m program "
 
             # Remove the package in /tmp/.meo
             if [[ -e "$meoTmpDir/linux"  ]]
