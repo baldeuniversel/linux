@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 #
 set -euo pipefail
@@ -12,13 +12,13 @@ set -euo pipefail
 # Declaration variables
 getOS=""
 
-### Action on the directory `/tmp` and others  [tag0]
+### Action on the directory `/tmp` and ... -> start  tag[0]
 if [[ ! ( -e "/tmp" ) ]]
 then
 
     sudo mkdir -p /tmp 2> /dev/null
 
-    # Return the value of the command <<mkdir>>
+    # Check the return value of the last command <<mkdir>>
     if [[ $? -ne 0 ]]
     then
         echo "~"
@@ -39,4 +39,4 @@ then
 
 fi
 
-### End of [tag0]
+### Action on the directory `/tmp` and ... -> start  tag[0]

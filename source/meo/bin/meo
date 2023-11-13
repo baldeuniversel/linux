@@ -9,13 +9,13 @@
     *
     *
     *
-    * @requires The only options supported are [ self-update, self-remove, install, update, upgrade, 
-    *                                            remove, list, list-installed, search, show, --help, 
-    *                                            --doc, --version ] 
+    * @requires The only options supported are [ self-update, self-upgrade, self-remove, install, update, 
+    *                                            upgrade, remove, download, list, list-installed, search, 
+    *                                            show, --help, --doc, --version ] 
     * && the <<meo>> command has to have at least one option .  Ex: meo self-update
-    * && with the options [ install, remove, search, show ] you have to give the package(s)
-    * && with the options [ self-update, self-remove, list, list-installed, update, --help, --doc, 
-    *                       --version ] there is not another parameter
+    * && with the options [ install, remove, search, show, download ] you have to give the package(s)
+    * && with the options [ self-update, self-upgrade, self-remove, update, list, list-installed, --help, 
+    *                       --doc, --version ] there is not another parameter
     * && with the option [ upgrade ], you can either upgrade all the installed packages by `meo` or
     *                                                            upgrade target installed packages 
     *                                Ex : meo upgrade    (to upgrade all the installed packages by `meo`) 
@@ -26,13 +26,18 @@
     *
     * Options :
     * --------
-    * @param {string} self-update // This option allows updading `meo` program
+    * @param {string} self-update // This option allows to verify if there is a new version of `meo` program
+    *                                that is ready to upgrade, and it also allows to update the list of 
+    *                                packages available on the Github repository
     *                                Ex : meo self-update
+    *
+    * @param {string} self-upgrade // This option allows upgrading `meo` program
+    *                                 Ex : meo self-upgrade
     * 
     * @param {string} self-remove // This option allows removing `meo` program
     *                                Ex : meo self-remove
     *
-    * @param {string} install // This option allows intalling a package
+    * @param {string} install // This option allows installing packages
     *                            Ex : meo install am-okay
     *
     * @param {string} update // This option allows listing the packages ready to upgrade
@@ -43,10 +48,11 @@
     *                            Ex : meo upgrade am-okay (to upgrade the target installed 
     *                                                      package by `meo` program)
     *   
-    *
-    *
-    * @param {string} remove // This option allows removing a package
+    * @param {string} remove // This option allows removing packages
     *                           Ex : meo remove am-okay
+    *
+    * @param {string} download // This option allows download packages
+    *                             Ex : meo download am-okay
     *
     * @param {string} list // This option allows listing packages of the git repository
     *                         Ex : meo list
@@ -96,8 +102,8 @@
 set -uo pipefail # To exit the script if there is an error
 
 # Declaration variables
-listOfParams=("self-update" "self-remove" "install" "update" "upgrade" "remove" "list" "list-installed" \
-    "search" "show" "--help" "--doc" "--version")
+listOfParams=("self-update" "self-upgrade" "self-remove" "install" "update" "upgrade" "remove" "download" \
+    "list" "list-installed" "search" "show" "--help" "--doc" "--version")
 
 counterOption=0
 
@@ -130,16 +136,17 @@ do
     fi
 done
 #
-if ( [[ $1 == "self-update" ]] || [[ $1 == "self-remove"  ]] || [[ $1 == "list" ]] || [[ $1 == "list-installed" ]] \
-     || [[ $1 == "--doc" ]] || [[ $1 == "--help" ]] || [[ $1 == "--version" ]] ) && ( [[ $# -gt 1 ]] )
+if ( [[ $1 == "self-update" ]] || [[ $1 == "self-upgrade" ]] || [[ $1 == "self-remove"  ]] || [[ $1 == "list" ]] \
+     || [[ $1 == "list-installed" ]] || [[ $1 == "--doc" ]] || [[ $1 == "--help" ]] || [[ $1 == "--version" ]] ) \
+     && ( [[ $# -gt 1 ]] )
 then
     echo "~"
     echo -e "There can only be one parameter when the \e[32;1m$1\e[0m option is invoked \U001F9D0 "
     exit 1
 fi
 #
-if ( [[ $1 == "install" ]] || [[ $1 == "remove"  ]] || [[ $1 == "search"  ]] || [[ $1 == "show"  ]]  ) \
-     && ( [[ $# -lt 2  ]] )
+if ( [[ $1 == "install" ]] || [[ $1 == "remove"  ]] || [[ $1 == "search"  ]] || [[ $1 == "show"  ]] || \
+     [[ $1 == "download"  ]] ) && ( [[ $# -lt 2  ]] )
 then
     echo "~"
     echo -e "There have to be at least two parameters when the \e[32;1m$1\e[0m option is invoked \U001F9D0 "
@@ -156,10 +163,17 @@ fi
 
 # Declaration variables
 getPersonalUserDir=$HOME
+
 meoRootDir="/usr/lib/meo"
+
 meoLibraryDir="$meoRootDir/library"
-meoListInstalledPkgs="$meoLibraryDir/list-installed-packages"
-meoListAvailablePkgs="$meoLibraryDir/list-available-packages"
+
+meoListInstalledPkgs="$meoLibraryDir/info/list-installed-packages"
+meoListAvailablePkgs="$meoLibraryDir/info/list-available-packages"
+meoPackages="$meoLibraryDir/packages"
+
+meoDocumentationDir="$meoRootDir/documentation"
+
 meoTmp="/tmp/.meo"
 fileCodeReturnCommand="$meoTmp/code-return-command"
 
@@ -181,7 +195,6 @@ function truncateFileData
 {
     # Remove the data contained in the target file
     truncate -s 0 $1 2> /dev/null
-    echo "~"
 }
 
 
@@ -230,6 +243,71 @@ function alertNonEffectiveAction
 
 :   '
 /**
+* @overview The `refreshPackageFile` function allows to update the list of packages from the Github repository
+*/
+    '
+function refreshPackageFile
+{
+
+    ### Download the available packages and store the name of these packages with their version -> start tag[d0]
+    
+    # Declarations variables
+    meoTmpDir="/tmp/.meo/github"
+    fileGithubAction="$meoTmpDir/github-action"
+    
+    #
+    if [[ ! ( -e "$meoTmpDir" ) ]]
+    then
+        mkdir -p $meoTmpDir
+    fi
+    
+    # Clone the git repository
+    git clone https://github.com/baldeuniversel/linux.git "$meoTmpDir/linux" 2> /dev/null
+    
+    #
+    if [[ $? -eq 0 ]]
+    then
+    
+        # Action to get the packages without the `deb` extension
+        find "$meoTmpDir/linux"  -name "*.deb" -type f | gawk '{ split($0, array, "/");  print array[length(array)] }' \
+            | gawk '{ split($0, array, ".deb" ); print array[length(array)-1] }' >> $fileGithubAction 2> /dev/null
+    
+
+        # Remove the current data in the file that contains the list of available packages
+        if [[ -e "$meoListAvailablePkgs" ]]
+        then
+            truncate -s 0 "$meoListAvailablePkgs"
+        fi
+    
+        # Action to store the available packages and their version on the specific file
+        while IFS= read -r lineFile
+        do
+            getNameOfPkg=` echo "$lineFile" | gawk '{ split($0, array, "." ); print array[length(array)-2] }' \
+                | gawk '{ print substr($0, 1, length($0)-2) }' `
+    
+            getVersionOfPkg=` echo -e $lineFile | gawk '{ split($0, array, "-" ); print array[length(array)] }' `
+    
+            echo -e "\e[32;1m$getNameOfPkg\e[0m : \e[36;1mv($getVersionOfPkg)\e[0m" >> $meoListAvailablePkgs 2> /dev/null
+    
+        done < $fileGithubAction
+    
+    fi
+    
+    # Remove `.meo` directory in /tmp
+    if [[ -e "/tmp/.meo"  ]]
+    then
+        rm -rf "/tmp/.meo" 2> /dev/null
+    fi
+    
+    ### Download the available packages and store the name of these packages with their version -> end tag[d0]
+
+}
+
+
+
+
+:   '
+/**
 * @overview The function `colorElem` allows to color strings
 *
 * @param {string} $1 // The input string to color
@@ -262,6 +340,57 @@ then
 fi
 
 ### Creation files/dirs -> end tag[c1]
+
+
+
+
+
+### Action based to the `meo` itself -> start tag[s0]
+
+if [[ $1 == "self-update" ]] && [[ $# -eq 1 ]]
+then
+    
+    # Declaration variables
+    local getTheMeoRefreshVersion=""
+
+
+    # Call the function
+    $( refreshPackageFile )
+
+    #
+    if [[ -e "$meoListAvailablePkgs" ]]
+    then
+        
+        getMeoRefreshVersion=` cat $meoListAvailablePkgs | grep -i "meo" | \
+            cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
+
+        getMeoVersionPkgInstalled=` meo --version `
+
+        #
+        if [[ "$getMeoRefreshVersion" == "$getMeoVersionPkgInstalled" ]]
+        then
+            echo "~"
+            echo -e "The job is clean, \e[32;1mmeo\e[0m program is already up to date \U002705 "
+
+            exit 0
+        else
+            echo "~"
+            echo -e "A new version($getMeoRefreshVersion) is available for the \e[32;1mmeo\e[0m program \e[36;1m⬆\e[0m"
+            echo ""
+            echo -e "Do \e[32;1mmeo self-upgrade\e[0m to upgrade the \e[32;1mmeo\e[0m program "
+
+            exit 0
+        fi
+    else 
+        echo "~"
+        echo "Something is wrong, a file is missing \U001F9D0, please reinstall the \e[32;1mmeo\e[0m program "
+
+        exit 1
+    fi
+fi
+
+### Action based to the `meo` itself -> end tag[s0]
+
 
 
 
