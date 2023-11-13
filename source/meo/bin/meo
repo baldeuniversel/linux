@@ -189,6 +189,8 @@ meoPackages="$meoLibraryDir/packages"
 meoDocumentationDir="$meoRootDir/documentation"
 
 meoTmp="/tmp/.meo"
+meoTmpDir="/tmp/.meo/github"
+
 fileCodeReturnCommand="$meoTmp/code-return-command"
 
 ### Creation some necessary directories or files -> end tag[c0]
@@ -266,7 +268,6 @@ function refreshPackageFile
     ### Download the available packages and store the name of these packages with their version -> start tag[d0]
     
     # Declarations variables
-    local meoTmpDir="/tmp/.meo/github"
     local fileGithubAction="$meoTmpDir/github-action"
     
     #
@@ -353,7 +354,6 @@ then
     
     # Declaration variables
     local getMeoRefreshVersion=""
-    local meoTmpDir="/tmp/.meo/github"
 
 
     # Call the function
@@ -378,7 +378,7 @@ then
 
 
             # Remove the package in /tmp/.meo
-            if [[ -e "$meoTmpDir/linux" ]]
+            if [[ -e "$meoTmpDir/linux"  ]]
             then
                 rm -rf "$meoTmpDir/linux" 2> /null
             fi
@@ -440,13 +440,7 @@ then
              # Upgrading the package
              if [[ -e  "$getMeoPathDeb" ]]
              then
-                 dpkg --install "$getMeoPathDeb"
-             fi
-
-             # Remove the package in /tmp/.meo
-             if [[ -e "$meoTmpDir/linux"  ]]
-             then
-                 rm -rf "$meoTmpDir/linux" 2> /null
+                 /usr/lib/meo/library/depends/upgrade-meo.sh $getMeoPathDeb
              fi
         fi
     fi
