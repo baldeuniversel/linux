@@ -274,7 +274,17 @@ function refreshPackageFile
     then
         mkdir -p $meoTmpDir
     fi
-    
+   
+    # Check if there is internet connection
+    curl ifconfig.me &> /dev/null   
+    #
+    if [[ $? -ne 0 ]]
+    then
+        echo "~"
+        echo -e "Your internet connection seems not to be established \U001F30D"
+        exit 1
+    fi
+
     # Clone the git repository
     git clone https://github.com/baldeuniversel/linux.git "$meoTmpDir/linux" 2> /dev/null
     
@@ -308,9 +318,9 @@ function refreshPackageFile
     fi
     
     # Remove `.meo` directory in /tmp
-    if [[ -e "/tmp/.meo"  ]]
+    if [[ -e "$fileGithubAction"  ]]
     then
-        rm -rf "/tmp/.meo" 2> /dev/null
+        rm -rf "$fileGithubAction" 2> /dev/null
     fi
     
     ### Download the available packages and store the name of these packages with their version -> end tag[d0]
@@ -365,12 +375,25 @@ then
             echo "~"
             echo -e "The job is clean, \e[32;1mmeo\e[0m program is already up to date \U002705 "
 
+
+            # Remove the package in /tmp/.meo
+            if [[ -e "$meoTmpDir/linux"  ]]
+            then
+                rm -rf "$meoTmpDir/linux" 2> /null
+            fi
+
             exit 0
         else
             echo "~"
-            echo -e "A new version($getMeoRefreshVersion) is available for the \e[32;1mmeo\e[0m program \e[36;1m⬆\e[0m"
+            echo -e "A new version($getMeoRefreshVersion) \e[36;1m⬆\e[0m is available for the \e[32;1mmeo\e[0m program "
             echo ""
             echo -e "Do \e[32;1mmeo self-upgrade\e[0m to upgrade the \e[32;1mmeo\e[0m program "
+
+            # Remove the package in /tmp/.meo
+            if [[ -e "$meoTmpDir/linux"  ]]
+            then
+                rm -rf "$meoTmpDir/linux" 2> /null
+            fi
 
             exit 0
         fi
@@ -380,6 +403,53 @@ then
 
         exit 1
     fi
+
+elif [[ $1 == "self-upgrade" ]] && [[ $# -eq 1 ]]
+then
+    # Declaration variables
+    local getMeoRefreshVersion=""
+    local getMeoVersionPkgInstalled=""
+    local getMeoPathDeb=""
+
+
+    # Call the function
+    $( refreshPackageFile )
+
+    #
+    if [[ -e "$meoListAvailablePkgs" ]]
+    then
+        
+        getMeoRefreshVersion=` cat $meoListAvailablePkgs | grep -i "meo" | \
+            cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
+
+        getMeoVersionPkgInstalled=` meo --version `
+
+            
+        # Verify the versions match, then do ...
+        if [[ ` echo -e "\e[36m$getMeoRefreshVersion\e[0m" | tr -s "[[:space:]]" ` == \
+            ` echo "$getMeoVersionPkgInstalled" | tr -s "[[:space:]]" ` ]]
+        then
+            echo "~"
+            echo -e "The job is clean, \e[32;1mmeo\e[0m program is already up to date \U002705 "
+            
+            exit 0
+        else
+             getMeoPathDeb=` find "$meoTmpDir/linux"  -name "meo*.deb" -type f `
+
+             # Upgrading the package
+             if [[ -e  "$getMeoPathDeb" ]]
+             then
+                 dpkg --install "$getMeoPathDeb"
+             fi
+
+             # Remove the package in /tmp/.meo
+             if [[ -e "$meoTmpDir/linux"  ]]
+             then
+                 rm -rf "$meoTmpDir/linux" 2> /null
+             fi
+        fi
+    fi
+
 fi
 
 ### Action based to the `meo` itself -> end tag[s0]

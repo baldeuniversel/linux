@@ -5,7 +5,7 @@ set -euo pipefail
 
 
 #####
-# Action before removing the program 
+# Action after removing the program 
 #####
 
 
