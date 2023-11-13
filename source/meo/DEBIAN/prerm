@@ -1,0 +1,18 @@
+#!/usr/bin/bash
+
+#
+set -euo pipefail
+
+
+#####
+# Action before removing the program 
+#####
+
+
+
+#
+if [[ ! ( -e "/usr/lib/meo/library/info" ) ]]
+then
+    sudo rm -rf  "/usr/lib/meo/library/info" 2> /dev/null
+fi
+
