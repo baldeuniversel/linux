@@ -14,10 +14,10 @@
     *                                            --help, --doc, --version ] 
     * && the <<meo>> command has to have at least one option .  Ex: meo self-update
     * && with the options [ install, remove, search, show, download ] you have to give the package(s)
-    * && with the options [ self-update, list, list-installed, --help, --doc, --version ] there is not 
-    *                                                                                another parameter
-    * && with the options [ upgrade, update ], you can either upgrade/update all the installed packages 
-    *                                              by `meo` or upgrade/update target installed packages 
+    * && with the options [ self-update, list, update, list-installed, --help, --doc, --version ] 
+    *                                                              there is not another parameter
+    * && with the options [ upgrade ], you can either upgrade all the installed packages 
+    *                                              by `meo` or upgrade target installed packages 
     *                                Ex : meo upgrade    (to upgrade all the installed packages by `meo`) 
     *                                Ex : meo upgrade am-okay    (to upgrade the target installed package)    
     * && you can not call `meo` program to install it itself . Ex : meo install meo
@@ -206,7 +206,10 @@ fileCodeReturnCommand="$meoTmp/code-return-command"
 function truncateFileData
 {
     # Remove the data contained in the target file
-    truncate -s 0 $1 2> /dev/null
+    if [[ -e "$1" ]]
+    then
+        truncate -s 0 $1 2> /dev/null
+    fi
 }
 
 
@@ -314,7 +317,7 @@ function refreshPackageFile
     
     fi
     
-    # Remove `.meo` directory in /tmp
+    # Remove a subdir of the `.meo` directory in /tmp
     if [[ -e "$fileGithubAction"  ]]
     then
         rm -rf "$fileGithubAction" 2> /dev/null
@@ -347,6 +350,54 @@ function clonePersonalGit
 
     # Clone the git repository
     git clone https://github.com/baldeuniversel/linux.git "$meoTmpDir/linux" 2> /dev/null
+
+}
+
+
+
+
+
+:   '
+/**
+* @overview The `storeInslalledPkg` function allows to store the installed packages
+* on the `list-available-packages` file 
+*
+* @param {string} $1 // The program to treat and store
+*/
+    '
+function storeInslalledPkg
+{
+
+    # Declaration variables
+    local fileGithubAction="$meoTmpDir/github-action"
+  
+    # Call the function
+    $( truncateFileData $fileGithubAction )
+    
+
+    # Action to get the packages without the `deb` extension
+    find "$meoTmpDir/linux"  -name "$1*" -type f | gawk '{ split($0, array, "/");  print array[length(array)] }' \
+        | gawk '{ split($0, array, ".deb" ); print array[length(array)-1] }' >> $fileGithubAction 2> /dev/null
+
+
+    # Action to store the available packages and their version on the specific file
+    while IFS= read -r lineFile
+    do
+        getNameOfPkg=` echo "$lineFile" | gawk '{ split($0, array, "." ); print array[length(array)-2] }' \
+            | gawk '{ print substr($0, 1, length($0)-2) }' `
+
+        getVersionOfPkg=` echo -e $lineFile | gawk '{ split($0, array, "-" ); print array[length(array)] }' `
+
+        #
+        if [[ -e "$meoListInstalledPkgs" ]]
+        then
+            if [[ ! ` cat $meoListInstalledPkgs | grep -e "^$1" ` ]]
+            then
+                echo -e "\e[32;1m$getNameOfPkg\e[0m : \e[36;1mv($getVersionOfPkg)\e[0m" >> $meoListInstalledPkgs 2> /dev/null
+            fi
+        fi
+
+    done < $fileGithubAction
 
 }
 
@@ -510,6 +561,9 @@ then
                 if [[ -n "$getDebPkg"  ]]
                 then
                     dpkg --install $getDebPkg
+
+                    # Call the function
+                    storeInslalledPkg $getDebPkg
                 fi
             fi
 
@@ -523,6 +577,11 @@ then
     if [[ -e "$meoTmpDir/linux"  ]]
     then
         rm -rf "$meoTmpDir/linux" 2> /null
+    fi
+    #
+    if [[ -e "$meoTmpDir/github-action"  ]]
+    then
+        rm -rf "$meoTmpDir/github-action" 2> /null
     fi
     
     #
