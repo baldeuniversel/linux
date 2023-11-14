@@ -391,7 +391,7 @@ function storeInslalledPkg
         #
         if [[ -e "$meoListInstalledPkgs" ]]
         then
-            if [[ ! ` cat $meoListInstalledPkgs | grep -e "^$1" ` ]]
+            if [[ ! ` cat $meoListInstalledPkgs | grep -e "$1" ` ]]
             then
                 echo -e "\e[32;1m$getNameOfPkg\e[0m : \e[36;1mv($getVersionOfPkg)\e[0m" >> $meoListInstalledPkgs 2> /dev/null
             fi
@@ -560,10 +560,18 @@ then
                 #
                 if [[ -n "$getDebPkg"  ]]
                 then
-                    dpkg --install $getDebPkg
+
+                    #
+                    if [[ ` cat $meoListInstalledPkgs | grep -i -- "$packageUP" ` ]]
+                    then
+                        echo "~"
+                        echo -e "The program \e[36;1m$packageUP\e[0m is already installed \U002705 "
+                    else
+                        dpkg --install $getDebPkg
+                    fi
 
                     # Call the function
-                    storeInslalledPkg $getDebPkg
+                    storeInslalledPkg $packageUP
                 fi
             fi
 
