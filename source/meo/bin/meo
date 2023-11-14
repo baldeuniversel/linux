@@ -9,15 +9,15 @@
     *
     *
     *
-    * @requires The only options supported are [ self-update, self-remove, install, update, upgrade
-    *                                            remove, download, list, list-installed, search, 
-    *                                            show, --help, --doc, --version ] 
+    * @requires The only options supported are [ self-update, install, update, upgrade, remove
+    *                                            download, list, list-installed, search, show, 
+    *                                            --help, --doc, --version ] 
     * && the <<meo>> command has to have at least one option .  Ex: meo self-update
     * && with the options [ install, remove, search, show, download ] you have to give the package(s)
-    * && with the options [ self-update, self-remove, update, list, list-installed, --help, 
-    *                       --doc, --version ] there is not another parameter
-    * && with the option [ upgrade ], you can either upgrade all the installed packages by `meo` or
-    *                                                            upgrade target installed packages 
+    * && with the options [ self-update, list, list-installed, --help, --doc, --version ] there is not 
+    *                                                                                another parameter
+    * && with the options [ upgrade, update ], you can either upgrade/update all the installed packages 
+    *                                              by `meo` or upgrade/update target installed packages 
     *                                Ex : meo upgrade    (to upgrade all the installed packages by `meo`) 
     *                                Ex : meo upgrade am-okay    (to upgrade the target installed package)    
     * && you can not call `meo` program to install it itself . Ex : meo install meo
@@ -31,9 +31,6 @@
     *                                packages available on the Github repository
     *                                Ex : meo self-update
     * 
-    * @param {string} self-remove // This option allows removing `meo` program
-    *                                Ex : meo self-remove
-    *
     * @param {string} install // This option allows installing packages
     *                            Ex : meo install am-okay
     *
@@ -113,7 +110,7 @@ fi
 
 
 # Declaration variables
-listOfParams=("self-update" "self-remove" "install" "update" "upgrade" "remove" "download" \
+listOfParams=("self-update" "install" "update" "upgrade" "remove" "download" \
     "list" "list-installed" "search" "show" "--help" "--doc" "--version")
 
 counterOption=0
@@ -126,8 +123,10 @@ counterOption=0
 #
 if [[ $# -lt 1 ]]
 then
+    local getMeoName=` echo "$0" | awk '{ split($0, array, "/"); print array[length(array)] }' `
+
     echo "~"
-    echo -e "It has to be at least one parameter for the \e[32;1m$0\e[0m program \U001F9D0 "
+    echo -e "It has to be at least one parameter for the \e[32;1m$getMeoName\e[0m program \U001F9D0 "
     exit 1
 fi
 #
@@ -139,7 +138,7 @@ do
     fi
 
     #
-    if [[ $counterOption -eq 14  ]]
+    if [[ $counterOption -eq 13  ]]
     then
         echo "~"
         echo -e "Unknown `tput setaf 3; tput bold`$1` tput sgr0 ` option \U001F9D0 "
@@ -328,6 +327,67 @@ function refreshPackageFile
 
 
 
+
+:   '
+/**
+* @overview `clonePersonalGit` allows to clone a git repository (see where the clone is putted)
+*/
+    '
+function clonePersonalGit
+{
+    # Check if there is internet connection
+    curl ifconfig.me &> /dev/null   
+    #
+    if [[ $? -ne 0 ]]
+    then
+        echo "~"
+        echo -e "Your internet connection seems not to be established \U001F30D"
+        exit 1
+    fi
+
+    # Clone the git repository
+    git clone https://github.com/baldeuniversel/linux.git "$meoTmpDir/linux" 2> /dev/null
+
+}
+
+
+
+
+
+:   '
+/**
+* @overview The function `isPackageExists` allows to verify if a given package exists in the
+* `list-available-packages` file
+* 
+* @param {string} $1 // The package to verify the existence
+*
+*/
+    '
+function isPackageExists
+{
+    # Declaration variables
+    local getPackage=""
+
+    #
+    if [[ -e "$meoListAvailablePkgs" ]]
+    then
+        getPackage=` cat $meoListAvailablePkgs | grep -i "$1" `
+
+        #
+        if [[ -n "$getPackage" ]]
+        then
+            echo "true"
+        else
+            echo "false"
+        fi
+    fi
+
+}
+
+
+
+
+
 :   '
 /**
 * @overview The function `colorElem` allows to color strings
@@ -388,7 +448,7 @@ then
             echo -e "Go to this Github \e[32;1mhttps://github.com/baldeuniversel/linux/tree/main/packages\e[0m repository " 
             echo -e "to download, then install the new version of the \e[32;1mmeo\e[0m program "
 
-            # Remove the package in /tmp/.meo
+            # Remove the packages in /tmp/.meo
             if [[ -e "$meoTmpDir/linux"  ]]
             then
                 rm -rf "$meoTmpDir/linux" 2> /null
@@ -406,6 +466,54 @@ fi
 
 ### Action based to the `meo` itself -> end tag[s0]
 
+
+
+
+
+### Action based on the `install` options -> start tag[i1]
+
+if [[ $1 == "install" ]] && [[ $# -gt 1 ]]
+then
+    
+    # Declaration variables
+    local flagPackageFound=""
+    local getDebPkg=""
+
+    # Shift one position
+    shift 1
+
+    # Install the package if it exists
+    for packageUP in $@
+    do
+        flagPackageFound=$( isPackageExists $packageUP )
+
+        #
+        if [[ $flagPackageFound == "true" ]]
+        then
+            # Call the function
+            clonePersonalGit
+            
+            getDebPkg=` find "$meoTmpDir/linux" -name "$packageUP*" `
+
+            #
+            if [[ -n "$getDebPkg"  ]]
+            then
+                dpkg --install $getDebPkg
+            fi
+        else
+            echo "~"
+            echo -e "The package \e[33;1m$packageUP\e[0m was not found \U001F9D0"
+        fi
+    done
+
+    # Remove the packages in /tmp/.meo
+    if [[ -e "$meoTmpDir/linux"  ]]
+    then
+        rm -rf "$meoTmpDir/linux" 2> /null
+    fi
+fi
+
+### Action based on the `install` options -> end tag[i1]
 
 
 
