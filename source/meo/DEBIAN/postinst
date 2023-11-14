@@ -10,19 +10,26 @@ set -euo pipefail
 meoListInstalledPkgs="/usr/lib/meo/library/info/list-installed-packages"
 meoListAvailablePkgs="/usr/lib/meo/library/info/list-available-packages"
 
+meoListInstalledPkgsPure="/usr/lib/meo/library/info/list-installed-packages-pure"
+meoListAvailablePkgsPure="/usr/lib/meo/library/info/list-available-packages-pure"
+
 # Remove some files
 if [[ -e "$meoListInstalledPkgs" ]]
 then
-    rm -rf "$meoListInstalledPkgs"
+    rm -rf "$meoListInstalledPkgs" 2> /dev/null
+    rm -rf "$meoListInstalledPkgsPure" 2> /dev/null
 fi
 #
 if [[ -e "$meoListAvailablePkgs" ]]
 then
-    rm -rf "$meoListAvailablePkgs"
+    rm -rf "$meoListAvailablePkgs" 2> /dev/null
+    rm -rf "$meoListAvailablePkgsPure" 2> /dev/null
 fi
 
 # Add `meo` program as an installed package
 echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.1)\e[0m" >> $meoListInstalledPkgs
+echo -e "meo : v(1.1.1)" >> $meoListInstalledPkgsPure
+
 
 
 
@@ -59,6 +66,7 @@ then
         getVersionOfPkg=` echo -e $lineFile | gawk '{ split($0, array, "-" ); print array[length(array)] }' `
     
         echo -e "\e[32;1m$getNameOfPkg\e[0m : \e[36;1mv($getVersionOfPkg)\e[0m" >> $meoListAvailablePkgs 2> /dev/null
+        echo -e "$getNameOfPkg : v($getVersionOfPkg)" >> $meoListAvailablePkgsPure 2> /dev/null
     
     done < $fileGithubAction
 
