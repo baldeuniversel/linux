@@ -498,10 +498,19 @@ then
             getDebPkg=` find "$meoTmpDir/linux" -name "$packageUP*" `
 
             #
-            if [[ -n "$getDebPkg"  ]]
+            if [[ ` echo "$getDebPkg" | grep -i "meo" ` ]]
             then
-                dpkg --install $getDebPkg
+                echo "~"
+                echo "You can not install the \e[32;1mmeo\e[0m program itself 🚨"
+            else
+
+                #
+                if [[ -n "$getDebPkg"  ]]
+                then
+                    dpkg --install $getDebPkg
+                fi
             fi
+
         else
             echo "~"
             echo -e "The package \e[33;1m$packageUP\e[0m was not found \U001F9D0"
