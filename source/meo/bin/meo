@@ -1,0 +1,671 @@
+#!/usr/bin/zsh
+
+:   ' 
+    /**
+    * @overview This program allows to manage the installed packages from the git repository 
+    * `https://github.com/baldeuniversel/linux.git` (First of all, this program is written for 
+    *                                                the <<Ve-Quantic>> members) .
+    * The program also allows to list available packages from the same git repository.
+    *
+    *
+    *
+    * @requires The only options supported are [ self-update, install, update, upgrade, remove
+    *                                            download, list, list-installed, search, show, 
+    *                                            --help, --doc, --version ] 
+    * && the <<meo>> command has to have at least one option .  Ex: meo self-update
+    * && with the options [ install, remove, search, show, download ] you have to give the package(s)
+    * && with the options [ self-update, list, update, list-installed, --help, --doc, --version ] 
+    *                                                              there is not another parameter
+    * && with the options [ upgrade ], you can either upgrade all the installed packages 
+    *                                              by `meo` or upgrade target installed packages 
+    *                                Ex : meo upgrade    (to upgrade all the installed packages by `meo`) 
+    *                                Ex : meo upgrade am-okay    (to upgrade the target installed package)    
+    * && you can not call `meo` program to install it itself . Ex : meo install meo
+    *
+    *
+    *
+    * Options :
+    * --------
+    * @param {string} self-update // This option allows to verify if there is a new version of `meo` program
+    *                                that is ready to upgrade, and it also allows to update the list of 
+    *                                packages available on the Github repository
+    *                                Ex : meo self-update
+    * 
+    * @param {string} install // This option allows installing packages
+    *                            Ex : meo install am-okay
+    *
+    * @param {string} update // This option allows listing the packages ready to upgrade
+    *                           Ex : meo update
+    *
+    * @param {string} upgrade // This option allows upgrading the packages ready to upgrade
+    *                            Ex : meo upgrade (to upgrade all the installed packages by `meo` program)
+    *                            Ex : meo upgrade am-okay (to upgrade the target installed 
+    *                                                      package by `meo` program)
+    *   
+    * @param {string} remove // This option allows removing packages
+    *                           Ex : meo remove am-okay
+    *
+    * @param {string} download // This option allows download packages
+    *                             Ex : meo download am-okay
+    *
+    * @param {string} list // This option allows listing packages of the git repository
+    *                         Ex : meo list
+    *                         Note: To have the updated list, you have first of all to execute the command 
+    *                               `meo self-update`
+    *
+    * @param {string} list-installed // This option allows listing the installed packages from the git repository
+    *                                   Ex : meo list-installed
+    *
+    * @param {string} search // This option allows to search packages from the git repository
+    *                           Ex : meo search am-okay
+    *
+    * @param {string} show // This option allows to have information on the installed packages from the `control` 
+    *                         files
+    *                         Ex : meo show am-okay
+    *
+    * @param {string} --help // This option allows getting help on the `meo` program
+    *                           Ex : meo --help
+    *
+    * @param {string} --doc // This option allows getting a documentation on `meo` program
+    *                          Ex : meo --doc
+    *
+    * @param {string} --version // This option allows getting the version installed of the `meo` program
+    *                              Ex : meo --version
+    *
+    *
+    * @ensure Successfully execution if the preconditions are satisfied. That is to say, with the 
+    * above options and the appropriated sequences allowed for these options.
+    *
+    *
+    *
+    * @note This program depends of some programs, these programs are required in the global `meo`
+    * package .
+    *
+    *
+    *
+    * @author <Baldé Amadou> <baldeuniversel@protonmail.com>
+    *
+    */
+
+    '
+
+
+
+
+
+set -uo pipefail # To exit the script if there is an error
+
+
+
+#
+if [[ $USER != "root" ]]
+then
+    echo "~"
+    echo -e "Only the root has the right to execute this program \U001F6A7 "
+    exit 1
+fi
+
+
+
+
+
+# Declaration variables
+listOfParams=("self-update" "install" "update" "upgrade" "remove" "download" \
+    "list" "list-installed" "search" "show" "--help" "--doc" "--version")
+
+counterOption=0
+
+
+
+
+
+### Check the input options -> start tag[p0]
+#
+if [[ $# -lt 1 ]]
+then
+    local getMeoName=` echo "$0" | gawk '{ split($0, array, "/"); print array[length(array)] }' `
+
+    echo "~"
+    echo -e "It has to be at least one parameter for the \e[32;1m$getMeoName\e[0m program \U001F9D0 "
+    exit 1
+fi
+#
+for optionUP in ${listOfParams[@]}
+do
+    if [[ $1 != $optionUP ]]
+    then
+        counterOption=$(( counterOption + 1 ))
+    fi
+
+    #
+    if [[ $counterOption -eq 13  ]]
+    then
+        echo "~"
+        echo -e "Unknown `tput setaf 3; tput bold`$1` tput sgr0 ` option \U001F9D0 "
+        exit 1
+    fi
+done
+#
+if ( [[ $1 == "self-update" ]] || [[ $1 == "self-upgrade" ]] || [[ $1 == "self-remove"  ]] || [[ $1 == "list" ]] \
+     || [[ $1 == "list-installed" ]] || [[ $1 == "--doc" ]] || [[ $1 == "--help" ]] || [[ $1 == "--version" ]] ) \
+     && ( [[ $# -gt 1 ]] )
+then
+    echo "~"
+    echo -e "There can only be one parameter when the \e[32;1m$1\e[0m option is invoked \U001F9D0 "
+    exit 1
+fi
+#
+if ( [[ $1 == "install" ]] || [[ $1 == "remove"  ]] || [[ $1 == "search"  ]] || [[ $1 == "show"  ]] || \
+     [[ $1 == "download"  ]] ) && ( [[ $# -lt 2  ]] )
+then
+    echo "~"
+    echo -e "There have to be at least two parameters when the \e[32;1m$1\e[0m option is invoked \U001F9D0 "
+    exit 1
+fi
+
+### Check the input options -> end tag[p0]
+
+
+
+
+
+### Creation some necessary directories or files -> start tag[c0]
+
+# Declaration variables
+getPersonalUserDir=$HOME
+
+meoRootDir="/usr/lib/meo"
+
+meoLibraryDir="$meoRootDir/library"
+
+meoListInstalledPkgs="$meoLibraryDir/info/list-installed-packages"
+meoListAvailablePkgs="$meoLibraryDir/info/list-available-packages"
+
+meoListInstalledPkgsPure="$meoLibraryDir/info/list-installed-packages-pure"
+meoListAvailablePkgsPure="$meoLibraryDir/info/list-available-packages-pure"
+
+meoPackages="$meoLibraryDir/packages"
+
+meoDocumentationDir="$meoRootDir/documentation"
+
+meoTmp="/tmp/.meo"
+meoTmpDir="/tmp/.meo/github"
+
+fileCodeReturnCommand="$meoTmp/code-return-command"
+
+### Creation some necessary directories or files -> end tag[c0]
+
+
+
+
+
+:   '
+/**
+* @overview The `truncateFileData` allows to remove the data that contains a file
+*
+* @param {string} $1 // The file that has to be truncated
+*
+*/
+    '
+function truncateFileData
+{
+    # Remove the data contained in the target file
+    if [[ -e "$1" ]]
+    then
+        truncate -s 0 $1 2> /dev/null
+    fi
+}
+
+
+
+
+
+:   '
+/**
+* @overview The `alertNonEffectiveAction` function allows to raise exceptions .
+*
+* @param {string} $1 // A file where the code of return of the `meo` program will be sent .
+*/
+    '
+function alertNonEffectiveAction 
+{
+    # Declaration variables
+    getPathOfFileForReturnLastCommand=$1
+    getNumberOfLine=0
+
+    if [[ $# -eq 1 ]] && [[ $getPathOfFileForReturnLastCommand != "none" ]]
+    then
+        if [[ -e "$getPathOfFileForReturnLastCommand" ]]
+        then
+            getNumberOfLine=` wc -l $getPathOfFileForReturnLastCommand | cut -d " " -f1 | tr -d "[[:space:]]" `
+
+            #
+            if [[ $getNumberOfLine -gt 0 ]]
+            then
+                echo "~"
+                echo -en "Something wrong \U001F9D0, please make sure you have a permission to \nexecute the \e[32;1mmeo\e[0m program "
+
+                # Call the function
+                $(truncateFileData) $getPathOfFileForReturnLastCommand
+
+                #
+                setterm -cursor on
+                exit 1 
+            fi
+        fi
+    fi
+}
+
+
+
+
+
+:   '
+/**
+* @overview The `refreshPackageFile` function allows to update the list of packages from the Github repository
+*/
+    '
+function refreshPackageFile
+{
+
+    ### Download the available packages and store the name of these packages with their version -> start tag[d0]
+    
+    # Declarations variables
+    local fileGithubAction="$meoTmpDir/github-action"
+    
+    #
+    if [[ ! ( -e "$meoTmpDir" ) ]]
+    then
+        mkdir -p $meoTmpDir
+    fi
+   
+    # Check if there is internet connection
+    curl ifconfig.me &> /dev/null   
+    #
+    if [[ $? -ne 0 ]]
+    then
+        echo "~"
+        echo -e "Your internet connection seems not to be established \U001F30D"
+        exit 1
+    fi
+
+    # Clone the git repository
+    git clone https://github.com/baldeuniversel/linux.git "$meoTmpDir/linux" 2> /dev/null
+    
+    #
+    if [[ $? -eq 0 ]]
+    then
+    
+        # Action to get the packages without the `deb` extension
+        find "$meoTmpDir/linux"  -name "*.deb" -type f | gawk '{ split($0, array, "/");  print array[length(array)] }' \
+            | gawk '{ split($0, array, ".deb" ); print array[length(array)-1] }' >> $fileGithubAction 2> /dev/null
+    
+
+        # Remove the current data in the file that contains the list of available packages
+        if [[ -e "$meoListAvailablePkgs" ]]
+        then
+            truncate -s 0 "$meoListAvailablePkgs" 2> /dev/null
+            truncate -s 0 "$meoListAvailablePkgsPure" 2> /dev/null
+        fi
+    
+        # Action to store the available packages and their version on the specific file
+        while IFS= read -r lineFile
+        do
+            getNameOfPkg=` echo "$lineFile" | gawk '{ split($0, array, "." ); print array[length(array)-2] }' \
+                | gawk '{ print substr($0, 1, length($0)-2) }' `
+    
+            getVersionOfPkg=` echo -e $lineFile | gawk '{ split($0, array, "-" ); print array[length(array)] }' `
+    
+            echo -e "\e[32;1m$getNameOfPkg\e[0m : \e[36;1mv($getVersionOfPkg)\e[0m" >> $meoListAvailablePkgs 2> /dev/null
+            echo -e "$getNameOfPkg : v($getVersionOfPkg)" >> $meoListAvailablePkgsPure 2> /dev/null
+    
+        done < $fileGithubAction
+    
+    fi
+    
+    # Remove a subdir of the `.meo` directory in /tmp
+    if [[ -e "$fileGithubAction"  ]]
+    then
+        rm -rf "$fileGithubAction" 2> /dev/null
+    fi
+    
+    ### Download the available packages and store the name of these packages with their version -> end tag[d0]
+
+}
+
+
+
+
+
+:   '
+/**
+* @overview `clonePersonalGit` allows to clone a git repository (see where the clone is putted)
+*/
+    '
+function clonePersonalGit
+{
+    # Check if there is internet connection
+    curl ifconfig.me &> /dev/null   
+    #
+    if [[ $? -ne 0 ]]
+    then
+        echo "~"
+        echo -e "Your internet connection seems not to be established \U001F30D"
+        exit 1
+    fi
+
+    # Clone the git repository
+    git clone https://github.com/baldeuniversel/linux.git "$meoTmpDir/linux" 2> /dev/null
+
+}
+
+
+
+
+
+:   '
+/**
+* @overview The `storeInslalledPkg` function allows to store the installed packages
+* on the `list-available-packages` file 
+*
+* @param {string} $1 // The program to treat and store
+*/
+    '
+function storeInslalledPkg
+{
+
+    # Declaration variables
+    local fileGithubAction="$meoTmpDir/github-action"
+  
+    # Call the function
+    $( truncateFileData $fileGithubAction )
+    
+
+    # Action to get the packages without the `deb` extension
+    find "$meoTmpDir/linux"  -name "$1*" -type f | gawk '{ split($0, array, "/");  print array[length(array)] }' \
+        | gawk '{ split($0, array, ".deb" ); print array[length(array)-1] }' >> $fileGithubAction 2> /dev/null
+
+
+    # Action to store the available packages and their version on the specific file
+    while IFS= read -r lineFile
+    do
+        getNameOfPkg=` echo "$lineFile" | gawk '{ split($0, array, "." ); print array[length(array)-2] }' \
+            | gawk '{ print substr($0, 1, length($0)-2) }' `
+
+        getVersionOfPkg=` echo -e $lineFile | gawk '{ split($0, array, "-" ); print array[length(array)] }' `
+
+        #
+        if [[ -e "$meoListInstalledPkgs" ]]
+        then
+            if [[ ! ` cat $meoListInstalledPkgsPure | cut -d ":" -f 1 | grep -w "$1" ` ]]
+            then
+                echo -e "\e[32;1m$getNameOfPkg\e[0m : \e[36;1mv($getVersionOfPkg)\e[0m" >> $meoListInstalledPkgs 2> /dev/null
+                echo -e "$getNameOfPkg : v($getVersionOfPkg)" >> $meoListInstalledPkgsPure 2> /dev/null
+            fi
+        fi
+
+    done < $fileGithubAction
+
+}
+
+
+
+
+
+:   '
+/**
+* @overview The `isPackageInstalled` allows to verify if the package is installed
+*
+* @param {string} $1 // The package to verify
+*
+*/
+    '
+function isPackageInstalled
+{
+    # Declaration variables
+    which $1 &> /dev/null
+
+    #
+    if [[ $? -eq 0 ]]
+    then
+        echo "true"
+    else
+        echo "false"
+    fi
+    
+}
+
+
+
+
+
+:   '
+/**
+* @overview The function `isPackageExists` allows to verify if a given package exists in the
+* `list-available-packages` file
+* 
+* @param {string} $1 // The package to verify the existence
+*
+*/
+    '
+function isPackageExists
+{
+    # Declaration variables
+    local getPackage=""
+    local getFirstParam=$1
+
+    #
+    if [[ -e "$meoListAvailablePkgs" ]]
+    then
+        getPackage=` cat $meoListAvailablePkgsPure | cut -d ":" -f 1 | grep -w "$getFirstParam" `
+
+        #
+        if [[ -n "$getPackage" ]]
+        then
+            echo "true"
+        else
+            echo "false"
+        fi
+    fi
+
+}
+
+
+
+
+
+:   '
+/**
+* @overview The function `colorElem` allows to color strings
+*
+* @param {string} $1 // The input string to color
+*/
+    '
+function colorElem
+{
+    echo -e "\033[36m$1\033[0m"
+}
+
+
+
+
+
+### Action based to the `meo` itself -> start tag[s0]
+
+if [[ $1 == "self-update" ]] && [[ $# -eq 1 ]]
+then
+    
+    # Declaration variables
+    local getMeoRefreshVersion=""
+
+
+    # Call the function
+    $( refreshPackageFile )
+
+    #
+    if [[ -e "$meoListAvailablePkgs" ]]
+    then
+        
+        getMeoRefreshVersion=` cat $meoListAvailablePkgsPure | grep -i "meo" | \
+            cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
+
+        getMeoVersionPkgInstalled=` meo --version `
+
+            
+        # Verify the versions match, then do ...
+        if [[ "$getMeoRefreshVersion" == "$getMeoVersionPkgInstalled" ]]
+        then
+            echo "~"
+            echo -e "The job is clean, \e[32;1mmeo\e[0m program is already up to date \U002705 "
+
+
+            # Remove the package in /tmp/.meo
+            if [[ -e "$meoTmpDir/linux"  ]]
+            then
+                rm -rf "$meoTmpDir/linux" 2> /null
+            fi
+
+            exit 0
+        else
+            echo "~"
+            echo -e "A new version($getMeoRefreshVersion)\e[36;1m⬆\e[0m for the \e[32;1mmeo\e[0m program is available "
+            echo ""
+            echo -e "Go to this Github \e[32;1mhttps://github.com/baldeuniversel/linux/tree/main/packages\e[0m repository " 
+            echo -e "to download, then install the new version of the \e[32;1mmeo\e[0m program "
+
+            # Remove the packages in /tmp/.meo
+            if [[ -e "$meoTmpDir/linux"  ]]
+            then
+                rm -rf "$meoTmpDir/linux" 2> /null
+            fi
+
+            exit 0
+        fi
+    else 
+        echo "~"
+        echo "Something is wrong, a file is missing \U001F9D0, please reinstall the \e[32;1mmeo\e[0m program "
+
+        exit 1
+    fi
+fi
+
+### Action based to the `meo` itself -> end tag[s0]
+
+
+
+
+
+### Action based on the `install` options -> start tag[i1]
+
+if [[ $1 == "install" ]] && [[ $# -gt 1 ]]
+then
+    
+    # Declaration variables
+    local flagPackageFound=""
+    local getDebPkg=""
+
+    # Call the function
+    clonePersonalGit
+
+    # Shift one position
+    shift 1
+
+    # Install the package if it exists
+    for packageUP in $@
+    do
+        #
+        flagPackageFound=` isPackageExists $packageUP `
+
+        #
+        if [[ $flagPackageFound == "true" ]]
+        then 
+            
+            #
+            getDebPkg=` find "$meoTmpDir/linux" -name "$packageUP*" `
+
+            #
+            if [[ ` echo "$getDebPkg" | grep -i -- "meo-" ` ]]
+            then
+                echo "~"
+                echo "You can not install the \e[32;1mmeo\e[0m program itself 🚨"
+
+                continue
+            else
+
+                #
+                if [[ -n "$getDebPkg"  ]]
+                then
+                    # Call the function
+                    local flagPackageInstalledFound=` isPackageInstalled $packageUP  `
+
+
+                    #
+                    if [[ $flagPackageInstalledFound == "true" ]]
+                    then
+                        echo "~"
+                        echo -e "The program \e[36;1m$packageUP\e[0m is already installed \U002705 "
+                    else
+                        dpkg --install $getDebPkg
+
+                        # Call the function
+                        storeInslalledPkg $packageUP
+                    fi
+                fi
+            fi
+
+        else
+            echo "~"
+            echo -e "The package \e[33;1m$packageUP\e[0m was not found \U001F9D0"
+        fi
+    done
+
+    # Remove the packages in /tmp/.meo
+    if [[ -e "$meoTmpDir/linux"  ]]
+    then
+        rm -rf "$meoTmpDir/linux" 2> /null
+    fi
+    #
+    if [[ -e "$meoTmpDir/github-action"  ]]
+    then
+        rm -rf "$meoTmpDir/github-action" 2> /null
+    fi
+    
+    #
+    if [[ $? -eq 0 ]]
+    then
+        exit 0
+    else
+        exit 1
+    fi
+
+fi
+
+### Action based on the `install` options -> end tag[i1]
+
+
+
+
+
+### Print some files linked to the options `--doc`, `--help` , `--version` --> start tag[io]
+
+if [[ $1 == "--doc" ]] && [[ $# -eq 1 ]]
+then
+    cat /usr/lib/meo/documentation/meo-doc
+    exit 0
+elif [[ $1 == "--help" ]] && [[ $# -eq 1 ]]
+then
+    cat /usr/lib/meo/documentation/meo-help
+    exit 0
+elif [[ $1 == "--version" ]] && [[ $# -eq 1 ]]
+then
+    cat /usr/lib/meo/documentation/meo-version-pure
+    exit 0
+fi
+
+#
+echo "~"
+echo -e "Invalid request \U001F9D0 ."
+exit 1
+
+### Print some files linked to the options `--doc`, `--help` , `--version` --> end tag[io]
+
