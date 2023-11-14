@@ -646,6 +646,47 @@ fi
 
 
 
+### Action based on the `update` options -> start tag[u0]
+
+if [[ $# -eq 1 ]] && [[ $1 == "update" ]]
+then
+    
+    # Declaration variables
+    local getNameOfPkg=""
+    local getVersionOfPkg=""
+    local counterPkgInstalled=0
+    typeset -A tablePkgAndVersion
+
+    while IFS= read -r lineFile
+    do
+        getNameOfPkg=` echo "$lineFile" | | cut -d ":" -f 1 `
+        getVersionOfPkg=` echo "$lineFile" | cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
+
+        #
+        which $getNameOfPkg 2> /dev/null
+
+        if [[ $? -eq 0 ]]
+        then
+            #
+            tablePkgAndVersion[$getNameOfPkg]=$getVersionOfPkg
+
+            #
+            counterPkgInstalled=$(( counterPkgInstalled + 1 ))
+        fi
+
+    done < $meoListInstalledPkgsPure
+
+    echo "The number of installed packages is $counterPkgInstalled"
+
+    exit 0
+fi
+
+### Action based on the `update` options -> end tag[u0]
+
+
+
+
+
 ### Print some files linked to the options `--doc`, `--help` , `--version` --> start tag[io]
 
 if [[ $1 == "--doc" ]] && [[ $# -eq 1 ]]
