@@ -562,7 +562,7 @@ then
                 then
 
                     #
-                    if [[ ` cat $meoListInstalledPkgs | grep -i -- "$packageUP" ` ]]
+                    if [[ ` cat $meoListInstalledPkgs | grep -i -- "^$packageUP" ` ]]
                     then
                         echo "~"
                         echo -e "The program \e[36;1m$packageUP\e[0m is already installed \U002705 "
