@@ -498,10 +498,12 @@ then
             getDebPkg=` find "$meoTmpDir/linux" -name "$packageUP*" `
 
             #
-            if [[ ` echo "$getDebPkg" | grep -i "meo" ` ]]
+            if [[ ` echo "$getDebPkg" | grep -i -- "meo-" ` ]]
             then
                 echo "~"
                 echo "You can not install the \e[32;1mmeo\e[0m program itself 🚨"
+
+                continue
             else
 
                 #
