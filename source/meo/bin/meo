@@ -479,6 +479,9 @@ then
     local flagPackageFound=""
     local getDebPkg=""
 
+    # Call the function
+    clonePersonalGit
+
     # Shift one position
     shift 1
 
@@ -489,10 +492,9 @@ then
 
         #
         if [[ $flagPackageFound == "true" ]]
-        then
-            # Call the function
-            clonePersonalGit
+        then 
             
+            #
             getDebPkg=` find "$meoTmpDir/linux" -name "$packageUP*" `
 
             #
@@ -511,6 +513,15 @@ then
     then
         rm -rf "$meoTmpDir/linux" 2> /null
     fi
+    
+    #
+    if [[ $? -eq 0 ]]
+    then
+        exit 0
+    else
+        exit 1
+    fi
+
 fi
 
 ### Action based on the `install` options -> end tag[i1]
