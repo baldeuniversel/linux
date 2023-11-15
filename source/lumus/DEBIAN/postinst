@@ -8,8 +8,8 @@ set -e
 # For setting the service linked to the script that gives the proper permissions to the user(admin) at each boot
 
 sudo systemctl enable at-boot-lumus.service  &> /dev/null
-sudo systemctl daemon-reload
-sudo systemctl start at-boot-lumus.service
+sudo systemctl daemon-reload 2> /dev/null
+sudo systemctl start at-boot-lumus.service 2> /dev/null
 echo "~"
 echo ""
 tput setaf 2; tput bold;echo "By Baldé ~" `tput sgr0` 2> /dev/null

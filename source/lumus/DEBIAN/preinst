@@ -28,9 +28,20 @@ then
 
 fi
 
-# Variables
-total_brightness=` cat /sys/class/backlight/*/max_brightness `
-get_actual_brightness=` cat /sys/class/backlight/*/brightness `
+# variables
+total_brightness=""
+get_actual_brightness=""
+
+if [[ -e  "/sys/class/backlight/*/max_brightness" ]] && [[ -e "/sys/class/backlight/*/brightness"  ]]
+then
+    total_brightness=` cat /sys/class/backlight/*/max_brightness 2> /dev/null`
+    get_actual_brightness=` cat /sys/class/backlight/*/brightness 2> /dev/null`
+else
+    echo "~"
+    echo -e "The \e[32;1mlumus\e[0m program is not compatible with your system "
+    exit 1
+fi
+
 
 # Check if the variables above contain something, and do ...
 if [[ -n $get_actual_brightness ]] && [[ -n $total_brightness ]]
@@ -41,32 +52,32 @@ then
     then
 
         #
-	    sudo chmod 664 /sys/class/backlight/*/brightness
+	    sudo chmod 664 /sys/class/backlight/*/brightness 2> /dev/null
 
 	    # Get all the users belonging to sudo group
-	    grep 'sudo' /etc/group | cut  -d ":" -f4 | tr  "," "\n" > /tmp/.lumus_perm_tmp
+	    grep 'sudo' /etc/group | cut  -d ":" -f4 | tr  "," "\n" > /tmp/.lumus_perm_tmp 2> /dev/null
 	
 	    # Get the first user in the /tmp/.lumus_perm_tmp file
 	    get_first_user=`cat /tmp/.lumus_perm_tmp | head -n 1 `
 	
 	    # Define `get_first_user` like the group of the file /sys/class/backlight/*/brightness 
-	    sudo chgrp $get_first_user /sys/class/backlight/*/brightness
+	    sudo chgrp $get_first_user /sys/class/backlight/*/brightness 2> /dev/null
 
 	    # Remove the file /tmp/.lumus_perm_tmp
-	    sudo rm -r /tmp/.lumus_perm_tmp
+	    sudo rm -r /tmp/.lumus_perm_tmp 2> /dev/null
 
         #
         if [[ ! -e "/usr/bin" ]]
         then
-            sudo mkdir -p /usr/bin
+            sudo mkdir -p /usr/bin 2> /dev/null
         fi
 
         #
         if [[ ! -e "/usr/share/lumus/doc/info" ]]
         then
-            sudo mkdir -p /usr/share/lumus/doc/info
+            sudo mkdir -p /usr/share/lumus/doc/info 2> /dev/null
 	  
-	        sudo chmod -R 755 /usr/share/lumus/doc/info
+	        sudo chmod -R 755 /usr/share/lumus/doc/info 2> /dev/null
         fi
 
         if [[ $? -eq 0 ]]
@@ -77,7 +88,7 @@ then
             echo "To see how to use this program, encode from your terminal -> lumus --help"
             echo ""
 	        echo ""
-            echo "YES" >  /usr/share/lumus/doc/info/lumus_status
+            echo "YES" >  /usr/share/lumus/doc/info/lumus_status 2> /dev/null
 	        echo ""
 
             exit 0
