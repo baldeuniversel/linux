@@ -32,13 +32,16 @@ fi
 total_brightness=""
 get_actual_brightness=""
 
-if [[ -e  "/sys/class/backlight/*/max_brightness" ]] && [[ -e "/sys/class/backlight/*/brightness"  ]]
+
+if [[ ` cat /sys/class/backlight/*/max_brightness 2> /dev/null ` ]] \
+    && [[ ` cat /sys/class/backlight/*/brightness 2> /dev/null `  ]]
 then
     total_brightness=` cat /sys/class/backlight/*/max_brightness 2> /dev/null`
     get_actual_brightness=` cat /sys/class/backlight/*/brightness 2> /dev/null`
 else
     echo "~"
     echo -e "The \e[32;1mlumus\e[0m program is not compatible with your system "
+    echo ""
     exit 1
 fi
 
