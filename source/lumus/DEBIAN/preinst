@@ -40,7 +40,7 @@ then
     get_actual_brightness=` cat /sys/class/backlight/*/brightness 2> /dev/null`
 else
     echo "~"
-    echo -e "The \e[32;1mlumus\e[0m program is not compatible with your system "
+    echo -e "The \e[32;1mlumus\e[0m program is not compatible with your system ⚠️  "
     echo ""
     exit 1
 fi
