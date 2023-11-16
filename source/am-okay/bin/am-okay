@@ -1689,7 +1689,7 @@ then
     exit 0
 elif [[ $1 == "--version" ]] && [[ $# -eq 1 ]]
 then
-    cat /usr/lib/am-okay/documentation/am-okay-version
+    cat /usr/lib/am-okay/documentation/am-okay-version-pure
     exit 0
 fi
 
