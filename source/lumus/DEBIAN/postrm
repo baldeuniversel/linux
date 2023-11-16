@@ -1,0 +1,19 @@
+#!/usr/bin/bash
+
+#####
+# postrm script
+####
+
+set -euo pipefail
+
+# Declaration variables
+meoListInstalledPkgs="/usr/lib/meo/library/info/list-installed-packages"
+meoListInstalledPkgsPure="/usr/lib/meo/library/info/list-installed-packages-pure"
+
+if [[ -e "$meoListInstalledPkgsPure" ]]
+then
+    #
+    sed -i "/lumus/d" "$meoListInstalledPkgsPure" 2> /dev/null
+    sed -i "/lumus/d" "$meoListInstalledPkgs" 2> /dev/null
+fi
+
