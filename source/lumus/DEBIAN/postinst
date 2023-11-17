@@ -6,10 +6,34 @@
 set -e
 
 # For setting the service linked to the script that gives the proper permissions to the user(admin) at each boot
-
 sudo systemctl enable at-boot-lumus.service  &> /dev/null
 sudo systemctl daemon-reload 2> /dev/null
 sudo systemctl start at-boot-lumus.service 2> /dev/null
+
+
+
+
+# Declaration variables
+meoListInstalledPkgs="/usr/lib/meo/library/info/list-installed-packages"
+meoListInstalledPkgsPure="/usr/lib/meo/library/info/list-installed-packages-pure"
+
+
+
+# Add information about the package in these specific files
+if [[ -e "$meoListInstalledPkgsPure" ]]
+then
+
+    #
+    if [[ ! ` cat $meoListInstalledPkgsPure | grep -w -- "lumus" ` ]]
+    then
+        #
+        sed -i "$ a lumus : v(1.2.1)" "$meoListInstalledPkgsPure" 2> /dev/null
+        sed -i -e "$ a ` echo -e "\e[32;1mlumus\e[0m : \e[36;1mv(1.2.1)\e[0m" ` " "$meoListInstalledPkgs" 2> /dev/null
+    fi
+fi
+
+
+
 echo "~"
 echo ""
 tput setaf 2; tput bold;echo "By Baldé ~" `tput sgr0` 2> /dev/null
