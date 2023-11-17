@@ -12,6 +12,33 @@ set -euo pipefail
 # Declaration variables
 getOS=""
 
+meoTmpDir="/tmp/.meo/github"
+fileGithubAction="$meoTmpDir/github-action"
+
+meoListAvailablePkgsPure="/usr/lib/meo/library/info/list-available-packages-pure"
+meoListAvailablePkgs="/usr/lib/meo/library/info/list-available-packages"
+
+meoInfoDir="/usr/lib/meo/library/info"
+
+
+#
+if [[ ! -e "$meoInfoDir" ]]
+then
+    #
+    mkdir -p "$meoInfoDir" 2> /dev/null
+
+    if [[ $? -ne 0 ]]
+    then
+        echo "~"
+        echo -e "Something is wrong, make sure you have the right to install packages \U001F6A8 "
+
+        exit 1
+    fi
+fi
+
+
+
+
 ### Action on the directory `/tmp` and ... -> start  tag[0]
 if [[ ! ( -e "/tmp" ) ]]
 then
@@ -39,4 +66,72 @@ then
 
 fi
 
-### Action on the directory `/tmp` and ... -> start  tag[0]
+### Action on the directory `/tmp` and ... -> end tag[0]
+
+
+
+
+### Download the available packages and store the name of these packages with their version -> start tag[d0]
+
+#
+if [[ ! ( -e "$meoTmpDir" ) ]]
+then
+    mkdir -p $meoTmpDir 2> /dev/null
+fi
+
+
+# Check if there is internet connection
+curl ifconfig.me &> /dev/null
+#
+if [[ $? -ne 0 ]]
+then
+    echo "~"
+    echo -e "Your internet connection seems not to be established \U001F30D"
+    exit 1
+fi
+
+# Clone the git repository
+git clone https://github.com/baldeuniversel/linux.git "$meoTmpDir/linux" 2> /dev/null
+
+#
+if [[ $? -eq 0 ]]
+then
+    
+    # Action to get the packages without the `deb` extension
+    find "$meoTmpDir/linux"  -name "*.deb" -type f | gawk '{ split($0, array, "/");  print array[length(array)] }' \
+        | gawk '{ split($0, array, ".deb" ); print array[length(array)-1] }' >> $fileGithubAction 2> /dev/null
+
+
+    #
+    if [[ ! ( -e "$meoListAvailablePkgsPure" ) ]]
+    then
+        touch "$meoListAvailablePkgsPure" 2> /dev/null
+    fi
+    
+    # Action to store the available packages and their version on the specific file
+    while IFS= read -r lineFile
+    do
+        getNameOfPkg=` echo "$lineFile" | gawk '{ split($0, array, "." ); print array[length(array)-2] }' \
+            | gawk '{ print substr($0, 1, length($0)-2) }' `
+    
+        getVersionOfPkg=` echo -e $lineFile | gawk '{ split($0, array, "-" ); print array[length(array)] }' `
+    
+
+        if [[ !  ` cat $meoListAvailablePkgsPure | grep -w -- "$getNameOfPkg"  `  ]]
+        then
+            echo -e "\e[32;1m$getNameOfPkg\e[0m : \e[36;1mv($getVersionOfPkg)\e[0m" >> $meoListAvailablePkgs 2> /dev/null
+            echo -e "$getNameOfPkg : v($getVersionOfPkg)" >> $meoListAvailablePkgsPure 2> /dev/null
+        fi
+    
+    done < $fileGithubAction
+
+fi
+
+# Remove `.meo` directory in /tmp
+if [[ -e "/tmp/.meo"  ]]
+then
+    rm -rf "/tmp/.meo" 2> /dev/null
+fi
+
+### Download the available packages and store the name of these packages with their version -> end tag[d0]
+ 

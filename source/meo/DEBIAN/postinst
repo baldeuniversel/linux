@@ -8,77 +8,48 @@ set -euo pipefail
 
 # Declaration variables
 meoListInstalledPkgs="/usr/lib/meo/library/info/list-installed-packages"
-meoListAvailablePkgs="/usr/lib/meo/library/info/list-available-packages"
-
 meoListInstalledPkgsPure="/usr/lib/meo/library/info/list-installed-packages-pure"
-meoListAvailablePkgsPure="/usr/lib/meo/library/info/list-available-packages-pure"
 
-# Remove some files
-if [[ -e "$meoListInstalledPkgs" ]]
-then
-    rm -rf "$meoListInstalledPkgs" 2> /dev/null
-    rm -rf "$meoListInstalledPkgsPure" 2> /dev/null
-fi
-#
-if [[ -e "$meoListAvailablePkgs" ]]
-then
-    rm -rf "$meoListAvailablePkgs" 2> /dev/null
-    rm -rf "$meoListAvailablePkgsPure" 2> /dev/null
-fi
-
-# Add `meo` program as an installed package
-echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.1)\e[0m" >> $meoListInstalledPkgs
-echo -e "meo : v(1.1.1)" >> $meoListInstalledPkgsPure
+meoInfoDir="/usr/lib/meo/library/info"
 
 
-
-
-### Download the available packages and store the name of these packages with their version -> start tag[d0]
-
-# Declarations variables 
-meoTmpDir="/tmp/.meo/github"
-fileGithubAction="$meoTmpDir/github-action"
 
 #
-if [[ ! ( -e "$meoTmpDir" ) ]]
+if [[ ! -e "$meoInfoDir" ]]
 then
-    mkdir -p $meoTmpDir
+    #
+    mkdir -p "$meoInfoDir" 2> /dev/null
 fi
 
-# Clone the git repository
-git clone https://github.com/baldeuniversel/linux.git "$meoTmpDir/linux" 2> /dev/null
 
 #
-if [[ $? -eq 0 ]]
+if [[ -e "$meoListInstalledPkgsPure" ]] && [[ -s "$meoListInstalledPkgsPure" ]]
 then
-    
-    # Action to get the packages without the `deb` extension
-    find "$meoTmpDir/linux"  -name "*.deb" -type f | gawk '{ split($0, array, "/");  print array[length(array)] }' \
-        | gawk '{ split($0, array, ".deb" ); print array[length(array)-1] }' >> $fileGithubAction 2> /dev/null
 
-    
-    # Action to store the available packages and their version on the specific file
-    while IFS= read -r lineFile
-    do
-        getNameOfPkg=` echo "$lineFile" | gawk '{ split($0, array, "." ); print array[length(array)-2] }' \
-            | gawk '{ print substr($0, 1, length($0)-2) }' `
-    
-        getVersionOfPkg=` echo -e $lineFile | gawk '{ split($0, array, "-" ); print array[length(array)] }' `
-    
-        echo -e "\e[32;1m$getNameOfPkg\e[0m : \e[36;1mv($getVersionOfPkg)\e[0m" >> $meoListAvailablePkgs 2> /dev/null
-        echo -e "$getNameOfPkg : v($getVersionOfPkg)" >> $meoListAvailablePkgsPure 2> /dev/null
-    
-    done < $fileGithubAction
+    #
+    if [[ ! ` cat "$meoListInstalledPkgsPure" | grep -w -- "meo" ` ]]
+    then
+        # Add `meo` program as an installed package
+        sed -i -e "$ a ` echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.1)\e[0m" ` " $meoListInstalledPkgs
+        sed -i "$ a meo : v(1.1.1)" $meoListInstalledPkgsPure
+    fi
 
+elif [[ -e "$meoListInstalledPkgsPure" ]] && [[ ! -s "$meoListInstalledPkgsPure" ]]
+then
+
+    # Add `meo` program as an installed package
+    echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.1)\e[0m" >> $meoListInstalledPkgs
+    echo -e "meo : v(1.1.1)" >> $meoListInstalledPkgsPure
+
+elif [[ ! -e "$meoListInstalledPkgsPure" ]]
+then
+
+    # Add `meo` program as an installed package
+    echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.1)\e[0m" >> $meoListInstalledPkgs
+    echo -e "meo : v(1.1.1)" >> $meoListInstalledPkgsPure
 fi
 
-# Remove `.meo` directory in /tmp
-if [[ -e "/tmp/.meo"  ]]
-then
-    rm -rf "/tmp/.meo" 2> /dev/null
-fi
 
-### Download the available packages and store the name of these packages with their version -> end tag[d0]
 
 # Just to print the name of the author
 echo ""

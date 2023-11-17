@@ -1,138 +1,91 @@
-[35mam-okay[0m('1')                                                                                                               [35mam-okay[0m('1')
 
-[32mNAME[0m
-       [35mam-okay[0m (version 3.0.6) .
+[35;1mmeo[0m('1') 2023-11-17
 
-[32mDESCRIPTION[0m
-       [35mam-okay[0m is a program that allows to an user to copy and cut files or
-       directories dynamically.
-       You can do an action in a terminal and finalize this action in another terminal
-       with the same user .
+NAME
+    [35;1mmeo[0m (version 1.1.1) .
 
-[32mOVERVIEW[0m
-       @requires This program allows to an user to execute some actions(see the precondition)
-       that can be very useful (First of all, this program is written for the
-       Ve-Quantic members) .
+DESCRIPTION
+    [35;1mmeo[0m is a program that allows to manage packages installed from the Github 
+    repository [32;1m`https://github.com/baldeuniversel/linux.git`[0m (Use from the terminal) .
 
-[32mREQUIRES[0m
-       @requires The only options supported are [ [36m--copy,[0m [36m--cut,[0m [36m--paste-copy,[0m [36m--paste-cut,[0m [36m--array,[0m
-                                                  [36m--index,[0m [36m--put,[0m [36m--stat-copy,[0m [36m--stat-cut,[0m [36m--stat,[0m
-                                                  [36m--reset,[0m [36m--doc,[0m [36m--help[0m ]
-       && the command [35mam-okay[0m has to have at least one option then(if that's your goal) the target
-       directory/directories or file/files.
-           Example : [35mam-okay[0m [36m--copy[0m [36m<myTargetDir>[0m (for sure without the hyphens)
-       && with the option [36m<[36m--index>[0m[0m there is a limit at the level of the indexes
-       and the indexes have to be a positive integer(min 0 and max 3)
-       && the [36m<[36m--index>,[0m[0m  [36m<[36m--put>[0m[0m and [36m<[36m--stat>[0m[0m options are linked to
-       the [36m<[36m--array>[0m[0m option
-       && [36m<[36m--stat-copy>[0m[0m is linked to the [36m<[36m--copy>[0m[0m option
-       && [36m<[36m--stat-cut>[0m[0m is linked to the [36m<[36m--cut>[0m[0m option
-       && the [36m<[36m--reset>[0m[0m option has to follow by the [36mrequest[0m value .
+OVERVIEW
+    The [35;1mmeo[0m program allows to an user to manage packages emanating from the Github repository
+    [32;1m`https://github.com/baldeuniversel/linux.git`[0m .
+    (First of all, this program is written for the Ve-Quantic members) .
 
-[32mSYNOPSIS[0m
-       [35mam-okay[0m [options] [target-dir | target-file | target-dirs | target-files ]
+REQUIRES
+    @requires The only options supported are [ [36;1mself-[36;1mupdate[0m[0m, [36;1minstall[0m, [36;1mupdate[0m, [36;1mupgrade[0m, [36;1mremove[0m
+                                     [36;1mdownload[0m, [36;1mlist[0m, [36;1mlist-installed[0m, [36;1msearch[0m, [36;1mshow[0m, 
+                                     [36;1m--help[0m, [36;1m--doc[0m, [36;1m--version[0m ] 
+    && the <<[35;1mmeo[0m>> command has to have at least one option .  Ex: [35;1mmeo[0m [36;1mself-[36;1mupdate[0m[0m
+    && with the options [ [36;1minstall[0m, [36;1mremove[0m, [36;1msearch[0m, [36;1mshow[0m, [36;1mdownload[0m ] you have to give the package(s)
+    && with the options [ [36;1mself-[36;1mupdate[0m[0m, [36;1mlist[0m, [36;1mupdate[0m, [36;1mlist-installed[0m, [36;1m--help[0m, [36;1m--doc[0m, [36;1m--version[0m ] 
+                                                                 there is not another parameter
+    && with the options [ [36;1mupgrade[0m ], you can either [36;1mupgrade[0m all the installed packages 
+                                         by `[35;1mmeo[0m` or [36;1mupgrade[0m target installed packages 
+                                Ex : [35;1mmeo[0m [36;1mupgrade[0m    (to [36;1mupgrade[0m all the installed packages by `[35;1mmeo[0m`) 
+                                Ex : [35;1mmeo[0m [36;1mupgrade[0m am-okay    (to [36;1mupgrade[0m the target installed package)    
+    && you can not call `[35;1mmeo[0m` program to [36;1minstall[0m it itself . Ex : [35;1mmeo[0m [36;1minstall[0m [35;1mmeo[0m
 
-[32mOPTIONS[0m
-       [36m--copy[0m        type(string) // This option allows to copy the target file/files or
-                     directory/directories(that are its targets), you can use the joker [36m<*>[0m to indicate
-                     everything that is in the current directory .
-                          [36mEx : [0m[35mam-okay[0m [36m--copy[0m [36m<your-target-dir-or-file>[0m [36m<..>[0m
+SYNOPSIS
+       [35;1mmeo[0m [ option | option <argument(e)> ]
 
-       [36m--cut[0m         type(string) // This option allows to cut the target file/files or
-                     directory/directories(that are its targets), you can use the joker [36m<*>[0m to indicate
-                     everything that is in the current directory .
-                          [36mEx : [0m[35mam-okay[0m [36m--cut[0m [36m<your-target-dir-or-file>[0m [36m<..>[0m
+OPTIONS   
+    [36;1mself-[36;1mupdate[0m[0m // This option allows to verify if there is a new version of `[35;1mmeo[0m` program
+                   that is ready to [36;1mupgrade[0m, and it also allows to [36;1mupdate[0m the [36;1mlist[0m of
+                   packages available on the Github repository
+                   Ex : [35;1mmeo[0m [36;1mself-[36;1mupdate[0m[0m
 
-       [36m--paste-copy[0m  type(string) // This option allows to paste a copy action .
-                          [36mEx : [0m[35mam-okay[0m [36m--paste-copy[0m [36m<your-target-directory>[0m
-                     You can use the dot [36m<.>[0m to indicate the current directory. This option([36m--paste-copy)[0m is
-                     linked to the [36m<[36m--copy>[0m[0m option .
-                     Use case :
-                         Action 1 ->  [36mEx : [0m[35mam-okay[0m [36m--copy[0m [36m<my-file>[0m
-                         Action 2 ->  [36mEx : [0m[35mam-okay[0m [36m--paste-copy[0m [36m<my-target-dir>[0m
+    [36;1minstall[0m // This option allows installing packages
+               Ex : [35;1mmeo[0m [36;1minstall[0m am-okay
 
-       [36m--paste-cut[0m   type(string) // This option allows to paste a cut action .
-                             [36mEx : [0m[35mam-okay[0m [36m--paste-cut[0m [36m<your-target-directory>[0m
-                     You can use the dot [36m<.>[0m to indicate the current directory. This option([36m--paste-cut)[0m is
-                     linked to the [36m<[36m--cut>[0m[0m option .
-                     Use case :
-                         Action 1 ->  [36mEx : [0m[35mam-okay[0m [36m--cut[0m [36m<my-file>[0m
-                         Action 2 ->  [36mEx : [0m[35mam-okay[0m [36m--paste-cut[0m [36m<my-target-dir>[0m
+    [36;1mupdate[0m // This option allows listing the packages ready to [36;1mupgrade[0m
+              Ex : [35;1mmeo[0m [36;1mupdate[0m
 
-       [36m--array[0m       type(String> // This option allows to copy or cut files or directories in a
-                     separate way(form of index) .
-                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0 [36m--copy[0m [36m<file-1>[0m [36m<dir-1>[0m [36m<dir-2>[0m [36m<..>[0m
-                     For pasting according to the previous action you have to do :
-                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0 [36m--put[0m [36m<your-target-dir>[0m
+    [36;1mupgrade[0m // This option allows upgrading the packages ready to [36;1mupgrade[0m
+               Ex : [35;1mmeo[0m [36;1mupgrade[0m (to [36;1mupgrade[0m all the installed packages by `[35;1mmeo[0m` program)
+               Ex : [35;1mmeo[0m [36;1mupgrade[0m am-okay (to [36;1mupgrade[0m the target installed
+                                                      package by `[35;1mmeo[0m` program)
 
-       [36m--index[0m       type(String> // This option allows to target the index of the array .
-                     Use case :
-                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0 [36m--copy[0m [36m<file-1>[0m [36m<dir-1>[0m [36m<dir-2>[0m [36m<..>[0m
-                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 1 [36m--put[0m [36m<your-target-dir>[0m
-                         Note :
-                             1.0 You can not do this ->  [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0-1 [36m--copy[0m [36m<your-dir>[0m [36m<..>[0m
-                             1.1 You can do this     ->  [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0-1 [36m--put[0m [36m<your-dir>[0m
-                             1.2 In the previous action(1.1) the [36m<[36m--put>[0m[0m option will manage all actions with the
-                                 [36m<[36m--array>[0m[0m option that associated with the [36m<[36m--index>,[0m[0m [36m<[36m--copy>[0m[0m
-                                 and [36m<[36m--cut>[0m[0m options .
+    [36;1mremove[0m // This option allows removing packages
+              Ex : [35;1mmeo[0m [36;1mremove[0m am-okay
 
-       [36m--put[0m         type(string) // This option allows to put directory/directories or file/files that have
-                     been targeted by the [36m<[36m--array>[0m[0m option associated with the [36m<[36m--copy>[0m[0m
-                     and [36m<[36m--cut>[0m[0m options .
-                     Use case :
-                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0 [36m--put <your_dir>[0m
-                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0-3 [36m--put <your_dir>[0m // The indexes between `0` and `3`.
-                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0,3 [36m--put <your_dir>[0m // The index `0` and `3`.
+    [36;1mdownload[0m // This option allows [36;1mdownload[0m packages
+                Ex : [35;1mmeo[0m [36;1mdownload[0m am-okay
 
-       [36m--stat-copy[0m   type(string) // To see the status of an action done with the [36m<[36m--copy>[0m[0m option as first
-                     parameter .
-                          [36mEx : [0m[35mam-okay[0m [36m--stat-copy[0m
+    [36;1mlist[0m // This option allows listing packages of the git repository
+            Ex : [35;1mmeo[0m [36;1mlist[0m
+            Note: To have the updated [36;1mlist[0m, you have first of all to execute the command
+            `[35;1mmeo[0m [36;1mself-[36;1mupdate[0m[0m`
 
-       [36m--stat-cut[0m    type(string) // To see the status of an action done with the [36m<[36m--cut>[0m[0m option as first
-                     parameter .
-                          [36mEx : [0m[35mam-okay[0m [36m--stat-cut[0m
+    [36;1mlist-installed[0m // This option allows listing the installed packages from the git repository
+                      Ex : [35;1mmeo[0m [36;1mlist-installed[0m
 
-       [36m--stat[0m        type(string) // To see the status of an action done with the [36m<[36m--array>[0m[0m option as first
-                     parameter and along with the [36m<[36m--copy>[0m[0m and [36m<[36m--cut>[0m[0m options or between them .
-                     Use case :
-                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0 [36m--stat[0m
-                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0-2 [36m--stat[0m // The indexes between `0` and `2`.
-                          [36mEx : [0m[35mam-okay[0m [36m--array[0m [36m--index[0m 0,2 [36m--stat[0m // The index `0` and `2`.
+    [36;1msearch[0m // This option allows to [36;1msearch[0m packages from the git repository
+              Ex : [35;1mmeo[0m [36;1msearch[0m am-okay
 
+    [36;1mshow[0m // This option allows to have information on the installed packages from the `control`
+            files
+            Ex : [35;1mmeo[0m [36;1mshow[0m am-okay
 
-       [36m--reset[0m       type(string) // To reset your desired action(s), there will be a prompt for the
-                     possible choices (note : you have to enter expressly the `request` word) .
-                          [36mEx : [0m[35mam-okay[0m [36m--reset[0m [36mrequest[0m
+    [36;1m--help[0m // This option allows getting help on the `[35;1mmeo[0m` program
+              Ex : [35;1mmeo[0m [36;1m--help[0m
 
-       [36m--doc[0m         type(string) // To see the documentation of the program [35mam-okay[0m
-                          [36mEx : [0m[35mam-okay[0m [36m--doc[0m
+    [36;1m--doc[0m // This option allows getting a documentation on `[35;1mmeo[0m` program
+             Ex : [35;1mmeo[0m [36;1m--doc[0m
 
-       [36m--help[0m        type(sting) // To get help
-                          [36mEx : [0m[35mam-okay[0m [36m--help[0m
+    [36;1m--version[0m // This option allows getting the version installed of the `[35;1mmeo[0m` program
+                 Ex : [35;1mmeo[0m [36;1m--version[0m
 
-[32mENSURE[0m
-       @ensure Successfully execution if the precondition is satisfied. That is to say, with
-       the above options and the appropriated sequences linked to these options .
+ENSURE
+    @ensure Successfully execution if the preconditions are satisfied. That is to say, with the 
+    above options and the appropriated sequences allowed for these options.
 
-[32mNOTE[0m
-       @note This program depends of some programs, these programs are required in the global
-       package [35mam-okay[0m .
-       Once you have pasted files or directories with the [36m<[36m--paste-copy>[0m[0m option, you can paste
-       again the same files/dirs with the same option [36m<[36m--paste-copy>.[0m[0m For sure an action done
-       by [36m<[36m--copy>[0m[0m option requires the [36m<[36m--paste-copy>[0m[0m option for pasting, and an action
-       done by [36m<[36m--cut>[0m[0m option requires [36m<[36m--paste-cut>[0m[0m option for pasting. The two
-       [ [36m--copy,[0m [36m--cut[0m ] options have different hash codes .
-       When you execute the command [35mam-okay[0m , the command in question works with the profile
-       it was run with. Running it with different profiles will result in different scenarios, because
-       for the program each user is different. So when you realise an action, make sure to conserve
-       the same profile to paste .
-       A progress bar will be displayed to indicate the move and copy status when you execute the
-       command [35mam-okay[0m with the [36m<[36m--paste-copy>,[0m[0m [36m<[36m--paste-cut>[0m[0m and [36m<[36m--put>[0m[0m options .
+NOTE
+    @note This program depends of some programs, these programs are required in the global `[35;1mmeo[0m`
+    package . 
+      
 
-[32mAUTHOR[0m
-       Author      : Baldé Amadou [36m<baldeuniversel@protonmail.com>[0m
+AUTHOR
+    Author : [32;1mBaldé Amadou <baldeuniversel@protonmail.com>[0m
 
-[32mCONTRIBUTOR[0m
-       Contributor : Diallo Ismaila [36m<diallois@protonmail.com>[0m
-
-[35mam-okay[0m program                                                2023-05-24                                                  [35mam-okay[0m('1')
