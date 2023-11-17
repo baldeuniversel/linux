@@ -1,0 +1,1584 @@
+#!/usr/bin/zsh
+
+:   ' 
+    /**
+    * @overview This program allows to manage the installed packages from the git repository 
+    * `https://github.com/baldeuniversel/linux.git` (First of all, this program is written for 
+    *                                                the <<Ve-Quantic>> members) .
+    * The program also allows to list available packages from the same git repository.
+    *
+    *
+    *
+    * @requires The only options supported are [ self-update, install, update, upgrade, remove
+    *                                            download, list, list-installed, search, show, 
+    *                                            --help, --doc, --version ] 
+    * && the <<meo>> command has to have at least one option .  Ex: meo self-update
+    * && with the options [ install, remove, search, show, download ] you have to give the package(s)
+    * && with the options [ self-update, list, update, list-installed, --help, --doc, --version ] 
+    *                                                              there is not another parameter
+    * && with the options [ upgrade ], you can either upgrade all the installed packages 
+    *                                              by `meo` or upgrade target installed packages 
+    *                                Ex : meo upgrade    (to upgrade all the installed packages by `meo`) 
+    *                                Ex : meo upgrade am-okay    (to upgrade the target installed package)    
+    * && you can not call `meo` program to install it itself . Ex : meo install meo
+    *
+    *
+    *
+    * Options :
+    * --------
+    * @param {string} self-update // This option allows to verify if there is a new version of `meo` program
+    *                                that is ready to upgrade, and it also allows to update the list of 
+    *                                packages available on the Github repository
+    *                                Ex : meo self-update
+    * 
+    * @param {string} install // This option allows installing packages
+    *                            Ex : meo install am-okay
+    *
+    * @param {string} update // This option allows listing the packages ready to upgrade
+    *                           Ex : meo update
+    *
+    * @param {string} upgrade // This option allows upgrading the packages ready to upgrade
+    *                            Ex : meo upgrade (to upgrade all the installed packages by `meo` program)
+    *                            Ex : meo upgrade am-okay (to upgrade the target installed 
+    *                                                      package by `meo` program)
+    *   
+    * @param {string} remove // This option allows removing packages
+    *                           Ex : meo remove am-okay
+    *
+    * @param {string} download // This option allows download packages
+    *                             Ex : meo download am-okay
+    *
+    * @param {string} list // This option allows listing packages of the git repository
+    *                         Ex : meo list
+    *                         Note: To have the updated list, you have first of all to execute the command 
+    *                               `meo self-update`
+    *
+    * @param {string} list-installed // This option allows listing the installed packages from the git repository
+    *                                   Ex : meo list-installed
+    *
+    * @param {string} search // This option allows to search packages from the git repository
+    *                           Ex : meo search am-okay
+    *
+    * @param {string} show // This option allows to have information on the installed packages from the `control` 
+    *                         files
+    *                         Ex : meo show am-okay
+    *
+    * @param {string} --help // This option allows getting help on the `meo` program
+    *                           Ex : meo --help
+    *
+    * @param {string} --doc // This option allows getting a documentation on `meo` program
+    *                          Ex : meo --doc
+    *
+    * @param {string} --version // This option allows getting the version installed of the `meo` program
+    *                              Ex : meo --version
+    *
+    *
+    * @ensure Successfully execution if the preconditions are satisfied. That is to say, with the 
+    * above options and the appropriated sequences allowed for these options.
+    *
+    *
+    *
+    * @note This program depends of some programs, these programs are required in the global `meo`
+    * package .
+    *
+    *
+    *
+    * @author <Baldé Amadou> <baldeuniversel@protonmail.com>
+    *
+    */
+
+    '
+
+
+
+
+
+set -uo pipefail # To exit the script if there is an error
+
+
+
+#
+if ( [[ $USER != "root" ]] ) && ( [[ $1 != "list" ]] && [[ $1 != "list-installed" ]] && [[ $1 != "--version" ]] \
+     && [[ $1 != "show" ]] )
+then
+    echo "~"
+    echo -e "Only the root/admin has the right to execute this \e[32;1mmeo\e[0m action \U001F6A7 "
+    exit 1
+fi
+
+
+
+
+
+# Declaration variables
+listOfParams=("self-update" "install" "update" "upgrade" "remove" "download" \
+    "list" "list-installed" "search" "show" "--help" "--doc" "--version")
+
+counterOption=0
+
+
+
+
+
+### Check the input options -> start tag[p0]
+#
+if [[ $# -lt 1 ]]
+then
+    local getMeoName=` echo "$0" | gawk '{ split($0, array, "/"); print array[length(array)] }' `
+
+    echo "~"
+    echo -e "It has to be at least one parameter for the \e[32;1m$getMeoName\e[0m program \U001F9D0 "
+    exit 1
+fi
+#
+for optionUP in ${listOfParams[@]}
+do
+    if [[ $1 != $optionUP ]]
+    then
+        counterOption=$(( counterOption + 1 ))
+    fi
+
+    #
+    if [[ $counterOption -eq 13  ]]
+    then
+        echo "~"
+        echo -e "Unknown `tput setaf 3; tput bold`$1` tput sgr0 ` option \U001F9D0 "
+        exit 1
+    fi
+done
+#
+if ( [[ $1 == "self-update" ]] || [[ $1 == "self-upgrade" ]] || [[ $1 == "self-remove"  ]] || [[ $1 == "list" ]] \
+     || [[ $1 == "list-installed" ]] || [[ $1 == "--doc" ]] || [[ $1 == "--help" ]] || [[ $1 == "--version" ]] ) \
+     && ( [[ $# -gt 1 ]] )
+then
+    echo "~"
+    echo -e "There can only be one parameter when the \e[32;1m$1\e[0m option is invoked \U001F9D0 "
+    exit 1
+fi
+#
+if ( [[ $1 == "install" ]] || [[ $1 == "remove"  ]] || [[ $1 == "search"  ]] || [[ $1 == "show"  ]] || \
+     [[ $1 == "download"  ]] ) && ( [[ $# -lt 2  ]] )
+then
+    echo "~"
+    echo -e "There have to be at least two parameters when the \e[32;1m$1\e[0m option is invoked \U001F9D0 "
+    exit 1
+fi
+
+### Check the input options -> end tag[p0]
+
+
+
+
+
+### Creation some necessary directories or files -> start tag[c0]
+
+# Declaration variables
+getPersonalUserDir=$HOME
+
+meoRootDir="/usr/lib/meo"
+
+meoLibraryDir="$meoRootDir/library"
+
+meoListInstalledPkgs="$meoLibraryDir/info/list-installed-packages"
+meoListAvailablePkgs="$meoLibraryDir/info/list-available-packages"
+
+meoListInstalledPkgsPure="$meoLibraryDir/info/list-installed-packages-pure"
+meoListAvailablePkgsPure="$meoLibraryDir/info/list-available-packages-pure"
+
+meoPackages="$meoLibraryDir/packages"
+
+meoDocumentationDir="$meoRootDir/documentation"
+
+meoTmp="/tmp/.meo"
+meoTmpDir="/tmp/.meo/github"
+
+fileCodeReturnCommand="$meoTmp/code-return-command"
+
+### Creation some necessary directories or files -> end tag[c0]
+
+
+
+
+
+:   '
+/**
+* @overview The `truncateFileData` allows to remove the data that contains a file
+*
+* @param {string} $1 // The file that has to be truncated
+*
+*/
+    '
+function truncateFileData
+{
+    # Remove the data contained in the target file
+    if [[ -e "$1" ]]
+    then
+        truncate -s 0 $1 2> /dev/null
+    fi
+}
+
+
+
+
+
+:   '
+/**
+* @overview The `alertNonEffectiveAction` function allows to raise exceptions .
+*
+* @param {string} $1 // A file where the code of return of the `meo` program will be sent .
+*/
+    '
+function alertNonEffectiveAction 
+{
+    # Declaration variables
+    getPathOfFileForReturnLastCommand=$1
+    getNumberOfLine=0
+
+    if [[ $# -eq 1 ]] && [[ $getPathOfFileForReturnLastCommand != "none" ]]
+    then
+        if [[ -e "$getPathOfFileForReturnLastCommand" ]]
+        then
+            getNumberOfLine=` wc -l $getPathOfFileForReturnLastCommand | cut -d " " -f1 | tr -d "[[:space:]]" `
+
+            #
+            if [[ $getNumberOfLine -gt 0 ]]
+            then
+                echo "~"
+                echo -en "Something wrong \U001F9D0, please make sure you have a permission to \nexecute the \e[32;1mmeo\e[0m program "
+
+                # Call the function
+                $( truncateFileData $getPathOfFileForReturnLastCommand )
+
+                #
+                setterm --cursor on
+                exit 1 
+            fi
+        fi
+    fi
+}
+
+
+
+
+
+:   '
+/**
+* @overview The `refreshPackageFile` function allows to update the list of packages from the Github repository
+*/
+    '
+function refreshPackageFile
+{
+
+    ### Download the available packages and store the name of these packages with their version -> start tag[d0]
+    
+    # Declarations variables
+    local fileGithubAction="$meoTmpDir/github-action"
+    
+    #
+    if [[ ! ( -e "$meoTmpDir" ) ]]
+    then
+        mkdir -p $meoTmpDir
+    fi
+   
+    # Check if there is internet connection
+    curl ifconfig.me &> /dev/null   
+    #
+    if [[ $? -ne 0 ]]
+    then
+        echo "~"
+        echo -e "Your internet connection seems not to be established \U001F30D"
+        exit 1
+    fi
+
+    # Clone the git repository
+    git clone https://github.com/baldeuniversel/linux.git "$meoTmpDir/linux" 2> /dev/null
+    
+    #
+    if [[ $? -eq 0 ]]
+    then
+    
+        # Action to get the packages without the `deb` extension
+        find "$meoTmpDir/linux"  -name "*.deb" -type f | gawk '{ split($0, array, "/");  print array[length(array)] }' \
+            | gawk '{ split($0, array, ".deb" ); print array[length(array)-1] }' >> $fileGithubAction 2> /dev/null
+    
+
+        # Remove the current data in the file that contains the list of available packages
+        if [[ -e "$meoListAvailablePkgs" ]]
+        then
+            truncate -s 0 "$meoListAvailablePkgs" 2> /dev/null
+            truncate -s 0 "$meoListAvailablePkgsPure" 2> /dev/null
+        fi
+    
+        # Action to store the available packages and their version on the specific file
+        while IFS= read -r lineFile
+        do
+            getNameOfPkg=` echo "$lineFile" | gawk '{ split($0, array, "." ); print array[length(array)-2] }' \
+                | gawk '{ print substr($0, 1, length($0)-2) }' `
+    
+            getVersionOfPkg=` echo -e $lineFile | gawk '{ split($0, array, "-" ); print array[length(array)] }' `
+    
+            echo -e "\e[32;1m$getNameOfPkg\e[0m : \e[36;1mv($getVersionOfPkg)\e[0m" >> $meoListAvailablePkgs 2> /dev/null
+            echo -e "$getNameOfPkg : v($getVersionOfPkg)" >> $meoListAvailablePkgsPure 2> /dev/null
+    
+        done < $fileGithubAction
+    
+    fi
+        
+    ### Download the available packages and store the name of these packages with their version -> end tag[d0]
+
+}
+
+
+
+
+
+:   '
+/**
+* @overview `clonePersonalGit` allows to clone a git repository (see where the clone is putted)
+*/
+    '
+function clonePersonalGit
+{
+    # Check if there is internet connection
+    curl ifconfig.me &> /dev/null   
+    #
+    if [[ $? -ne 0 ]]
+    then
+        echo "~"
+        echo -e "Your internet connection seems not to be established \U001F30D"
+        exit 1
+    fi
+
+    # Clone the git repository
+    git clone https://github.com/baldeuniversel/linux.git "$meoTmpDir/linux" 2> /dev/null
+
+}
+
+
+
+
+
+:   '
+/**
+* @overview The `storeInslalledPkg` function allows to store the installed packages
+* on the `list-available-packages` file 
+*
+* @param {string} $1 // The program to treat and store
+*/
+    '
+function storeInslalledPkg
+{
+
+    # Declaration variables
+    local fileGithubAction="$meoTmpDir/github-action"
+
+    #
+    if [[ ! -e  $meoTmpDir ]]
+    then
+        mkdir -p $meoTmpDir 2> /dev/null
+    fi
+  
+    # Call the function
+    $( truncateFileData $fileGithubAction )
+    
+
+    # Action to get the packages without the `deb` extension
+    find "$meoTmpDir/linux"  -name "$1*" -type f | gawk '{ split($0, array, "/");  print array[length(array)] }' \
+        | gawk '{ split($0, array, ".deb" ); print array[length(array)-1] }' >> $fileGithubAction 2> /dev/null
+
+
+    # Action to store the available packages and their version on the specific file
+    while IFS= read -r lineFile
+    do
+        getNameOfPkg=` echo "$lineFile" | gawk '{ split($0, array, "." ); print array[length(array)-2] }' \
+            | gawk '{ print substr($0, 1, length($0)-2) }' `
+
+        getVersionOfPkg=` echo -e $lineFile | gawk '{ split($0, array, "-" ); print array[length(array)] }' `
+
+        #
+        if [[ -e "$meoListInstalledPkgs" ]]
+        then
+            if [[ ! ` cat $meoListInstalledPkgsPure | cut -d ":" -f 1 | grep -w "$1" ` ]]
+            then
+                echo -e "\e[32;1m$getNameOfPkg\e[0m : \e[36;1mv($getVersionOfPkg)\e[0m" >> $meoListInstalledPkgs 2> /dev/null
+                echo -e "$getNameOfPkg : v($getVersionOfPkg)" >> $meoListInstalledPkgsPure 2> /dev/null
+
+            else
+                #
+                if [[ ! ` cat $meoListInstalledPkgsPure | cut -d ":" -f 1 | grep -w "$getVersionOfPkg" ` ]]
+                then
+                    getLineNbPkgOldVersion=` grep -nw "$getNameOfPkg"  $meoListInstalledPkgsPure | cut -d ":" -f 1 `
+                    getTheOldVersion=` sed -n "$getLineNbPkgOldVersion p" $meoListInstalledPkgsPure | \
+                        cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
+
+                    #
+                    sed -i "$getLineNbPkgOldVersion s/$getTheOldVersion/$getVersionOfPkg/" $meoListInstalledPkgsPure 
+                fi
+            fi
+        fi
+
+    done < $fileGithubAction
+
+}
+
+
+
+
+
+:   '
+/**
+* @overview The `isPackageInstalled` allows to verify if the package is installed
+*
+* @param {string} $1 // The package to verify
+*
+* @return {string} // A `true` string will be returned if the package exists, else
+*                     `false` string will be returned
+*
+*/
+    '
+function isPackageInstalled
+{
+    # Declaration variables
+    which ` echo $1 ` &> /dev/null
+
+    #
+    if [[ $? -eq 0 ]]
+    then
+        echo "true"
+    else
+        echo "false"
+    fi
+    
+}
+
+
+
+
+
+:   '
+/**
+* @overview The function `isPackageAvailable` allows to verify if a given package exists in the
+* `list-available-packages` file
+* 
+* @param {string} $1 // The package to verify the existence
+*
+*/
+    '
+function isPackageAvailable
+{
+    # Declaration variables
+    local getPackage=""
+    local getFirstParam=$1
+
+
+
+    #
+    if [[ -e "$meoListAvailablePkgs" ]]
+    then
+        getPackage=` cat $meoListAvailablePkgsPure | cut -d ":" -f 1 | grep -w "$getFirstParam" `
+
+        #
+        if [[ -n "$getPackage" ]]
+        then
+            echo "true"
+        else
+            echo "false"
+        fi
+    fi
+
+}
+
+
+
+
+
+:   '
+/**
+* @overview The `isNewVersionOfPkgAvailable` allows to verify if a new version of
+* a installed package is available
+*
+* @param {string} $1 // The package to examine
+*
+* @return {string} // A `true` string will be returned if a new version is available,
+* else `false` value will be returned
+*
+*/
+    '
+function isNewVersionOfPkgAvailable
+{
+    # Declaration variables
+    local getPkg=$1
+    local getDebPkg=""
+
+
+
+    # Call the function
+    $( refreshPackageFile )
+
+
+
+    #
+    if [[ -e "$meoListAvailablePkgs" ]]
+    then
+        #
+        getPkgRefreshVersion=` cat $meoListAvailablePkgsPure | grep -i "$getPkg" | \
+            cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
+
+        getPkgVersionPkgInstalled=` $getPkg --version `
+
+            
+        # Verify the match versions, then do ...
+        if [[ "$getPkgRefreshVersion" == "$getPkgVersionPkgInstalled" ]]
+        then
+            echo "false"
+        else
+            echo "true"
+        fi
+    else 
+        echo "~"
+        echo "Something is wrong, a file is missing \U001F9D0, please reinstall the \e[32;1mmeo\e[0m program "
+
+        exit 1
+    fi
+
+}
+
+
+
+
+
+:   '
+/**
+* @overview The `removeFileDir` allows to remove files/dirs created during operations
+*
+*/
+    '
+function removeFileDir
+{
+    # Remove the packages in /tmp/.meo
+    if [[ -e "$meoTmpDir/linux"  ]]
+    then
+        rm -rf "$meoTmpDir/linux" 2> /null
+    fi
+
+    # Remove files/dirs
+    if [[ -e "$meoTmpDir/github-action"  ]]
+    then
+        rm -rf "$meoTmpDir/github-action" 2> /null
+    fi
+}
+
+
+
+
+:   '
+/**
+* @overview The function `colorElem` allows to color strings
+*
+* @param {string} $1 // The input string to color
+*/
+    '
+function colorElem
+{
+    echo -e "\033[36m$1\033[0m"
+}
+
+
+
+
+
+### Action based to the `meo` itself -> start tag[s0]
+
+if [[ $1 == "self-update" ]] && [[ $# -eq 1 ]]
+then
+    
+    # Declaration variables
+    local getMeoRefreshVersion=""
+
+
+    # Call the function
+    refreshPackageFile
+
+    #
+    if [[ -e "$meoListAvailablePkgs" ]]
+    then
+        
+        getMeoRefreshVersion=` cat $meoListAvailablePkgsPure | grep -i "meo" | \
+            cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
+
+        getMeoVersionPkgInstalled=` meo --version `
+
+            
+        # Verify the match versions, then do ...
+        if [[ "$getMeoRefreshVersion" == "$getMeoVersionPkgInstalled" ]]
+        then
+            echo "~"
+            echo -e "The job is clean, \e[32;1mmeo\e[0m program is already up to date \U002705 "
+
+
+            # Call the function
+            removeFileDir
+
+            exit 0
+        else
+            echo "~"
+            echo -e "A new version($getMeoRefreshVersion)\e[36;1m⬆\e[0m for the \e[32;1mmeo\e[0m program is available "
+            echo ""
+            echo -e "Go to this Github \e[32;1mhttps://github.com/baldeuniversel/linux/tree/main/packages\e[0m " 
+            echo -e "repository to download the \e[32;1mmeo\e[0m program or download the \e[32;1mmeo\e[0m program via the "
+            echo -e "command -> \e[36;1msudo meo download meo\e[0m  "
+
+            # Call the function
+            removeFileDir
+            
+            exit 0
+        fi
+    else 
+        echo "~"
+        echo "Something is wrong, a file is missing \U001F9D0, please reinstall the \e[32;1mmeo\e[0m program "
+
+        exit 1
+    fi
+fi
+
+### Action based to the `meo` itself -> end tag[s0]
+
+
+
+
+
+### Action based on the `install` option -> start tag[i1]
+
+if [[ $1 == "install" ]] && [[ $# -gt 1 ]]
+then
+    
+    # Declaration variables
+    local flagPackageFound=""
+    local getDebPkg=""
+    local counterInstalledPkg=0
+
+    declare -a listOfInstalledPkg=()
+
+    # Call the function
+    clonePersonalGit
+
+    # Shift one position
+    shift 1
+
+    # Install the package if it exi"$meoTmpDir/linux"sts
+    for packageUP in $@
+    do
+        #
+        flagPackageFound=` isPackageAvailable $packageUP `
+
+        #
+        if [[ $flagPackageFound == "true" ]]
+        then 
+            
+            #
+            getDebPkg=` find "/tmp/.meo/github/linux" -name "$packageUP*" `
+
+            #
+            if [[ ` echo "$getDebPkg" | grep -i -- "meo-" ` ]]
+            then
+                echo "~"
+                echo "You can not install the \e[32;1mmeo\e[0m program itself 🚨"
+
+                continue
+            else
+
+                #
+                if [[ -n "$getDebPkg"  ]]
+                then
+                    # Call the function
+                    local flagPackageInstalledFound=` isPackageInstalled $packageUP  `
+
+
+                    #
+                    if [[ $flagPackageInstalledFound == "true" ]]
+                    then
+                        echo "~"
+                        echo -e "The program \e[36;1m$packageUP\e[0m is already installed \U002705 "
+                        echo ""
+                    else
+
+                        #
+                        dpkg --install $getDebPkg
+
+                        if [[ $? -eq 0 ]]
+                        then
+                             # Call the function
+                            storeInslalledPkg $packageUP
+
+                            #
+                            counterInstalledPkg=$(( counterInstalledPkg + 1 ))
+                        
+                            #
+                            listOfInstalledPkg+=$packageUP
+                        fi
+                    fi
+                fi
+            fi
+
+        else
+            echo ""
+            echo "~"
+            echo -e "The package \e[33;1m$packageUP\e[0m was not found in the \e[32;1mmeo\e[0m repository \U001F9D0"
+        fi
+    done
+
+    # List the package(s) installed
+    if [[ $counterInstalledPkg -gt 0 ]]
+    then
+        echo ""
+        echo "~"
+
+        for installedPkg in ${listOfInstalledPkg[@]}
+        do
+            echo -e "\e[32;1m$installedPkg\e[0m installed \U002705 "
+        done
+    fi
+   
+
+    # Call the function
+    removeFileDir
+
+    #
+    if [[ $? -eq 0 ]]
+    then
+        exit 0
+    else
+        exit 1
+    fi
+
+fi
+
+### Action based on the `install` option -> end tag[i1]
+
+
+
+
+
+### Action based on the `update` option -> start tag[u0]
+
+if [[ $# -eq 1 ]] && [[ $1 == "update" ]]
+then
+    
+    # Declaration variables
+    local getNameOfPkg=""
+    local getVersionOfPkg=""
+
+    local counterPkgInstalled=0
+    local counterPkgUpgradable=0
+
+    typeset -A tableInstalledPkgAndVersion
+    typeset -A tableRefreshedPkgAndVersion
+    typeset -A tablePkgUpgradable
+
+
+    
+    # Load the installed packages and their version in an array
+    while IFS= read -r lineFile
+    do
+        getNameOfPkg=` echo "$lineFile" | cut -d ":" -f 1 `
+        getVersionOfPkg=` echo "$lineFile" | cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
+
+        #
+        which ` echo $getNameOfPkg ` &> /dev/null
+
+        if [[ $? -eq 0 ]]
+        then
+            #
+            if [[ ! ` echo "$getNameOfPkg" | grep -w "meo" ` ]]
+            then
+                #
+                tableInstalledPkgAndVersion[$getNameOfPkg]=$getVersionOfPkg
+
+                #
+                counterPkgInstalled=$(( counterPkgInstalled + 1 ))
+            fi
+        fi
+
+    done < $meoListInstalledPkgsPure
+
+    # Call the function 
+    refreshPackageFile
+
+    # Load the refreshed/upgradable packages and their version in an array
+    while IFS= read -r lineFile
+    do
+        getNameOfPkg=` echo "$lineFile" | cut -d ":" -f 1 `
+        getVersionOfPkg=` echo "$lineFile" | cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
+
+        #
+        which ` echo $getNameOfPkg ` &> /dev/null
+
+        if [[ $? -eq 0 ]]
+        then
+            #
+            if [[ !  ` echo "$getNameOfPkg" | grep -w "meo" ` ]]
+            then
+                tableRefreshedPkgAndVersion[$getNameOfPkg]=$getVersionOfPkg
+            fi
+        fi
+
+    done < $meoListAvailablePkgsPure
+
+    
+    #
+    for nameOfInsPkg in ${(k)tableInstalledPkgAndVersion}
+    do 
+        for nameOfRefreshPkg in ${(k)tableRefreshedPkgAndVersion}
+        do
+            if [[ "$nameOfInsPkg" == "$nameOfRefreshPkg" ]]
+            then
+                if [[ $tableInstalledPkgAndVersion[$nameOfInsPkg] != $tableRefreshedPkgAndVersion[$nameOfRefreshPkg] ]]
+                then
+                    #
+                    counterPkgUpgradable=$(( counterPkgUpgradable + 1 ))
+                    
+                    #
+                    local getVersionInsPkg="$tableInstalledPkgAndVersion[$nameOfInsPkg]"
+                    local getVersionRefreshPkg="$tableRefreshedPkgAndVersion[$nameOfRefreshPkg]" 
+
+                    #
+                    tablePkgUpgradable[$nameOfInsPkg]="$getVersionInsPkg : \e[36;1m$getVersionRefreshPkg\e[0m"
+                fi
+            fi
+        done
+    done
+
+
+    #
+    if [[ $counterPkgUpgradable -gt 0 ]]
+    then
+        echo -e "~"
+        echo -e "List of packages can be upgraded"
+        echo -e ""
+
+        for namePkgUpgradable in ${(k)tablePkgUpgradable}
+        do
+            echo -e "\e[32;1m$namePkgUpgradable\e[0m $tablePkgUpgradable[$namePkgUpgradable]"
+        done
+    
+        #
+        echo -e ""
+        echo -e ""
+        echo -e "\e[32;1m$counterPkgUpgradable\e[0m package(s) upgradable "
+
+    else
+        echo -e "~"
+        echo -e "The job is clean, the packages are up to date \U002705 "
+    fi
+
+   
+
+    # Call the function
+    removeFileDir
+
+    exit 0
+else
+    if [[ $1 == "update" ]] && [[ $# -gt 1 ]]
+    then
+        echo "~"
+        echo -e "With the \e[36;1m$1\e[0m option, there is not another argument \U001F917 "
+
+        exit 1
+    fi
+fi
+
+### Action based on the `update` option -> end tag[u0]
+
+
+
+
+
+
+### Action based on the `upgrade` option -> start tag[u1]
+
+if [[ $# -eq 1 ]] && [[ $1 == "upgrade" ]]
+then
+    
+    # Declaration variables
+    local getNameOfPkg=""
+    local getVersionOfPkg=""
+    getDebPkg=""
+    local fileGithubAction="$meoTmpDir/github-action"
+
+    local counterPkgInstalled=0
+    local counterPkgUpgradable=0
+
+    declare -a listOfUpgradedPkg=()
+
+    typeset -A tableInstalledPkgAndVersion
+    typeset -A tableRefreshedPkgAndVersion
+    typeset -A tablePkgUpgradable 
+
+    
+
+    # Load the installed packages and their version in an array
+    while IFS= read -r lineFile
+    do
+        getNameOfPkg=` echo "$lineFile" | cut -d ":" -f 1 `
+        getVersionOfPkg=` echo "$lineFile" | cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
+
+        #
+        which ` echo $getNameOfPkg ` &> /dev/null
+
+        if [[ $? -eq 0 ]]
+        then
+            ##
+            if [[ ! ` echo "$getNameOfPkg" | grep -w "meo" ` ]]
+            then
+                #
+                tableInstalledPkgAndVersion[$getNameOfPkg]=$getVersionOfPkg
+                #
+                counterPkgInstalled=$(( counterPkgInstalled + 1 ))
+            fi
+            
+        fi
+
+    done < $meoListInstalledPkgsPure
+
+    # Call the function 
+    refreshPackageFile
+
+
+
+    # Load the refreshed/upgradable packages and their version in an array
+    while IFS= read -r lineFile
+    do
+        getNameOfPkg=` echo "$lineFile" | cut -d ":" -f 1 `
+        getVersionOfPkg=` echo "$lineFile" | cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
+
+        #
+        which ` echo $getNameOfPkg ` &> /dev/null
+
+        if [[ $? -eq 0 ]]
+        then
+            #
+            if [[ ! ` echo "$getNameOfPkg" | grep -w -- "meo" ` ]]
+            then
+                tableRefreshedPkgAndVersion[$getNameOfPkg]=$getVersionOfPkg
+            fi
+        fi
+
+    done < $meoListAvailablePkgsPure
+
+    
+    #
+    for nameOfInsPkg in ${(k)tableInstalledPkgAndVersion}
+    do 
+        for nameOfRefreshPkg in ${(k)tableRefreshedPkgAndVersion}
+        do
+            if [[ "$nameOfInsPkg" == "$nameOfRefreshPkg" ]]
+            then
+                if [[ $tableInstalledPkgAndVersion[$nameOfInsPkg] != $tableRefreshedPkgAndVersion[$nameOfRefreshPkg] ]]
+                then
+                    #
+                    counterPkgUpgradable=$(( counterPkgUpgradable + 1 ))
+                    
+                    #
+                    local getVersionInsPkg="$tableInstalledPkgAndVersion[$nameOfInsPkg]"
+                    local getVersionRefreshPkg="$tableRefreshedPkgAndVersion[$nameOfRefreshPkg]" 
+
+                    #
+                    tablePkgUpgradable[$nameOfInsPkg]="$getVersionInsPkg : \e[36;1m$getVersionRefreshPkg\e[0m"
+                fi
+            fi
+        done
+    done
+
+    
+
+    # Upgrading
+    if [[ $counterPkgUpgradable -gt 0 ]]
+    then
+        #
+        for namePkgUpgradable in ${(k)tablePkgUpgradable}
+        do
+            local getNamePkgUpgradable=` echo $namePkgUpgradable | tr -d "[[:space:]]" `
+
+            if [[ "$getNamePkgUpgradable" != "meo" ]]
+            then
+
+                getDebPkg=` find "/tmp/.meo/github/linux" -name "$getNamePkgUpgradable*" -type f 2> /dev/null `
+                
+                #
+                if [[ -e "$getDebPkg" ]]
+                then
+                    dpkg --install "$getDebPkg"
+
+                    if [[ $? -eq 0 ]]
+                    then
+                        listOfUpgradedPkg+=$getNamePkgUpgradable
+
+                        # Call the function
+                        storeInslalledPkg $getNamePkgUpgradable
+                    fi
+                fi
+            fi    
+        done
+    else
+        echo -e "~"
+        echo -e "The job is clean, the packages are up to date \U002705 "
+    fi
+
+
+    # List of package(s) that has been upgraded 
+    if [[ $counterPkgUpgradable -gt 0 ]]
+    then
+        echo ""
+        echo "~"
+        
+        #
+        for namePkgUpgraded in ${listOfUpgradedPkg[@]}
+        do
+            local getNamePkgUpgraded=` echo $namePkgUpgraded | tr -d "[[:space:]]" `
+
+            if [[ "$getNamePkgUpgraded" != "meo" ]]
+            then
+                echo -e "\e[32;1m$getNamePkgUpgraded\e[0m upgraded \U002705 "
+            fi    
+        done
+    fi
+        
+
+
+    # Call the function
+    removeFileDir
+ 
+    exit 0
+
+elif [[ $# -gt 1 ]] && [[ $1 == "upgrade" ]]
+then
+    
+    # Declaration variables
+    local flagPkgFound=""
+    local flagPkgNewVersionFound=""
+    local getDebPkg=""
+    local counterPkgUpgraded=0
+
+    declare -a listOfUpgradedPkg=()
+
+
+    # Skip the `upgrade` option
+    shift 1
+
+    for givenPkg in $@
+    do
+        flagPkgFound=$( isPackageInstalled $givenPkg )
+
+        if [[ $flagPkgFound == "true"  ]]
+        then
+            flagPkgNewVersionFound=` isNewVersionOfPkgAvailable $givenPkg `
+
+            #
+            if [[ $flagPkgNewVersionFound == "true" ]]
+            then
+                
+                #
+                getDebPkg=` find "/tmp/.meo/github/linux" -name "$givenPkg*" `
+                
+                if [[ -e "$getDebPkg" ]]
+                then
+                
+                    #
+                    dpkg --install "$getDebPkg"
+
+                    if [[ $? -eq 0 ]]
+                    then
+
+                        listOfUpgradedPkg+=$givenPkg
+
+                        # Call the function
+                        storeInslalledPkg $givenPkg
+                    
+                        #
+                        counterPkgUpgraded=$(( counterPkgUpgraded + 1 ))
+                    fi
+                fi
+            else
+                echo ""
+                echo "~"
+                echo -e "The program \e[36;1m$givenPkg\e[0m is already up to date \U002705 "
+            fi
+
+        else
+            echo ""
+            echo "~"
+            echo -e "The package \e[32;1m$givenPkg\e[0m is not installed \U001F9D0 " 
+        fi
+
+    done
+
+
+
+    # List of package(s) that has been upgraded 
+    if [[ $counterPkgUpgraded -gt 0 ]]
+    then
+        echo ""
+        echo "~"
+        
+        #
+        for namePkgUpgraded in ${listOfUpgradedPkg[@]}
+        do
+            local getNamePkgUpgraded=` echo $namePkgUpgraded | tr -d "[[:space:]]" `
+
+            if [[ "$getNamePkgUpgraded" != "meo" ]]
+            then
+                echo -e "\e[32;1m$getNamePkgUpgraded\e[0m upgraded \U002705 "
+            fi    
+        done
+    fi
+
+    # Call the function
+    removeFileDir
+
+    exit 0
+fi
+
+### Action based on the `upgrade` option -> end tag[u1]
+
+
+
+
+
+### Action based on the `remove` option -> start tag[r0]
+
+if [[ $1 == "remove"  ]] && [[ $# -gt 1 ]]
+then
+    
+    # Declaration variables
+    local flagPkgFound=""
+    local counterPkgRemoved=0
+
+    declare -a listOfRemovedPkg=()
+    
+    #
+    shift 1
+
+    #
+    for givenPkgToRemove in $@
+    do
+        #
+        flagPkgFound=` isPackageInstalled $givenPkgToRemove `
+
+        #
+        if [[ $flagPkgFound == "true" ]]
+        then
+
+            #
+            dpkg --remove $givenPkgToRemove
+
+            if [[ $? -eq 0 ]]
+            then
+
+                listOfRemovedPkg+=$givenPkgToRemove
+
+                #
+                sed -i "/$givenPkgToRemove/d" "$meoListInstalledPkgs" 2> /dev/null
+                sed -i "/$givenPkgToRemove/d" "$meoListInstalledPkgsPure" 2> /dev/null
+                    
+                #
+                counterPkgRemoved=$(( counterPkgRemoved + 1 ))
+            fi
+
+        else
+            echo ""
+            echo "~"
+            echo -e "The package \e[32;1m$givenPkgToRemove\e[0m is not installed \U001F9D0 " 
+        fi
+    done
+
+    
+    
+    #
+    if [[ $counterPkgRemoved -gt 0 ]]
+    then
+        echo ""
+        echo "~"
+        
+        #
+        for namePkgRemoved in ${listOfRemovedPkg[@]}
+        do
+            local getNamePkgRemoved=` echo $namePkgRemoved | tr -d "[[:space:]]" `
+
+            if [[ "$getNamePkgRemoved" != "meo" ]]
+            then
+                echo -e "\e[32;1m$getNamePkgRemoved\e[0m removed \U002705 "
+            fi    
+        done
+    fi
+
+    # Call the function
+    removeFileDir
+
+
+    #
+    exit 0
+
+else
+    
+    if [[ $1 == "remove" ]] && [[ $# -lt 2 ]]
+    then
+
+        echo "~"
+        echo -e "With the \e[36;1m$1\e[0m option, you have to give the package(s) to remove \U001F917 "
+
+        exit 1
+    fi
+fi
+
+### Action based on the `remove` option -> end tag[r0]
+
+
+
+
+
+### Action based on the `download` option -> start tag[d0]
+
+if [[ $1 == "download" ]] && [[ $# -gt 1 ]]
+then
+
+    # Declaration variables
+    local flagPkgFound=""
+    local getDebPkg=""
+    local getCurrentPath=` pwd `
+    local counterPkgDownloaded=0
+
+    declare -a listOfDownloadedPkg=()
+
+
+    
+    # Call the function
+    clonePersonalGit
+
+    #
+    shift 1
+
+    
+
+    # The downloading operations
+    for pkgToDownload in $@
+    do
+        #
+        flagPkgFound=` isPackageAvailable $pkgToDownload `
+
+        if [[ $flagPkgFound == "true" ]]
+        then
+            
+            #
+            getDebPkg=` find "/tmp/.meo/github/linux" -name "$pkgToDownload*" -type f 2> /dev/null `
+
+            #
+            if [[ -e "$getDebPkg"  ]]
+            then
+                
+                cp -ra "$getDebPkg" "$getCurrentPath" 2> /dev/null
+
+                if [[ $? -eq 0 ]]
+                then
+                    #
+                    counterPkgDownloaded=$(( counterPkgDownloaded + 1 ))
+
+                    listOfDownloadedPkg+=$pkgToDownload
+                fi
+            fi
+        else
+            echo ""
+            echo "~"
+            echo -e "The package \e[32;1m$pkgToDownload\e[0m does not exist in the \e[32;1mmeo\e[0m repository \U001F9D0 "
+        fi
+    done
+    
+
+
+    #
+    if [[ $counterPkgDownloaded -gt 0 ]]
+    then
+        echo -e ""
+        echo -e "~"
+
+        #
+        for namePkgDownloaded in ${listOfDownloadedPkg[@]}
+        do
+            local getNamePkgDownloaded=` echo $namePkgDownloaded | tr -d "[[:space:]]" `
+
+            if [[ -n "$getNamePkgDownloaded" ]]
+            then
+                echo -e "\e[32;1m$getNamePkgDownloaded\e[0m downloaded \U002705 "
+            fi    
+        done
+    fi
+    
+    # Call the function
+    removeFileDir
+
+    exit 0
+else
+
+    if [[ $1 == "download" ]] && [[ $# -lt 2 ]]
+    then
+
+        echo "~"
+        echo -e "With the \e[36;1m$1\e[0m option, you have to give the package(s) to download \U001F917 "
+
+        exit 1
+    fi
+fi
+
+### Action based on the `download` option -> end tag[d0]
+
+
+
+
+
+### Action based on the `list` option -> start tag[l0]
+
+if [[ $1 == "list"  ]] && [[ $# -eq 1 ]]
+then
+
+    #
+    if [[ -e "$meoListAvailablePkgs" ]]
+    then
+        echo ""
+        echo "~"
+        echo -e "Here is the list of available packages since the last execution of the "
+        echo -e "command ~ \e[35;1msudo meo self-update\e[0m "
+        echo ""
+
+        cat "$meoListAvailablePkgs" 2> /dev/null
+
+        exit 0
+
+    else
+        echo ""
+        echo "~"
+        echo "Something is wrong, please reinstall the \e[32;1mmeo\e[0m program \U001F6A8"
+
+        exit 1
+    fi
+else
+    #
+    if [[ $1 == "list" ]] && [[ $# -gt 1 ]]
+    then
+        echo ""
+        echo "~"
+        echo -e "With the \e[36;1m$1\e[0m option, there is not another argument \U001F917 "
+
+        exit 1
+    fi
+fi
+
+### Action based on the `list` option -> end tag[l0]
+
+
+
+
+
+### Action based on the `list-installed` option -> start tag[l0]
+
+if [[ $1 == "list-installed"  ]] && [[ $# -eq 1 ]]
+then
+
+    #
+    if [[ -e "$meoListInstalledPkgs" ]]
+    then
+        echo ""
+        echo "~"
+        echo -e "Here is the list of installed packages by the \e[35;1mmeo\e[0m program "
+        echo ""
+
+        cat "$meoListInstalledPkgs" | sed -e "/meo/d" 2> /dev/null
+
+        exit 0
+
+    else
+        echo ""
+        echo "~"
+        echo "Something is wrong, please reinstall the \e[32;1mmeo\e[0m program \U001F6A8"
+
+        exit 1
+    fi
+else
+    #
+    if [[ $1 == "list-installed" ]] && [[ $# -gt 1 ]]
+    then
+        echo ""
+        echo "~"
+        echo -e "With the \e[36;1m$1\e[0m option, there is not another argument \U001F917 "
+
+        exit 1
+    fi
+fi
+
+### Action based on the `list-installed` option -> end tag[l1]
+
+
+
+
+
+### Action based on the `search` option -> start tag[s0]
+
+if [[ $1 == "search"  ]] && [[ $# -gt 0 ]]
+then
+    
+    # Declaration variables
+    local flagPkgFound=""
+    counterPkgFound=0
+
+    declare -a listOfFoundPkg=()
+
+    # Call the function
+    refreshPackageFile
+
+    #
+    shift 1
+
+    #
+    for pkgSearched in $@
+    do
+        flagPkgFound=` isPackageAvailable $pkgSearched `
+
+        #
+        if [[ $flagPkgFound == "true" ]]
+        then
+
+            #
+            listOfFoundPkg+=$pkgSearched
+
+            #
+            counterPkgFound=$(( counterPkgFound + 1 ))
+        else
+            echo ""
+            echo "~"
+            echo -e "The package \e[32;1m$pkgSearched\e[0m does not exist in the \e[32;1mmeo\e[0m repository \U001F9D0 "
+        fi
+    done
+
+    
+    #
+    if [[ $counterPkgFound -gt 0 ]]
+    then
+        echo -e ""
+        echo -e "~"
+
+        #
+        for namePkgSearched in ${listOfFoundPkg[@]}
+        do
+            local getNamePkgSearched=` echo $namePkgSearched | tr -d "[[:space:]]" `
+
+            if [[ -n "$getNamePkgSearched" ]]
+            then
+                echo -e "\e[32;1m$getNamePkgSearched\e[0m found \U002705 "
+            fi    
+        done
+
+    fi
+
+    # Call the function
+    removeFileDir
+
+    exit 0
+
+else
+
+    #
+    if [[ $1 == "search" ]] && [[ $# -lt 2 ]]
+    then
+
+        echo "~"
+        echo -e "With the \e[36;1m$1\e[0m option, you have to give the package(s) to search \U001F917 "
+
+        exit 1
+    fi
+
+fi
+
+### Action based on the `search` option -> end tag[s0]
+
+
+
+
+
+### Action based on the `show` option -> start tag[s1]
+
+if [[ $1 == "show" ]] && [[ $# -gt 0 ]]
+then
+    
+    # Declaration variables
+    local flagPkgFound=""
+
+    #
+    shift 1
+
+
+    
+    # Action allowing to display package information
+    for givenPkg in $@
+    do
+        flagPkgFound=` isPackageInstalled $givenPkg `
+
+        #
+        if [[ $flagPkgFound == "true" ]]
+        then
+            
+            echo ""
+            echo "~"
+
+            dpkg-query --status $givenPkg
+        else
+            echo ""
+            echo "~"
+            echo -e "The package \e[32;1m$givenPkg\e[0m is not installed \U001F9D0 "
+        fi
+
+    done
+
+
+    #
+    exit 0
+else
+
+    #
+    if [[ $1 == "show" ]] && [[ $# -lt 2 ]]
+    then
+
+        echo "~"
+        echo -e "With the \e[36;1m$1\e[0m option, you have to give the package(s) whose info "
+        echo -e "must be displayed \U001F917 "
+
+        exit 1
+    fi
+fi
+
+### Action based on the `show` option -> end tag[s1]
+
+
+
+
+
+### Print some files linked to the options `--doc`, `--help` , `--version` --> start tag[io]
+
+if [[ $1 == "--doc" ]] && [[ $# -eq 1 ]]
+then
+    cat /usr/lib/meo/documentation/meo-doc
+    exit 0
+elif [[ $1 == "--help" ]] && [[ $# -eq 1 ]]
+then
+    cat /usr/lib/meo/documentation/meo-help
+    exit 0
+elif [[ $1 == "--version" ]] && [[ $# -eq 1 ]]
+then
+    cat /usr/lib/meo/documentation/meo-version-pure
+    exit 0
+fi
+
+#
+echo "~"
+echo -e "Invalid request \U001F9D0 ."
+exit 1
+
+### Print some files linked to the options `--doc`, `--help` , `--version` --> end tag[io]
+
