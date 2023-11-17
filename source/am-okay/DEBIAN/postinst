@@ -6,11 +6,31 @@
 
 set -euo pipefail
 
+# Declaration variables
+meoListInstalledPkgs="/usr/lib/meo/library/info/list-installed-packages"
+meoListInstalledPkgsPure="/usr/lib/meo/library/info/list-installed-packages-pure"
+
+
+
 ### Enable and the service linked to the <<am-okay>> program, and do another actions . [tag0]
 
 sudo systemctl enable am-okay-boot.service  &> /dev/null
 sudo systemctl daemon-reload  &> /dev/null
 sudo systemctl start am-okay-boot.service  &> /dev/null
+
+
+
+# Add information about the package in these specific files
+if [[ -e "$meoListInstalledPkgsPure" ]]
+then
+
+    if [[ ! ` cat $meoListInstalledPkgsPure | grep -w -- "am-okay" ` ]]
+    then
+        #
+        sed -i "a am-okay : v(3.0.6)" "$meoListInstalledPkgsPure" 2> /dev/null
+        sed -i "a ` echo -e '\e[32;1mam-okay\e[0m : \e[36;1mv(3.0.6)\e[0m' `" "$meoListInstalledPkgs" 2> /dev/null
+    fi
+fi
 
 
 # Just to print the name of the author
