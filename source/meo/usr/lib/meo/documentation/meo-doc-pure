@@ -1,7 +1,7 @@
 meo('1') 2023-11-17
 
 NAME
-    meo (version 1.1.1) .
+    meo (version 1.1.2) .
 
 DESCRIPTION
     meo is a program that allows to manage packages installed from the Github 
@@ -49,7 +49,7 @@ OPTIONS
     remove // This option allows removing packages
               Ex : meo remove am-okay
 
-    download // This option allows download packages
+    download // This option allows downloading packages
                 Ex : meo download am-okay
 
     list // This option allows listing packages of the git repository
@@ -63,8 +63,8 @@ OPTIONS
     search // This option allows to search packages from the git repository
               Ex : meo search am-okay
 
-    show // This option allows to have information on the installed packages from the `control`
-            files
+    show // This option allows to have information on the installed packages from the 
+    `control` files
             Ex : meo show am-okay
 
     --help // This option allows getting help on the `meo` program

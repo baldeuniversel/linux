@@ -19,7 +19,7 @@ OPTIONS
     [36;1mremove[0m // This option allows removing packages
               Ex : [35;1mmeo[0m [36;1mremove[0m am-okay
 
-    [36;1mdownload[0m // This option allows [36;1mdownload[0m packages
+    [36;1mdownload[0m // This option allows [36;1mdownloading[0m packages
                 Ex : [35;1mmeo[0m [36;1mdownload[0m am-okay
 
     [36;1mlist[0m // This option allows listing packages of the git repository
@@ -30,11 +30,11 @@ OPTIONS
     [36;1mlist-installed[0m // This option allows listing the installed packages from the git repository
                       Ex : [35;1mmeo[0m [36;1mlist-installed[0m
 
-    [36;1msearch[0m // This option allows to [36;1msearch[0m packages from the git repository
+    [36;1msearch[0m // This option allows to [36;1msearch[0m packages from the Github repository
               Ex : [35;1mmeo[0m [36;1msearch[0m am-okay
 
-    [36;1mshow[0m // This option allows to have information on the installed packages from the `control`
-            files
+    [36;1mshow[0m // This option allows to have information on the installed packages from the 
+    `control` files
             Ex : [35;1mmeo[0m [36;1mshow[0m am-okay
 
     [36;1m--help[0m // This option allows getting help on the `[35;1mmeo[0m` program

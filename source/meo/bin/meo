@@ -99,7 +99,7 @@ set -uo pipefail # To exit the script if there is an error
 
 #
 if ( [[ $USER != "root" ]] ) && ( [[ $1 != "list" ]] && [[ $1 != "list-installed" ]] && [[ $1 != "--version" ]] \
-     && [[ $1 != "show" ]] )
+     && [[ $1 != "show" ]] && [[ $1 != "--doc" ]] && [[ $1 != "--help" ]] )
 then
     echo "~"
     echo -e "Only the root/admin has the right to execute this \e[32;1mmeo\e[0m action \U001F6A7 "
