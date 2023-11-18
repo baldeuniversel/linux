@@ -30,23 +30,23 @@ then
     if [[ ! ` cat "$meoListInstalledPkgsPure" | grep -w -- "meo" ` ]]
     then
         # Add `meo` program as an installed package
-        sed -i -e "$ a ` echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.1)\e[0m" ` " $meoListInstalledPkgs
-        sed -i "$ a meo : v(1.1.1)" $meoListInstalledPkgsPure
+        sed -i -e "$ a ` echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.2)\e[0m" ` " $meoListInstalledPkgs
+        sed -i "$ a meo : v(1.1.2)" $meoListInstalledPkgsPure
     fi
 
 elif [[ -e "$meoListInstalledPkgsPure" ]] && [[ ! -s "$meoListInstalledPkgsPure" ]]
 then
 
     # Add `meo` program as an installed package
-    echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.1)\e[0m" >> $meoListInstalledPkgs
-    echo -e "meo : v(1.1.1)" >> $meoListInstalledPkgsPure
+    echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.2)\e[0m" >> $meoListInstalledPkgs
+    echo -e "meo : v(1.1.2)" >> $meoListInstalledPkgsPure
 
 elif [[ ! -e "$meoListInstalledPkgsPure" ]]
 then
 
     # Add `meo` program as an installed package
-    echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.1)\e[0m" >> $meoListInstalledPkgs
-    echo -e "meo : v(1.1.1)" >> $meoListInstalledPkgsPure
+    echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.2)\e[0m" >> $meoListInstalledPkgs
+    echo -e "meo : v(1.1.2)" >> $meoListInstalledPkgsPure
 fi
 
 

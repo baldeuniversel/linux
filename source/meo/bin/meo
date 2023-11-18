@@ -1005,7 +1005,7 @@ then
                 getDebPkg=` find "/tmp/.meo/github/linux" -name "$getNamePkgUpgradable*" -type f 2> /dev/null `
                 
                 #
-                if [[ -e "$getDebPkg" ]]
+                if [[ -e "$getDebPkg" ]] && [[ ! ` echo "$getDebPkg" | grep -w -- "meo" ` ]]
                 then
                     dpkg --install "$getDebPkg"
 
@@ -1080,7 +1080,7 @@ then
                 #
                 getDebPkg=` find "/tmp/.meo/github/linux" -name "$givenPkg*" `
                 
-                if [[ -e "$getDebPkg" ]]
+                if [[ -e "$getDebPkg" ]] && [[ ! ` echo "$getDebPkg" | grep -w -- "meo" ` ]]
                 then
                 
                     #
@@ -1097,7 +1097,18 @@ then
                         #
                         counterPkgUpgraded=$(( counterPkgUpgraded + 1 ))
                     fi
+
+                elif [[ -e "$getDebPkg" ]] && [[ ` echo "$getDebPkg" | grep -w -- "meo" ` ]] 
+                then
+                    
+                    echo ""
+                    echo "~"
+                    echo "You can not upgrade the \e[32;1mmeo\e[0m program itself 🚨"
+                    
+                    #
+                    continue
                 fi
+
             else
                 echo ""
                 echo "~"
@@ -1165,7 +1176,7 @@ then
         flagPkgFound=` isPackageInstalled $givenPkgToRemove `
 
         #
-        if [[ $flagPkgFound == "true" ]]
+        if [[ $flagPkgFound == "true" ]] && [[ ! ` echo "$givenPkgToRemove" | grep -w -- "meo" ` ]]
         then
 
             #
@@ -1183,6 +1194,17 @@ then
                 #
                 counterPkgRemoved=$(( counterPkgRemoved + 1 ))
             fi
+
+        elif [[ $flagPkgFound == "true" ]] && [[ ` echo "$givenPkgToRemove" | grep -w -- "meo" ` ]] 
+        then
+            
+            #
+            echo ""
+            echo "~"
+            echo "You can not remove the \e[32;1mmeo\e[0m program itself 🚨"
+                    
+            #
+            continue
 
         else
             echo ""
