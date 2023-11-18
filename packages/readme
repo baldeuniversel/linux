@@ -1,3 +1,19 @@
+/**
+* The <<meo>> program allows to manage packages installed from the Github
+* repository `https://github.com/baldeuniversel/linux.git` (Use from the terminal) .
+*
+* Otherwise <<meo>> program is a package manager for all programs of this Github repository
+* `https://github.com/baldeuniversel/linux` at the level of the `main` branch . So, you must
+* fist install <<meo>> program to manage the packages found on the Github link in question .
+*
+* After installing the <<meo>> program, encode this command (from the terminal) 
+* `meo --help` or `meo --doc` to see how to use the <<meo>> program .
+*/
+
+
+
+
+
 /** 
 * The <<am-okay>> program allows dynamically to copy, cut, and 
 * paste dirs/files(Use from the terminal) .
@@ -18,6 +34,7 @@
 /**
 * The <<lumus>> program allows to manage the luminosity of the Linux system(Use from the terminal) .
 *
-* To see how to use <<lumus>> program, encode from the terminal(of course after installing the program) 
+* To see how to use <<lumus>> program, encode this command from the terminal(of course after installing the program) 
 * `lumus --help` or `man lumus` .
 */
+
