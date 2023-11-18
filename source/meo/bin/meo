@@ -1069,7 +1069,7 @@ then
     do
         flagPkgFound=$( isPackageInstalled $givenPkg )
 
-        if [[ $flagPkgFound == "true"  ]]
+        if [[ $flagPkgFound == "true"  ]] && [[ ! ` echo "$givenPkg" | grep -w -- "meo" ` ]]
         then
             flagPkgNewVersionFound=` isNewVersionOfPkgAvailable $givenPkg `
 
@@ -1097,16 +1097,6 @@ then
                         #
                         counterPkgUpgraded=$(( counterPkgUpgraded + 1 ))
                     fi
-
-                elif [[ -e "$getDebPkg" ]] && [[ ` echo "$getDebPkg" | grep -w -- "meo" ` ]] 
-                then
-                    
-                    echo ""
-                    echo "~"
-                    echo "You can not upgrade the \e[32;1mmeo\e[0m program itself 🚨"
-                    
-                    #
-                    continue
                 fi
 
             else
@@ -1115,12 +1105,22 @@ then
                 echo -e "The program \e[36;1m$givenPkg\e[0m is already up to date \U002705 "
             fi
 
+        elif [[ $flagPkgFound == "true"  ]] && [[ ` echo "$givenPkg" | grep -w -- "meo" ` ]]
+        then
+
+            #
+            echo ""
+            echo "~"
+            echo "You can not upgrade the \e[32;1mmeo\e[0m program itself 🚨"
+                    
+            #
+            continue
+
         else
             echo ""
             echo "~"
             echo -e "The package \e[32;1m$givenPkg\e[0m is not installed \U001F9D0 " 
         fi
-
     done
 
 
