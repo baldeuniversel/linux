@@ -12,7 +12,7 @@ set -euo pipefail
 # Declaration variables
 getOS=""
 
-meoTmpDir="/tmp/.meo/github"
+meoTmpDir="/tmp/.meo/$USER/github"
 fileGithubAction="$meoTmpDir/github-action"
 
 meoListAvailablePkgsPure="/usr/lib/meo/library/info/list-available-packages-pure"
@@ -128,9 +128,9 @@ then
 fi
 
 # Remove `.meo` directory in /tmp
-if [[ -e "/tmp/.meo"  ]]
+if [[ -e "/tmp/.meo/$USER"  ]]
 then
-    rm -rf "/tmp/.meo" 2> /dev/null
+    rm -rf "/tmp/.meo/$USER" 2> /dev/null
 fi
 
 ### Download the available packages and store the name of these packages with their version -> end tag[d0]

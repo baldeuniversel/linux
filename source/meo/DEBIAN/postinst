@@ -31,8 +31,8 @@ then
     then
 
         # Add `meo` program as an installed package
-        sed -i -e "$ a ` echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.2)\e[0m" ` " $meoListInstalledPkgs
-        sed -i "$ a meo : v(1.1.2)" $meoListInstalledPkgsPure
+        sed -i -e "$ a ` echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.3)\e[0m" ` " $meoListInstalledPkgs
+        sed -i "$ a meo : v(1.1.3)" $meoListInstalledPkgsPure
     
     elif [[ ` cat "$meoListInstalledPkgsPure" | grep -w -- "meo" ` ]]
     then
@@ -41,23 +41,23 @@ then
         getLineMeoString=` cat "$meoListInstalledPkgsPure" | grep -wn "meo" | cut -d ":" -f 1 `
 
         # Replace the old version of the `meo` program
-        sed -i -e "$getLineMeoString s/...*/` echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.2)\e[0m" `/" $meoListInstalledPkgs 2> /dev/null
-        sed -i -e "$getLineMeoString s/...*/` echo -e "meo : v(1.1.2)" `/" $meoListInstalledPkgsPure 2> /dev/null
+        sed -i -e "$getLineMeoString s/...*/` echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.3)\e[0m" `/" $meoListInstalledPkgs 2> /dev/null
+        sed -i -e "$getLineMeoString s/...*/` echo -e "meo : v(1.1.3)" `/" $meoListInstalledPkgsPure 2> /dev/null
     fi
 
 elif [[ -e "$meoListInstalledPkgsPure" ]] && [[ ! -s "$meoListInstalledPkgsPure" ]]
 then
 
     # Add `meo` program as an installed package
-    echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.2)\e[0m" >> $meoListInstalledPkgs
-    echo -e "meo : v(1.1.2)" >> $meoListInstalledPkgsPure
+    echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.3)\e[0m" >> $meoListInstalledPkgs
+    echo -e "meo : v(1.1.3)" >> $meoListInstalledPkgsPure
 
 elif [[ ! -e "$meoListInstalledPkgsPure" ]]
 then
 
     # Add `meo` program as an installed package
-    echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.2)\e[0m" >> $meoListInstalledPkgs
-    echo -e "meo : v(1.1.2)" >> $meoListInstalledPkgsPure
+    echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.3)\e[0m" >> $meoListInstalledPkgs
+    echo -e "meo : v(1.1.3)" >> $meoListInstalledPkgsPure
 fi
 
 

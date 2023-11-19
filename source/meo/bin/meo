@@ -189,8 +189,8 @@ meoPackages="$meoLibraryDir/packages"
 
 meoDocumentationDir="$meoRootDir/documentation"
 
-meoTmp="/tmp/.meo"
-meoTmpDir="/tmp/.meo/github"
+meoTmp="/tmp/.meo/$USER"
+meoTmpDirGithub="$meoTmp/github"
 
 fileCodeReturnCommand="$meoTmp/code-return-command"
 
@@ -272,12 +272,12 @@ function refreshPackageFile
     ### Download the available packages and store the name of these packages with their version -> start tag[d0]
     
     # Declarations variables
-    local fileGithubAction="$meoTmpDir/github-action"
+    local fileGithubAction="$meoTmpDirGithub/github-action"
     
     #
-    if [[ ! ( -e "$meoTmpDir" ) ]]
+    if [[ ! ( -e "$meoTmpDirGithub" ) ]]
     then
-        mkdir -p $meoTmpDir
+        mkdir -p $meoTmpDirGithub
     fi
    
     # Check if there is internet connection
@@ -291,14 +291,14 @@ function refreshPackageFile
     fi
 
     # Clone the git repository
-    git clone https://github.com/baldeuniversel/linux.git "$meoTmpDir/linux" 2> /dev/null
+    git clone https://github.com/baldeuniversel/linux.git "$meoTmpDirGithub/linux" 2> /dev/null
     
     #
     if [[ $? -eq 0 ]]
     then
     
         # Action to get the packages without the `deb` extension
-        find "$meoTmpDir/linux"  -name "*.deb" -type f | gawk '{ split($0, array, "/");  print array[length(array)] }' \
+        find "$meoTmpDirGithub/linux"  -name "*.deb" -type f | gawk '{ split($0, array, "/");  print array[length(array)] }' \
             | gawk '{ split($0, array, ".deb" ); print array[length(array)-1] }' >> $fileGithubAction 2> /dev/null
     
 
@@ -350,7 +350,7 @@ function clonePersonalGit
     fi
 
     # Clone the git repository
-    git clone https://github.com/baldeuniversel/linux.git "$meoTmpDir/linux" 2> /dev/null
+    git clone https://github.com/baldeuniversel/linux.git "$meoTmpDirGithub/linux" 2> /dev/null
 
 }
 
@@ -370,12 +370,12 @@ function storeInslalledPkg
 {
 
     # Declaration variables
-    local fileGithubAction="$meoTmpDir/github-action"
+    local fileGithubAction="$meoTmpDirGithub/github-action"
 
     #
-    if [[ ! -e  $meoTmpDir ]]
+    if [[ ! -e  $meoTmpDirGithub ]]
     then
-        mkdir -p $meoTmpDir 2> /dev/null
+        mkdir -p $meoTmpDirGithub 2> /dev/null
     fi
   
     # Call the function
@@ -383,7 +383,7 @@ function storeInslalledPkg
     
 
     # Action to get the packages without the `deb` extension
-    find "$meoTmpDir/linux"  -name "$1*" -type f | gawk '{ split($0, array, "/");  print array[length(array)] }' \
+    find "$meoTmpDirGithub/linux"  -name "$1*" -type f | gawk '{ split($0, array, "/");  print array[length(array)] }' \
         | gawk '{ split($0, array, ".deb" ); print array[length(array)-1] }' >> $fileGithubAction 2> /dev/null
 
 
@@ -556,15 +556,15 @@ function isNewVersionOfPkgAvailable
 function removeFileDir
 {
     # Remove the packages in /tmp/.meo
-    if [[ -e "$meoTmpDir/linux"  ]]
+    if [[ -e "$meoTmpDirGithub/linux"  ]]
     then
-        rm -rf "$meoTmpDir/linux" 2> /null
+        rm -rf "$meoTmpDirGithub/linux" 2> /null
     fi
 
     # Remove files/dirs
-    if [[ -e "$meoTmpDir/github-action"  ]]
+    if [[ -e "$meoTmpDirGithub/github-action"  ]]
     then
-        rm -rf "$meoTmpDir/github-action" 2> /null
+        rm -rf "$meoTmpDirGithub/github-action" 2> /null
     fi
 }
 
@@ -582,6 +582,21 @@ function colorElem
 {
     echo -e "\033[36m$1\033[0m"
 }
+
+
+
+
+
+# Create some working dirs 
+if [[ ! ( -e "$meoTmp" ) ]]
+then
+    mkdir -p "$meoTmp" 2> /dev/null
+fi
+#
+if [[ ! ( -e "$meoTmpDirGithub" ) ]]
+then
+    mkdir -p "$meoTmpDirGithub" 2> /dev/null
+fi
 
 
 
@@ -665,7 +680,7 @@ then
     # Shift one position
     shift 1
 
-    # Install the package if it exi"$meoTmpDir/linux"sts
+    # Install the package if it exists
     for packageUP in $@
     do
         #
@@ -676,7 +691,7 @@ then
         then 
             
             #
-            getDebPkg=` find "/tmp/.meo/github/linux" -name "$packageUP*" `
+            getDebPkg=$( find "$meoTmpDirGithub/linux" -name "$packageUP*" -type f 2> /dev/null )
 
             #
             if [[ ` echo "$getDebPkg" | grep -i -- "meo-" ` ]]
@@ -903,7 +918,7 @@ then
     local getNameOfPkg=""
     local getVersionOfPkg=""
     getDebPkg=""
-    local fileGithubAction="$meoTmpDir/github-action"
+    local fileGithubAction="$meoTmpDirGithub/github-action"
 
     local counterPkgInstalled=0
     local counterPkgUpgradable=0
@@ -1003,7 +1018,7 @@ then
             then
                 
                 #
-                getDebPkg=` find "/tmp/.meo/github/linux" -name "$getNamePkgUpgradable*" -type f 2> /dev/null `
+                getDebPkg=$( find "$meoTmpDirGithub/linux" -name "$getNamePkgUpgradable*" -type f 2> /dev/null )
                 
                 #
                 if [[ -e "$getDebPkg" ]] && [[ ! ` echo "$getNamePkgUpgradable" | grep -w -- "meo" ` ]]
@@ -1081,7 +1096,7 @@ then
             then
                 
                 #
-                getDebPkg=` find "/tmp/.meo/github/linux" -name "$givenPkg*" `
+                getDebPkg=$( find "$meoTmpDirGithub/linux" -name "$givenPkg*" -type f 2> /dev/null )
                 
                 if [[ -e "$getDebPkg" ]] && [[ ! ` echo "$givenPkg" | grep -w -- "meo" ` ]]
                 then
@@ -1294,7 +1309,7 @@ then
         then
             
             #
-            getDebPkg=` find "/tmp/.meo/github/linux" -name "$pkgToDownload*" -type f 2> /dev/null `
+            getDebPkg=$( find "$meoTmpDirGithub/linux" -name "$pkgToDownload*" -type f 2> /dev/null )
 
             #
             if [[ -e "$getDebPkg"  ]]
