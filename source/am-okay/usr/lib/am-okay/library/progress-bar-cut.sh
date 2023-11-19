@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 #####
 :   '
@@ -32,6 +32,11 @@ a_old_percent=0
 a_terminate_process="TRUE"
 declare -a a_character_bar_front_list=("▊" "▉" "█")
 a_character_bar_back="-"
+
+filePidCommandMv="/tmp/.am-okay/$USER/pid-mv"
+
+
+
 
 :   '
 @constructor
@@ -107,6 +112,8 @@ function display_progress_bar
     local decrement_bar_back=0
     local counter=0
 
+    local getPidCommandMv=` cat $filePidCommandMv 2> /dev/null `
+
     local source_dir_file=` echo $a_source_data | awk -F '/' '{ print $NF }' `
     local destination_dir_file=$a_destination_dir_target_embed
 
@@ -157,10 +164,10 @@ function display_progress_bar
     done
 
     # Reset the white color
-    echo -en "|  $a_percent_stat % \033[0m"
+    echo -en "|  $a_percent_stat  \033[0m"
  
     #
-    while [[ $a_terminate_process == "TRUE" ]]
+    while [[ $a_terminate_process == "TRUE"  ]]
     do
         # Get the size of the ongoing data
         a_length_ongoing_data=$(get_size $a_destination_dir_target_embed)
@@ -213,34 +220,8 @@ function display_progress_bar
         fi
 
         #
-        if [[ $a_length_ongoing_data -eq $a_size_source  ]] || [[ $a_size_source -eq 0 ]]
+        if [[ ! ` ps -p "$getPidCommandMv" | grep -w -- "$getPidCommandMv" ` ]]
         then
-
-            #
-            a_terminate_process="FALSE"
-            
-            # Set the color to white then to green
-            echo -en "\033[37m\r|"
-            echo -en "\033[0m\033[32m"
-            
-            # Display the front character according the index and ..
-            for counter in {1..50}
-            do
-                echo -en "${a_character_bar_front_list[2]}"
-            done
-
-            # Set the color to white
-            echo -en "\033[37m"
-            
-            #
-            printf "|  %d" $(( 2 * 50 ))
-            echo -en " %"
-
-        elif  [[ ` echo "$a_size_source-$a_length_ongoing_data" | bc ` -lt 256 ]]
-        then
-
-            #
-            sleep 3
 
             #
             a_terminate_process="FALSE"
@@ -262,6 +243,7 @@ function display_progress_bar
             printf "|  %d" $(( 2 * 50 ))
             echo -en " %"
         fi
+
     done
 
     # Call the destructor <<__del__>>
