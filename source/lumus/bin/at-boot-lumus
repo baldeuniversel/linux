@@ -36,7 +36,5 @@ then
         # Allow all the users belonging to `sudo` to write in the target file
     	sudo chmod 664 /sys/class/backlight/*/brightness
     
-    	# Remove the file /tmp/.lumus_perm_tmp
-    	sudo rm -r /tmp/.lumus_perm_tmp
     fi
 fi
