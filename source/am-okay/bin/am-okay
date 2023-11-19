@@ -133,6 +133,8 @@
 
 set -uo pipefail # To exit the script if there is an error
 
+trap "setterm --cursor on" SIGINT
+
 # Declaration variables
 listOfParams=("--copy" "--cut" "--paste-copy" "--paste-cut" "--array" \
     "--index" "--put" "--stat-copy" "--stat-cut" "--stat" "--reset" "--doc" "--help" "--version")
@@ -212,10 +214,12 @@ arrayIndex3CopyCutActionFileOnly="$arrayRootDir/array-3/copy-cut-action-only"
 #
 globalCounterReject="false"
 globalCounterOkay="false"
-fileCodeCommandReturn="/tmp/.am-okay/code-of-return"
 
-
-
+fileCodeCommandReturn="/tmp/.am-okay/$USER/code-of-return"
+fileCodeCommandErrorMv="/tmp/.am-okay/$USER/error-move"
+fileCodeCommandErrorCp="/tmp/.am-okay/$USER/error-cp"
+filePidCommandMv="/tmp/.am-okay/$USER/pid-mv"
+filePidCommandCp="/tmp/.am-okay/$USER/pid-cp"
 
 
 # Launch a script by an autostart event -> Remove the historical of the actions done by `am-okay` command
@@ -263,8 +267,8 @@ function alertNonEffectiveAction
             if [[ $getNumberOfLine -gt 0 ]]
             then
                 echo "~"
-                echo -en "Something wrong \U001F9D0, please make sure you have a permission to \nexecute the <am-okay> program "
-                echo -en "or you have write permission on the target directory, or the source dir \ndoes not include "
+                echo -en "Something wrong \U001F9D0, please make sure you have a permission to \nexecute the \e[36;1mam-okay\e[0m program "
+                echo -en "or you have write permission on the \ntarget directory or the source dir does not include "
                 echo -en "in the target dir ."
 
                 #
@@ -714,13 +718,18 @@ function pasteAction
                 if [[ -e "$readLine" ]]
                 then
                     # Copy the files/directories towards the given directory
-                    cp -ra "$readLine" "$targetDir" 2> $fileCodeCommandReturn &
+                    cp -ra "$readLine" "$targetDir" 2> $fileCodeCommandErrorCp &
+                    
+                    # Store the pid of the last command
+                    echo "$!" > $filePidCommandCp
 
                     #
-                    sleep 0.005
+                    sleep 0.0005
 
                     # Call the function ->  ` alertNonEffectiveAction `
-                    alertNonEffectiveAction $fileCodeCommandReturn
+                    alertNonEffectiveAction $fileCodeCommandErrorCp 
+
+                    truncate -s 0 $fileCodeCommandErrorCp
                 
                     #
                     if [[ -f "$readLine" ]] && [[ ! ( -e "$targetDir/$getEndFileDir" ) ]]
@@ -750,6 +759,7 @@ function pasteAction
                     #
                     globalCounterOkay="true"
                     truncate -s 0 $fileCodeCommandReturn 2> /dev/null
+                    truncate -s 0 $filePidCommandCp 2> /dev/null
                 else
                     # Replace the current line of the files by empty line
                     sed -i "s|.*`echo $readLine `.*||" $onlyCopyCutActionFile
@@ -806,28 +816,33 @@ function pasteAction
                     # Move the files/directories towards the given directory
                     if [[ ! ( "$readLine" == "$targetDir" ) ]]
                     then
-                        mv --backup=numbered "$readLine" "$targetDir" 2> /tmp/.am-okay/error_move &
+                        mv --backup=numbered "$readLine" "$targetDir" 2> $fileCodeCommandErrorMv &
+                        
+                        # Store the pid of the last command
+                        echo "$!" > $filePidCommandMv
 
                         #
-                        sleep 0.005
+                        sleep 0.0005
 
-                        if [[ -s "/tmp/.am-okay/error_move" ]]
+                        if [[ -s "$fileCodeCommandErrorMv" ]]
                         then
                             echo "~"
-                            echo -e "Action rejected for the file/dir <<$readLine>> -> same target ⚠️  "
+                            echo -e "Action rejected for the file/dir [ $readLine ] -> same parent target ⚠️  "
                             
                             #
-                            truncate -s 0 /tmp/.am-okay/error_move 2> /dev/null
+                            truncate -s 0 "$fileCodeCommandErrorMv" 2> /dev/null
 
                             #
                             continue
                         else
                             # Display the status of the transfer
                             /usr/lib/am-okay/library/progress-bar-cut.sh "$readLine" "$targetDir/$getEndFileDir"
+
+                            truncate -s 0 $filePidCommandMv 2> /dev/null
                         fi  
                     else
                         echo "~"
-                        echo -e "Action rejected for the file/dir $readLine -> same target ⚠️  "
+                        echo -e "Action rejected for the file/dir [ $readLine ] -> same parent target ⚠️  "
                         
                         #
                         continue
@@ -899,16 +914,11 @@ function pasteAction
 
 
 
-# Creation a file where the error code will be sent
-if [[ ! ( -e "/tmp/.am-okay" ) ]]
+# Creation dirs where the error code will be sent
+if [[ ! ( -e "/tmp/.am-okay/$USER" ) ]]
 then
-    mkdir -p "/tmp/.am-okay" 2> /dev/null
-
-fi
-#
-if [[ ! ( -e "/tmp/.am-okay/code-of-return" ) ]]
-then
-    touch "/tmp/.am-okay/code-of-return" &> /dev/null
+    mkdir -p "/tmp/.am-okay/$USER" 2> /dev/null
+    chmod 700 "/tmp/.am-okay/$USER" 2> /dev/null
 fi
 
 # Creation the root directory for the `am-okay` actions
