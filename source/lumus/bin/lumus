@@ -81,7 +81,7 @@ then
     
     if [[ $get_value_proper_increment -le $total_brightness ]]
     then
-        echo "~"
+        #
         echo "$get_value_proper_increment" > /sys/class/backlight/*/brightness
 
         exit 0
