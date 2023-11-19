@@ -1001,12 +1001,15 @@ then
 
             if [[ "$getNamePkgUpgradable" != "meo" ]]
             then
-
+                
+                #
                 getDebPkg=` find "/tmp/.meo/github/linux" -name "$getNamePkgUpgradable*" -type f 2> /dev/null `
                 
                 #
-                if [[ -e "$getDebPkg" ]] && [[ ! ` echo "$getDebPkg" | grep -w -- "meo" ` ]]
+                if [[ -e "$getDebPkg" ]] && [[ ! ` echo "$getNamePkgUpgradable" | grep -w -- "meo" ` ]]
                 then
+                    
+                    #
                     dpkg --install "$getDebPkg"
 
                     if [[ $? -eq 0 ]]
@@ -1080,7 +1083,7 @@ then
                 #
                 getDebPkg=` find "/tmp/.meo/github/linux" -name "$givenPkg*" `
                 
-                if [[ -e "$getDebPkg" ]] && [[ ! ` echo "$getDebPkg" | grep -w -- "meo" ` ]]
+                if [[ -e "$getDebPkg" ]] && [[ ! ` echo "$givenPkg" | grep -w -- "meo" ` ]]
                 then
                 
                     #
