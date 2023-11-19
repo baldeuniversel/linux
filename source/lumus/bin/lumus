@@ -3,7 +3,7 @@
 ##### This script increases or decreases the luminosity of the screen 
 #####
 # Author : Baldé Amadou
-# Version : 1.2.0 (2023-11-12)
+# Version : 1.2.2 (2023-11-19)
 #####
 
 ##### Use case 
@@ -23,7 +23,8 @@ then
     rm -r /usr/share/lumus/doc/info/lumus_status 2> /dev/null
     rm -r /usr/bin/lumus 2> /dev/null
     
-    echo "The program seems to compromize "
+    echo "~"
+    echo -e "The program seems to compromize ⚠️  "
     exit 1
 fi
 
@@ -40,7 +41,8 @@ if [[ $# -ne 1 ]]
 then
 
     #
-    echo "Incorrect argument(s) !"
+    echo "~"
+    echo -e "Incorrect argument(s) \U001F9D0"
     exit 1
 fi
 
@@ -70,7 +72,7 @@ fi
 ## Increasing, decreasing, equalizing and status of the luminosity
 
 # Increasing action 
-if [[ $get_param = +([+])+([0-9])*([0-9]) ]]
+if [[ $get_param = +([+])+([0-9])*([0-9]) ]] && [[ ` id $USER | grep -- "sudo" ` ]]
 then
 
     get_value_nb=${get_param:1}
@@ -79,19 +81,20 @@ then
     
     if [[ $get_value_proper_increment -le $total_brightness ]]
     then
-
+        echo "~"
         echo "$get_value_proper_increment" > /sys/class/backlight/*/brightness
 
         exit 0
 
     else
-        echo "Overflow value !"
+        echo "~"
+        echo -e "Overflow value 🚨 "
 
         exit 1
     fi
 
 # Decreasing action 
-elif [[ $get_param = +([-])+([0-9])*([0-9]) ]]
+elif [[ $get_param = +([-])+([0-9])*([0-9]) ]] && [[ ` id $USER | grep -- "sudo" ` ]]
 then
 
     #
@@ -116,13 +119,14 @@ then
 
         exit 0
     else
-        echo "Overflow value !"
+        echo "~"
+        echo -e "Overflow value 🚨"
 
         exit 1
     fi
 
 # Equalizing action 
-elif [[ $get_param = +([=])+([0-9])*([0-9]) ]]
+elif [[ $get_param = +([=])+([0-9])*([0-9]) ]] && [[ ` id $USER | grep -- "sudo" ` ]]
 then
 
     get_value_nb=${get_param:1}
@@ -141,11 +145,13 @@ then
     then
 
         #
-        echo -e "Request ignored to avoid a black screen ."
+        echo "~"
+        echo -e "Request ignored to avoid a black screen ⚠️  "
 
 	    exit 1
     else  
-        echo "Overflow value !"
+        echo "~"
+        echo "Overflow value 🚨"
 
         exit 1
     fi
@@ -158,6 +164,16 @@ then
     get_current_percent=`echo "($get_actual_brightness*100)/($total_brightness)" | bc `
 
     echo "---> $get_current_percent % "
+
+elif [[ ! ` id $USER | grep -- "sudo" `  ]]
+then
+    echo "~"
+    echo -e "You have not the right to execute this action \U001F9D0 "
+
+    exit 1
 else
-    echo "Invalid format !"
+    echo "~"
+    echo "Invalid format \U001F9D0 "
+
+    exit 1
 fi 

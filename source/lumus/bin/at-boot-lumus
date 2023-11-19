@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 #####
 # Action at boot
@@ -30,18 +30,11 @@ if [[ -n $get_actual_brightness ]] && [[ -n $total_brightness ]]
 then
     
     #
-    if  [[ -e "/bin/lumus" ]] 
+    if  [[ -e "/usr/bin/lumus" ]] 
     then
+
+        # Allow all the users belonging to `sudo` to write in the target file
     	sudo chmod 664 /sys/class/backlight/*/brightness
-    
-    	# Get all users belonging to sudo group
-    	grep 'sudo' /etc/group | cut  -d ":" -f4 | tr  "," "\n" > /tmp/.lumus_perm_tmp
-    	
-    	# Get the first user in the /tmp/.lumus_perm_tmp file
-    	get_first_user=`cat /tmp/.lumus_perm_tmp | head -n 1 `
-    	
-    	# Define `get_first_user` like the group of the file /sys/class/backlight/*/brightness 	
-    	sudo chgrp $get_first_user /sys/class/backlight/*/brightness 
     
     	# Remove the file /tmp/.lumus_perm_tmp
     	sudo rm -r /tmp/.lumus_perm_tmp
