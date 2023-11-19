@@ -1,7 +1,20 @@
-##### Use case 
 
-# Example of increasing of the backlight of 10 percent from the actual backlight   --->  lumus +10
-# Example of decreasing of the backlight of 10 percent from the actual backlight   --->  lumus -10
-# Example to equalize the backlight to 50 percent                                  --->  lumus =50
-# Example to know the current percent of the luminosity                            --->  lumus --status
-#####
+[36;1mOPTIONS[0m
+       ‐‐[36;1mhelp[0m      To see some use cases of the [35;1mlumus[0m program
+
+       ‐‐[36;1mversion[0m   To see the [36;1mversion[0m of the [35;1mlumus[0m program
+
+       +[36;1m[int value][0m
+                   To increase the brightness ‐> Ex: [35;1mlumus[0m +10 (for 10 percent increasing]
+
+       ‐[36;1m[int value][0m
+                   To decrease the brightness ‐> Ex: [35;1mlumus[0m ‐5 (for 5 percent decreasing]
+
+       =[36;1m[int value][0m
+                   To equalize the brightness to an accurate percent ‐> Ex: [35;1mlumus[0m =50 (to equalize the brightness to 50 percent)
+
+       ‐‐[36;1mstatus[0m    To display the percent of the battery ‐> Ex : [35;1mlumus[0m ‐‐[36;1mstatus[0m
+
+[32;1mNOTE[0m
+       For safety raisons some actions will be ignored . For exemple ‐> [35;1mlumus[0m =0 (to avoid a black screen),
+                                                                        [35;1mlumus[0m =101 (overflow exception ) ...

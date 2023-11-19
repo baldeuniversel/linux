@@ -1,8 +1,8 @@
 Package: lumus
-Version: 1.2.1
+Version: 1.2.2
 Section: base   
 Priority: optional
 Architecture: all
 Maintainer: Baldé <baldeuniversel@protonmail.com>
-Depends: bash , coreutils , systemd , software-properties-common
+Depends: bash , zsh, coreutils , systemd , software-properties-common , gawk, awk
 Description: <The <<lumus>> program allows to manage the luminosity of the Linux system(Use from the terminal)>
