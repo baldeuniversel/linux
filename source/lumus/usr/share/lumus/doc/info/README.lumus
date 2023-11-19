@@ -11,7 +11,8 @@
                    To decrease the brightness ‐> Ex: [35;1mlumus[0m ‐5 (for 5 percent decreasing]
 
        =[36;1m[int value][0m
-                   To equalize the brightness to an accurate percent ‐> Ex: [35;1mlumus[0m =50 (to equalize the brightness to 50 percent)
+                   To equalize the brightness to an accurate percent ‐> 
+                   Ex: [35;1mlumus[0m =50 (to equalize the brightness to 50 percent)
 
        ‐‐[36;1mstatus[0m    To display the percent of the battery ‐> Ex : [35;1mlumus[0m ‐‐[36;1mstatus[0m
 
