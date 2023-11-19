@@ -151,7 +151,7 @@ then
 	    exit 1
     else  
         echo "~"
-        echo "Overflow value 🚨"
+        echo -e "Overflow value 🚨"
 
         exit 1
     fi
@@ -173,7 +173,7 @@ then
     exit 1
 else
     echo "~"
-    echo "Invalid format \U001F9D0 "
+    echo -e "Invalid format \U001F9D0 "
 
     exit 1
 fi 
