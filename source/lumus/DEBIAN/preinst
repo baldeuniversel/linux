@@ -47,7 +47,7 @@ fi
 
 
 # Check if the variables above contain something, and do ...
-if [[ -n $get_actual_brightness ]] && [[ -n $total_brightness ]]
+if [[ -n "$get_actual_brightness" ]] && [[ -n "$total_brightness" ]]
 then
     
     #
@@ -57,8 +57,6 @@ then
         # Allow to all the users belonging to `sudo` group to write to the target file
 	    sudo chmod 664 /sys/class/backlight/*/brightness 2> /dev/null
 
-	    # Remove the file /tmp/.lumus_perm_tmp
-	    sudo rm -r /tmp/.lumus_perm_tmp 2> /dev/null
 
         #
         if [[ ! -e "/usr/bin" ]]
@@ -78,11 +76,10 @@ then
         then
 	        echo ""
 	        echo "~"
-            echo "Try now with the command <<lumus>> then your argument !"
             echo "To see how to use this program, encode from your terminal -> lumus --help"
             echo ""
 	        echo ""
-            echo "YES" >  /usr/share/lumus/doc/info/lumus_status 2> /dev/null
+            sudo echo "YES" >  /usr/share/lumus/doc/info/lumus_status 2> /dev/null
 	        echo ""
 
             exit 0
