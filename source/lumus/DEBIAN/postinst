@@ -27,8 +27,8 @@ then
     if [[ ! ` cat $meoListInstalledPkgsPure | grep -w -- "lumus" ` ]]
     then
         #
-        sed -i "$ a lumus : v(1.2.1)" "$meoListInstalledPkgsPure" 2> /dev/null
-        sed -i -e "$ a ` echo -e "\e[32;1mlumus\e[0m : \e[36;1mv(1.2.1)\e[0m" ` " "$meoListInstalledPkgs" 2> /dev/null
+        sed -i "$ a lumus : v(1.2.2)" "$meoListInstalledPkgsPure" 2> /dev/null
+        sed -i -e "$ a ` echo -e "\e[32;1mlumus\e[0m : \e[36;1mv(1.2.2)\e[0m" ` " "$meoListInstalledPkgs" 2> /dev/null
     fi
 fi
 
