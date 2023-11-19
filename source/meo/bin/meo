@@ -1423,7 +1423,7 @@ if [[ $1 == "list-installed"  ]] && [[ $# -eq 1 ]]
 then
 
     #
-    if [[ -e "$meoListInstalledPkgs" ]]
+    if [[ -e "$meoListInstalledPkgs" ]] && [[ ` cat $meoListInstalledPkgs | wc -l ` -gt 1 ]]
     then
         echo ""
         echo "~"
@@ -1434,6 +1434,13 @@ then
 
         exit 0
 
+    elif [[ -e "$meoListInstalledPkgs" ]] && [[ ` cat $meoListInstalledPkgs | wc -l ` -eq 1 ]]
+    then
+        echo ""
+        echo "~"
+        echo -e "Since the last installation of the \e[32;1mmeo\e[0m program no packages \nhave been installed \U001F4BB "
+
+        exit 0
     else
         echo ""
         echo "~"
