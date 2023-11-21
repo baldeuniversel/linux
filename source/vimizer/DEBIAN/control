@@ -1,0 +1,8 @@
+Package: vimizer
+Version: 1.0.1
+Section: base   
+Priority: optional
+Architecture: all
+Maintainer: Baldé <baldeuniversel@protonmail.com>
+Depends: bash , zsh, coreutils , systemd , software-properties-common , gawk, awk, vim-gtk, nodejs, zsh-autosuggestions, zsh-syntax-highlighting, npm, git, p7zip-full
+Description: <vimizer> program allows to install and configure the vim and zsh program on your Linux system(Use from the terminal)

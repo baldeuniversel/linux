@@ -1,0 +1,31 @@
+#!/usr/bin/bash
+
+# preinst script
+
+set -eo pipefail
+
+
+#####
+# Action for deploying the program (before deployment) 
+#####
+
+### Check if bash is installed
+
+getRequest=` whereis bash `
+
+if [[ ! ` echo "$getRequest" | grep -i "bash" ` ]]
+then
+    #
+    echo ""
+    echo "You have to install bash !"
+
+    exit 1
+
+elif [[ ! ( -e "/tmp" ) ]]
+then
+    #
+    echo ""
+    echo "You have to have the directory [ /tmp ]"
+
+    exit 1
+fi

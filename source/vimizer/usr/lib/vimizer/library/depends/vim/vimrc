@@ -1,0 +1,236 @@
+filetype on 
+syntax on 
+filetype plugin on
+filetype indent on
+set nocompatible
+set number
+set tabstop=4
+set autoindent
+set expandtab
+set shiftwidth=4
+set cursorline
+set showmatch
+set ruler
+set showcmd
+set backspace=indent,eol,start
+set expandtab
+set shiftround
+set mouse=a
+set showmode
+set autoindent
+set incsearch
+set smarttab
+set spell
+set hlsearch
+set smarttab
+set encoding=utf-8
+set fileencodings=utf-8
+set spell spelllang=fr,en
+
+
+""" Remember position of last edit and return on reopen
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+endif
+
+
+""" For the -> set foldmethod or set fmd
+autocmd BufWinLeave *.* mkview
+autocmd BufWinEnter *.* silent loadview 
+
+
+""" set statusline+=%F
+set laststatus=2
+setlocal spell
+setlocal spelllang=fr,en
+
+
+""" Mappings
+map <silent> <F6> "<Esc>:silent setlocal spell! spelllang=fr,en<CR>"
+map  <C-n> :tabn<CR>
+map  <C-p> :tabp<CR>
+
+
+"
+hi clear SpellBad
+hi clear SpellCap
+hi clear SpellRare
+hi clear SpellLocal
+hi SpellBad   cterm=underline ctermfg=9  ctermbg=0 gui=undercurl
+hi SpellCap   cterm=underline ctermfg=14 ctermbg=0 gui=undercurl
+hi SpellRare  cterm=underline ctermfg=13 ctermbg=0 gui=undercurl
+hi SpellLocal cterm=underline ctermfg=11 ctermbg=0 gui=undercurl
+
+
+
+""" enable 24bit true color
+" If you have vim >=8.0 or Neovim >= 0.1.5
+if (has("termguicolors"))
+ set termguicolors
+endif
+
+
+""" Returns true if the color hex value is light
+function! IsHexColorLight(color) abort
+  let l:raw_color = trim(a:color, '#')
+
+  let l:red = str2nr(substitute(l:raw_color, '(.{2}).{4}', '1', 'g'), 16)
+  let l:green = str2nr(substitute(l:raw_color, '.{2}(.{2}).{2}', '1', 'g'), 16)
+  let l:blue = str2nr(substitute(l:raw_color, '.{4}(.{2})', '1', 'g'), 16)
+
+  let l:brightness = ((l:red * 299) + (l:green * 587) + (l:blue * 114)) / 1000
+
+  return l:brightness > 155
+endfunction
+
+""" Emmets
+let g:user_emmet_leader_key=','
+let g:tagalong_verbose=1
+
+
+
+""" Latex
+let g:livepreview_previewer = 'evince' 
+let g:tex_flavor='latex'
+let g:latex_engine='pdflatex'
+let g:Tex_CompileRule_pdf = 'pdflatex $*'
+nmap <F12> :LLPStartPreview<CR>
+
+
+""" NERDTree
+"nnoremap <space>e :NERDTree<CR>
+nnoremap <C-n> :NERDTree<CR>
+nnoremap <C-t> :NERDTreeToggle<CR>
+let g:NERDTreeShowHidden=1
+
+
+""" Javascript
+let g:javascript_plugin_jsdoc = 1
+let g:javascript_plugin_ngdoc = 1
+let g:javascript_plugin_flow = 1
+
+
+" Copy and paste  
+nnoremap <C-v> "+p
+nnoremap <C-S-v> :paste<CR>
+vnoremap <C-c> "+y
+vnoremap <C-c> "*y :let @+=@*<CR>
+
+
+""" Disable defaults behaviors
+nnoremap <C-u> <Nop>
+
+
+" Map Ctrl-z to undo
+nnoremap <C-u> u
+
+
+""" PLUGINS
+call plug#begin('~/.vim/plugged')
+
+"
+Plug 'altercation/vim-colors-solarized'
+
+"
+Plug 'Rigellute/shades-of-purple.vim'
+
+"
+Plug 'arcticicestudio/nord-vim'
+
+"
+Plug 'yuttie/hydrangea-vim'
+
+"
+Plug 'vim-airline/vim-airline'
+
+"
+Plug 'ghifarit53/tokyonight-vim'
+
+"
+Plug 'rbong/vim-crystalline'
+
+"
+Plug 'sheerun/vim-polyglot'
+
+"
+Plug 'scrooloose/nerdtree'
+
+"
+Plug 'xuhdev/vim-latex-live-preview', { 'for': 'tex' }
+
+"
+Plug 'scrooloose/syntastic'
+
+" For devicons
+Plug 'ryanoasis/vim-devicons'
+
+"
+Plug 'mattn/emmet-vim'
+
+"
+Plug 'tpope/vim-surround'
+
+"
+Plug 'othree/html5.vim'
+
+"
+Plug 'pangloss/vim-javascript'
+
+"
+Plug 'hail2u/vim-css3-syntax'
+
+" Configuration du plugin vim-illuminate
+Plug 'RRethy/vim-illuminate'
+
+"
+Plug 'altercation/vim-colors-solarized'
+
+"
+Plug 'morhetz/gruvbox'
+
+"
+Plug 'crusoexia/vim-monokai'
+
+"
+Plug 'vim-scripts/autoComplPop'
+
+"
+Plug 'vim-scripts/HTML-AutoCloseTag'
+
+"
+Plug 'stanangeloff/php.vim'
+
+call plug#end()
+
+
+" Configuration du plugin vim-illuminate
+let g:Illuminate_highlightUnderCursor = 0
+let g:illuminate_delay = 1
+
+
+""" Color schemes
+if filereadable( expand("$HOME/.vim/plugged/vim-monokai/colors/monokai.vim") )
+    colorscheme monokai 
+endif
+
+"colorscheme SerialExperimentsLain
+
+"colorscheme nord
+
+
+""" Themes
+"set termguicolors
+"
+"colorscheme quantum
+"
+"let g:lightline = {
+"     \ 'colorscheme': 'quantum',
+"      \ }
+
+" packadd! dracula
+" colorscheme dracula
+
+
+"""
+" devicons: reasonable defaults from webinstall.dev/vim-devicons
+source ~/.vim/plugins/devicons.vim

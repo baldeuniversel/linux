@@ -1,0 +1,32 @@
+#!/usr/bin/bash
+
+# postinst script
+#
+
+set -eo pipefail
+
+
+# Declaration variables
+meoListInstalledPkgs="/usr/lib/meo/library/info/list-installed-packages"
+meoListInstalledPkgsPure="/usr/lib/meo/library/info/list-installed-packages-pure"
+
+
+
+# Add information about the package in these specific files
+if [[ -e "$meoListInstalledPkgsPure" ]]
+then
+
+    #
+    if [[ ! ` cat $meoListInstalledPkgsPure | grep -w -- "shim" ` ]]
+    then
+        #
+        sed -i "$ a  : vimizer(1.0.1)" "$meoListInstalledPkgsPure" 2> /dev/null
+        sed -i -e "$ a ` echo -e "\e[32;1mvimizer\e[0m : \e[36;1mv(1.0.1)\e[0m" ` " "$meoListInstalledPkgs" 2> /dev/null
+    fi
+fi
+
+
+
+echo "~"
+echo ""
+tput setaf 2; tput bold;echo "By Baldé ~" `tput sgr0` 2> /dev/null

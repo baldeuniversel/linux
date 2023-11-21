@@ -1,0 +1,236 @@
+#!/usr/bin/zsh
+
+#####
+##### 
+# `vimizer` program allows to install and configure  vim and zsh.
+##### 
+#####
+
+set -o pipefail 
+
+# To see if the `zsh` and `vim` are installed and ...
+if [[ ` whereis zsh | grep "\/usr\/bin\/zsh\|\/bin\/zsh" ` ]] && [[ ` whereis vim | grep "\/usr\/bin\/vim\|\/bin\/vim" ` ]]
+then
+
+    # Creation of temporary dir
+    if [[ ! ( -e "/tmp/.vimizer/$USER" ) ]]
+    then
+
+        #
+         mkdir -p  "/tmp/.vimizer/$USER" &> /dev/null
+
+         chmod 700 "/tmp/.vimizer/$USER" 2> /dev/null
+
+        # 
+        if [[ $? -ne 0 ]]
+        then
+            echo -e "Something is wrong, make sure you have the rights to write in "
+            echo -e "the [ /tmp ] directory  ⚠️  "
+
+            exit 1
+        fi
+    fi
+
+   
+    echo ""
+    echo "~"
+    echo -e "Let's go \U0026A1 "
+    echo ""
+else
+    echo ""
+    echo "~"
+    echo -e "Please install \e[32;1mvim\e[0m and \e[32;1mzsh\e[0m program "
+
+    exit 1
+fi
+
+
+
+
+
+### Treatment on the user  -> start tag[d0]
+
+# Declaration variables
+username=$USER
+counter=0
+getHomeDirUsername=""
+tmpDirCurrentUser="/tmp/.vimizer/$USER"
+
+
+
+# Get the home directory of the user
+if [[ -e "/etc/passwd" ]]
+then
+
+    #
+    if [[ $( cat /etc/passwd | cut -d ":" -f1 | grep "$username" ) ]]
+    then
+        getHomeDirUsername=$( cat /etc/passwd | grep "^$username" | cut -d ":" -f6 ) 
+    fi
+fi
+
+### Treatment on the user  -> end tag[d0]
+
+
+
+
+
+### Deployment files/dirs  -> start tag[a0]
+
+# Creation of the `.zshrc` file
+if [[ ! ( -e  "$getHomeDirUsername/.zshrc" ) ]]
+then
+    touch  "$getHomeDirUsername/.zshrc"
+fi
+
+# Creation the directories where the fonts will be sent
+if [[ ! ( -e "$getHomeDirUsername/.local/share/fonts" ) ]]
+then
+    mkdir -p "$getHomeDirUsername/.local/share/fonts" 2> /dev/null
+fi
+
+
+
+# Copy of fonts
+if [[ ! ( -e "$getHomeDirUsername/.local/share/fonts/vimizer-fonts" ) ]]
+then
+
+    #
+    if [[ -e "/usr/lib/vimizer/library/depends/vimizer-fonts" ]]
+    then
+
+        #
+        cp -ra "/usr/lib/vimizer/library/depends/vimizer-fonts" "$getHomeDirUsername/.local/share/fonts"  2> /dev/null
+
+        # 
+        if [[ $? -ne 0 ]]
+        then
+            echo -e "Something is wrong, make sure you have the rights to write in "
+            echo -e "your home directory  ⚠️  "
+
+            exit 1
+        fi
+    else
+        echo ""
+        echo "~"
+        echo -e "Missing files/dirs, please reinstall the \e[32;1mvimizer\e[0m program \U001F9D0 "
+
+        exit 1
+    fi
+fi
+
+
+
+# Update the `.vim` directory and `.vimrc` file ...
+if [[ -e "/usr/lib/vimizer/library/depends/vim" ]]
+then
+
+    local vimrcFile="/usr/lib/vimizer/library/depends/vim/vimrc"
+    
+    #
+    if [[ -e "$getHomeDirUsername/.vimrc" ]]
+    then
+        
+        # Append the content of the `vimrc` file to the `.vimrc` file of the user
+        while IFS= read -r lineFile 
+        do
+	        if [[ !  $( grep  "$lineFile" "$getHomeDirUsername/.vimrc" &> /dev/null ) ]]
+            then
+                echo "$lineFile" >> "$tmpDirCurrentUser/new-content-vimrc"
+            fi
+
+        done < $vimrcFile
+        
+        # If there is a new content add them to the `.vimrc` of the user
+        if [[ -s "$tmpDirCurrentUser/new-content-vimrc" ]]
+        then
+
+            # Backup `.vimrc` file of the user (secure reasons)
+            mv --  "$getHomeDirUsername/.vimrc"  "$getHomeDirUsername/.backup-vimrc" 2> /dev/null
+
+	        # Append ... 
+            cat "$tmpDirCurrentUser/new-content-vimrc" >>  "$getHomeDirUsername/.vimrc"  
+        fi
+
+    else
+	    cp -ar "$vimrcFile"  "$getHomeDirUsername/.vimrc"
+    fi
+    
+    # Copy of plugins 
+    if [[ -e "$getHomeDirUsername/.vim" ]]
+    then
+        
+        #
+        if [[  ! ` diff -r "/usr/lib/vimizer/library/depends/vim/vim"  "$getHomeDirUsername/.vim" &> /dev/null ` ]]
+        then
+            cp -ar "/usr/lib/vimizer/library/depends/vim/vim"  "$getHomeDirUsername/.vim" 2> /dev/null
+        fi
+
+    else
+        #
+        cp -ar "/usr/lib/vimizer/library/depends/vim/vim"  "$getHomeDirUsername/.vim" 2> /dev/null
+    fi
+
+else
+
+    echo ""
+    echo "~"
+    echo -e "Missing files/dirs, please reinstall the \e[32;1mvimizer\e[0m program \U001F9D0 "
+
+    exit 1
+fi
+
+# Update the `.zshrc` file ...
+if [[ -e "/usr/lib/vimizer/library/depends/zsh" ]]
+then
+    
+    local zshrcFile="/usr/lib/vimizer/library/depends/zsh/zshrc"
+
+    #
+    while IFS= read -r lineFile 
+    do
+        if [[ ! $( grep  "$lineFile" "$getHomeDirUsername/.zshrc" &> /dev/null ) ]]
+        then
+            echo "$lineFile" >> "$tmpDirCurrentUser/new-content-zshrc"
+        fi
+    done < $zshrcFile
+
+    #
+    if [[ -s "$tmpDirCurrentUser/new-content-zshrc" ]]
+    then
+        #
+        mv --  "$getHomeDirUsername/.zshrc"  "$getHomeDirUsername/.backup-zshrc" 
+
+	    #
+        cat "$tmpDirCurrentUser/new-content-zshrc"  2> /dev/null >>  "$getHomeDirUsername/.zshrc"  
+    fi
+else
+    echo ""
+    echo "~"
+    echo -e "Missing files/dirs, please reinstall the \e[32;1mvimizer\e[0m program \U001F9D0 "
+
+    exit 1
+fi
+
+### Deployment files/dirs  -> end tag[a0]
+
+
+
+
+
+# Remove the temporary directory
+rm -fr $tmpDirCurrentUser 2> /dev/null
+
+# Changement de shell
+chsh --shell /usr/bin/zsh  $username &> /dev/null
+
+# Update of fonts
+fc-cache -vf 
+
+#
+if [[ $? -eq 0 ]]
+then
+    echo ""
+    echo "~"
+    echo -e "Installation successfully \U002705 "
+fi
