@@ -8,6 +8,53 @@
 
 set -o pipefail 
 
+
+
+
+
+### Manager input parameters -> start tag[m0]
+
+if [[ $# -eq 1 ]] && [[ $1 == "--help" ]]
+then
+
+    #
+    if [[ -e "/usr/lib/vimizer/documentation/info/vimizer-help" ]]
+    then
+        #
+        cat "/usr/lib/vimizer/documentation/info/vimizer-help" 2> /dev/null
+
+        exit 0
+    fi
+
+elif [[ $# -eq 1 ]] && [[ $1 == "--version" ]]
+then
+
+    #
+    if [[ -e "/usr/lib/vimizer/documentation/info/vimizer-version-pure" ]]
+    then
+        #
+        cat "/usr/lib/vimizer/documentation/info/vimizer-version-pure" 2> /dev/null
+
+        exit 0
+    fi
+fi
+
+# 
+if [[ $# -gt 0 ]]
+then
+    echo ""
+    echo -e "No input parameter is required except( --version, --help ) \U001F917"
+    echo ""
+
+    exit 1
+fi
+
+### Manager input parameters -> end tag[m0]
+
+
+
+
+
 # To see if the `zsh` and `vim` are installed and ...
 if [[ ` whereis zsh | grep "\/usr\/bin\/zsh\|\/bin\/zsh" ` ]] && [[ ` whereis vim | grep "\/usr\/bin\/vim\|\/bin\/vim" ` ]]
 then
@@ -45,49 +92,6 @@ else
 
     exit 1
 fi
-
-
-
-
-
-### Manager input parameters -> start tag[m0]
-
-if [[ $# -eq 1 ]] && [[ $1 == "--help" ]]
-then
-
-    #
-    if [[ -e "/usr/lib/vimizer/documentation/info/vimizer-help" ]]
-    then
-        #
-        cat "/usr/lib/vimizer/documentation/info/vimizer-help" 2> /dev/null
-
-        exit 0
-    fi
-
-elif [[ $# -eq 1 ]] && [[ $1 == "--version" ]]
-then
-
-    #
-    if [[ -e "/usr/lib/vimizer/documentation/info/vimizer-version-pure" ]]
-    then
-        #
-        cat "/usr/lib/vimizer/documentation/info/vimizer-version-pure" 2> /dev/null
-
-        exit 0
-    fi
-fi
-
-# 
-if [[ $# -gt 1 ]]
-then
-    echo ""
-    echo -e "No input parameter is required except( --version, --help ) \U001F917"
-    echo ""
-
-    exit 1
-fi
-
-### Manager input parameters -> end tag[m0]
 
 
 
