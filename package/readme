@@ -6,6 +6,6 @@
 * command `vimizer --help` or `man vimizer` to get more information 
 * about the <<vimizer>> program .
 *
-* Note : Except the options[ --version, --help ] , no input parameters are required to use this program . 
+* Note : Except the options[ --version, --help ] , no input parameter is required to use this program . 
 *
 */
