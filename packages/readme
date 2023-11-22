@@ -42,6 +42,22 @@
 
 
 
+/**
+* The <<vimizer>> program allows to install, change the shell and configure the
+* vim and zsh program on your Linux system(Use from the terminal) .
+*
+* After installing the <<vimizer>> program, you can execute(from the terminal) the
+* command `vimizer --help` or `man vimizer` to get more information
+* about the <<vimizer>> program .
+*
+* Note : Except the options[ --version, --help ] , no input parameter is required to use this program .
+*
+*/
+
+
+
+
+
 #####
 #####
 #####
