@@ -249,13 +249,14 @@ fi
 ### Deployment plugins -> start tag[p0]
 
 echo ""
-echo "~"
+echo ""
 echo "Wait ..."
+sleep 3
 
-vim +PlugInstall +qall
+vim +PlugInstall +qall 2> /dev/null
 
 echo ""
-echo "~"
+echo ""
 
 ### Deployment plugins -> end tag[p0]
 
@@ -368,7 +369,7 @@ then
     echo "~"
     echo "Please restart your session for the change shell to take effect "
     echo ""
-    echo "Do you want to restart your session [y/n] : "
+    echo -ne "Do you want to restart your session [y/n] : "
     read userAsk
 
     echo ""
