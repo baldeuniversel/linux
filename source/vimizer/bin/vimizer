@@ -253,7 +253,7 @@ echo ""
 echo "Wait ..."
 sleep 3
 
-vim +PlugInstall +qall 2> /dev/null
+vim +PlugInstall +qall
 
 echo ""
 echo ""
