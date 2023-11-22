@@ -103,6 +103,7 @@ counter=0
 getHomeDirUsername=""
 tmpDirCurrentUser="/tmp/.vimizer/$USER"
 flagShellChanged="true"
+flagCurrentShellZSh="true"
 userAsk=""
 counterRetypePasswd=0
 
@@ -322,6 +323,11 @@ rm -fr $tmpDirCurrentUser 2> /dev/null
 #
 if [[ ! ` echo "$SHELL" | grep -- "zsh" ` ]]
 then
+
+    #
+    flagCurrentShellZSh="false"
+
+
     
     #
     while [[ $counterRetypePasswd < 3 ]]
@@ -412,31 +418,37 @@ then
     echo "~"
     echo -e "Vimizing successfully \U002705 "
     echo ""
-    
-    echo "~"
-    echo "Please restart your session for the change shell to take effect "
-    echo ""
-    echo -ne "Do you want to restart your session [y/n] : "
-    read userAsk
-
-    echo ""
-
-    if [[ $userAsk == "yes" ]] || [[ $userAsk == "y" ]]
+   
+    if [[ $flagCurrentShellZSh == "false" ]]
     then
-        gnome-session-quit --no-prompt
-
-        if [[ $? -ne 0 ]]
+        
+        #
+        echo "~"
+        echo "Please restart your session for the change shell to take effect "
+        echo ""
+        echo -ne "Do you want to restart your session [y/n] : "
+        read userAsk
+    
+        echo ""
+    
+        if [[ $userAsk == "yes" ]] || [[ $userAsk == "y" ]]
         then
-            echo ""
-            echo "~"
-            echo "Do it manually"
-            echo ""
-            exit 1
+            gnome-session-quit --no-prompt
+    
+            if [[ $? -ne 0 ]]
+            then
+                echo ""
+                echo "~"
+                echo "Do it manually"
+                echo ""
+                exit 1
+            fi
         fi
     fi
-
+    
+    #
     exit 0
-
+    
 elif [[ $? -eq 0 ]] && [[ $flagShellChanged == "false" ]]
 then
     echo ""
