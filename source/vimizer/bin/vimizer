@@ -258,9 +258,6 @@ vim +PlugInstall +qall
 # Clear the screen
 clear
 
-echo ""
-echo ""
-
 ### Deployment plugins -> end tag[p0]
 
 
