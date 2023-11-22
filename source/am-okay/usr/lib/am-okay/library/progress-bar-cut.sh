@@ -175,10 +175,16 @@ function display_progress_bar
         # Get send percentage
         if [[ $a_size_source -gt 0 ]]
         then
-            a_percent_stat=` echo  "( ( ( $a_length_ongoing_data / $a_size_source ) * 50 ) - 1 )" | bc -l `
+            a_percent_stat=` echo  "( ($a_length_ongoing_data / $a_size_source) * 50 )" | bc -l `
 
             # Take only the part of integer
             a_percent_stat=` echo "$a_percent_stat" | cut -d "." -f1 `
+
+            #
+            if [[ $a_percent_stat -gt 0 ]]
+            then
+                a_percent_stat=$(( a_percent_stat - 1 ))
+            fi
 
             # Update <$a_new_percent>
             a_new_percent=$a_percent_stat
