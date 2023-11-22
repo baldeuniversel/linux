@@ -2,7 +2,7 @@
 
 #####
 ##### 
-# `vimizer` program allows to install and configure  vim and zsh.
+# `vimizer` program allows to install and configure vim and zsh program .
 ##### 
 #####
 
@@ -26,6 +26,7 @@ then
         then
             echo -e "Something is wrong, make sure you have the rights to write in "
             echo -e "the [ /tmp ] directory  ⚠️  "
+            echo ""
 
             exit 1
         fi
@@ -40,6 +41,7 @@ else
     echo ""
     echo "~"
     echo -e "Please install \e[32;1mvim\e[0m and \e[32;1mzsh\e[0m program "
+    echo ""
 
     exit 1
 fi
@@ -48,15 +50,18 @@ fi
 
 
 
-### Treatment on the user  -> start tag[d0]
-
 # Declaration variables
 username=$USER
 counter=0
 getHomeDirUsername=""
 tmpDirCurrentUser="/tmp/.vimizer/$USER"
+flagShellChanged="true"
+userAsk=""
+counterRetypePasswd=0
 
 
+
+### Treatment on the user  -> start tag[d0]
 
 # Get the home directory of the user
 if [[ -e "/etc/passwd" ]]
@@ -92,7 +97,7 @@ fi
 
 
 # Copy of fonts
-if [[ ! ( -e "$getHomeDirUsername/.local/share/fonts/vimizer-fonts" ) ]]
+if [[ -e "$getHomeDirUsername/.local/share/fonts" ]]
 then
 
     #
@@ -107,6 +112,7 @@ then
         then
             echo -e "Something is wrong, make sure you have the rights to write in "
             echo -e "your home directory  ⚠️  "
+            echo ""
 
             exit 1
         fi
@@ -114,6 +120,7 @@ then
         echo ""
         echo "~"
         echo -e "Missing files/dirs, please reinstall the \e[32;1mvimizer\e[0m program \U001F9D0 "
+        echo ""
 
         exit 1
     fi
@@ -141,7 +148,7 @@ then
 
         done < $vimrcFile
         
-        # If there is a new content add them to the `.vimrc` of the user
+        # If there is a new content, add them to the `.vimrc` of the user
         if [[ -s "$tmpDirCurrentUser/new-content-vimrc" ]]
         then
 
@@ -176,6 +183,7 @@ else
     echo ""
     echo "~"
     echo -e "Missing files/dirs, please reinstall the \e[32;1mvimizer\e[0m program \U001F9D0 "
+    echo ""
 
     exit 1
 fi
@@ -185,6 +193,24 @@ if [[ -e "/usr/lib/vimizer/library/depends/zsh" ]]
 then
     
     local zshrcFile="/usr/lib/vimizer/library/depends/zsh/zshrc"
+
+
+
+    #
+    if [[ ! ( -e "$getHomeDirUsername/.zshrc" )  ]]
+    then
+        touch "$getHomeDirUsername/.zshrc" 2> /dev/null
+        
+        #
+        if [[ $? -ne 0 ]]
+        then
+            echo -e "Something is wrong, make sure you have the rights to write in "
+            echo -e "your home directory  ⚠️  "
+            echo ""
+
+            exit 1
+        fi
+    fi
 
     #
     while IFS= read -r lineFile 
@@ -204,10 +230,12 @@ then
 	    #
         cat "$tmpDirCurrentUser/new-content-zshrc"  2> /dev/null >>  "$getHomeDirUsername/.zshrc"  
     fi
+
 else
     echo ""
     echo "~"
     echo -e "Missing files/dirs, please reinstall the \e[32;1mvimizer\e[0m program \U001F9D0 "
+    echo ""
 
     exit 1
 fi
@@ -218,19 +246,154 @@ fi
 
 
 
+### Deployment plugins -> start tag[p0]
+
+echo ""
+echo "~"
+echo "Wait ..."
+
+vim +PlugInstall +qall
+
+echo ""
+echo "~"
+
+### Deployment plugins -> end tag[p0]
+
+
+
+
+
 # Remove the temporary directory
 rm -fr $tmpDirCurrentUser 2> /dev/null
 
-# Changement de shell
-chsh --shell /usr/bin/zsh  $username &> /dev/null
+
+
+
+
+### Change of shell -> start tag[c0]
+#
+if [[ ! ` echo "$SHELL" | grep -- "zsh" ` ]]
+then
+    
+    #
+    while [[ $counterRetypePasswd < 3 ]]
+    do
+        # Declaration variables
+        local passwdUser=""
+    
+    
+    
+        #
+        if [[ $counterRetypePasswd -gt 0 ]]
+        then
+            echo ""
+            echo -e "Wrong password \U001F9D0 "
+        fi
+        
+        #
+        echo ""
+        echo "~"
+        echo -en "Enter your password, then valid to change the shell : "
+        read -s passwdUser
+    
+        echo ""
+        echo ""
+        echo "Wait ..."
+    
+        chsh --shell /usr/bin/zsh  $username <<< $passwdUser  &> /dev/null
+    
+        #
+        if [[ $? -eq 0 ]]
+        then
+            echo ""
+            echo "~"
+            echo -e "Hashed passwords match \U002705"
+    
+            #
+            sleep 3
+    
+            #
+            break 
+        fi
+    
+        #
+        counterRetypePasswd=$(( counterRetypePasswd + 1 ))
+    
+    done
+fi
+
+# Verify if the shell has been changed 
+if [[ $counterRetypePasswd -eq 3 ]]
+then
+    echo ""
+    echo "~"
+    echo -ne "The shell has not been changed, do you want to continue the process [y/n] : "
+    read userAsk 
+
+    echo ""
+
+    if [[ $userAsk != "y" ]] && [[ $userAsk != "yes" ]]
+    then
+        echo ""
+        echo "~"
+        echo -e "The process was interrupted \U001F50C, however \e[32;1mvim\e[0m and \e[32;1mzsh\e[0m configurations have "
+        echo -e "been done "
+        echo ""
+
+        exit 1
+    fi
+
+    #
+    flagShellChanged="false"
+    userAsk=""
+fi
+
+### Change of shell -> end tag[c0]
+
+
+
+
 
 # Update of fonts
 fc-cache -vf 
 
 #
-if [[ $? -eq 0 ]]
+if [[ $? -eq 0 ]] && [[ $counterRetypePasswd < 3 ]]
 then
     echo ""
     echo "~"
-    echo -e "Installation successfully \U002705 "
+    echo -e "Vimizing successfully \U002705 "
+    echo ""
+    
+    echo "~"
+    echo "Please restart your session for the change shell to take effect "
+    echo ""
+    echo "Do you want to restart your session [y/n] : "
+    read userAsk
+
+    echo ""
+
+    if [[ $userAsk == "yes" ]] || [[ $userAsk == "y" ]]
+    then
+        gnome-session-quit --no-prompt
+
+        if [[ $? -ne 0 ]]
+        then
+            echo ""
+            echo "~"
+            echo "Do it manually"
+            echo ""
+            exit 1
+        fi
+    fi
+
+    exit 0
+
+elif [[ $? -eq 0 ]] && [[ $flagShellChanged == "false" ]]
+then
+    echo ""
+    echo "~"
+    echo -e "\e[32;1mvim\e[0m and \e[32;1mzsh\e[0m configurations have been done \U002705 "
+
+    exit 0
 fi
