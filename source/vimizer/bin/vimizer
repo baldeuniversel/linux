@@ -255,6 +255,9 @@ sleep 3
 
 vim +PlugInstall +qall
 
+# Clear the screen
+clear
+
 echo ""
 echo ""
 
