@@ -670,77 +670,90 @@ then
     
     # Declaration variables
     local flagPackageFound=""
+    local flagPackageInstalledFound=""
+
     local getDebPkg=""
     local counterInstalledPkg=0
+    local counterCloneGit=0
 
-    declare -a listOfInstalledPkg=()
+    declare -a listOfInstalledPkg=()   
 
-    # Call the function
-    clonePersonalGit
+
 
     # Shift one position
     shift 1
+
+
 
     # Install the package if it exists
     for packageUP in $@
     do
         #
         flagPackageFound=` isPackageAvailable $packageUP `
+        flagPackageInstalledFound=` isPackageInstalled $packageUP  `
 
         #
-        if [[ $flagPackageFound == "true" ]]
+        if [[ $flagPackageFound == "true" ]] && [[ $flagPackageInstalledFound == "false" ]]
         then 
             
-            #
+            # Clone the git repository 
+            if [[ $counterCloneGit -eq 0 ]]
+            then
+                # Call the function
+                clonePersonalGit
+
+                #
+                counterCloneGit=$(( counterCloneGit + 1 ))
+            fi
+           
+            # Get the `deb` file via the input parameter
             getDebPkg=$( find "$meoTmpDirGithub/linux" -name "$packageUP*" -type f 2> /dev/null )
 
-            #
+            # Cast an exception if the target program to install is `meo`
             if [[ ` echo "$getDebPkg" | grep -i -- "meo-" ` ]]
             then
                 echo "~"
                 echo "You can not install the \e[32;1mmeo\e[0m program itself 🚨"
 
                 continue
+
             else
 
-                #
+                # Verify if there is content(that's to if, the `deb` file was found), then ...
                 if [[ -n "$getDebPkg"  ]]
                 then
-                    # Call the function
-                    local flagPackageInstalledFound=` isPackageInstalled $packageUP  `
-
+                   
+                    # Installing
+                    dpkg --install $getDebPkg
 
                     #
-                    if [[ $flagPackageInstalledFound == "true" ]]
+                    if [[ $? -eq 0 ]]
                     then
-                        echo "~"
-                        echo -e "The program \e[36;1m$packageUP\e[0m is already installed \U002705 "
-                        echo ""
-                    else
+                        # Call the function
+                        storeInslalledPkg $packageUP
 
                         #
-                        dpkg --install $getDebPkg
-
-                        if [[ $? -eq 0 ]]
-                        then
-                             # Call the function
-                            storeInslalledPkg $packageUP
-
-                            #
-                            counterInstalledPkg=$(( counterInstalledPkg + 1 ))
+                        counterInstalledPkg=$(( counterInstalledPkg + 1 ))
                         
-                            #
-                            listOfInstalledPkg+=$packageUP
-                        fi
+                        #
+                        listOfInstalledPkg+=$packageUP
                     fi
                 fi
             fi
+        #
+        elif [[ $flagPackageInstalledFound == "true" ]]
+        then
+            echo "~"
+            echo -e "The program \e[36;1m$packageUP\e[0m is already installed \U002705 "
+            echo ""
 
+        #
         else
             echo ""
             echo "~"
             echo -e "The package \e[33;1m$packageUP\e[0m was not found in the \e[32;1mmeo\e[0m repository \U001F9D0"
         fi
+
     done
 
     # List the package(s) installed
