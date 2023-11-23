@@ -475,7 +475,8 @@ function isPackageAvailable
     #
     if [[ -e "$meoListAvailablePkgs" ]]
     then
-        getPackage=` cat $meoListAvailablePkgsPure | cut -d ":" -f 1 | grep -w "$getFirstParam" `
+        #
+        getPackage=` cat $meoListAvailablePkgsPure | cut -d ":" -f 1 | tr -d "[ \t]+" | grep -w -- "^$getFirstParam$" `
 
         #
         if [[ -n "$getPackage" ]]
