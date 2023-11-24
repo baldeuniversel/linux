@@ -1,5 +1,5 @@
 /**
-* The <<meo>> program allows to manage packages installed from the Github
+* The <<meo>> program allows to manage installed packages from the Github
 * repository `https://github.com/baldeuniversel/linux.git` (Use from the terminal) .
 *
 * Otherwise <<meo>> program is a package manager for all programs of this Github repository
