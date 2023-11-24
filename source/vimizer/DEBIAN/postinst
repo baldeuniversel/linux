@@ -20,8 +20,8 @@ then
     if [[ ! ` cat $meoListInstalledPkgsPure | grep -w -- "vimizer" ` ]]
     then
         #
-        sed -i "$ a vimizer : (1.0.2)" "$meoListInstalledPkgsPure" 2> /dev/null
-        sed -i -e "$ a ` echo -e "\e[32;1mvimizer\e[0m : \e[36;1mv(1.0.2)\e[0m" ` " "$meoListInstalledPkgs" 2> /dev/null
+        sed -i "$ a vimizer : (1.0.3)" "$meoListInstalledPkgsPure" 2> /dev/null
+        sed -i -e "$ a ` echo -e "\e[32;1mvimizer\e[0m : \e[36;1mv(1.0.3)\e[0m" ` " "$meoListInstalledPkgs" 2> /dev/null
     fi
 fi
 
