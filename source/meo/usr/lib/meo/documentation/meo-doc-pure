@@ -1,10 +1,10 @@
 meo('1') 2023-11-24
 
 NAME
-    meo (version 1.1.5) .
+    meo (version 1.1.6) .
 
 DESCRIPTION
-    meo is a program that allows to manage packages installed from the Github 
+    meo is a program that allows to manage installed packages from the Github 
     repository `https://github.com/baldeuniversel/linux.git` (Use from the terminal) .
 
 OVERVIEW

@@ -2,10 +2,10 @@
 [35;1mmeo[0m('1') 2023-11-24
 
 NAME
-    [35;1mmeo[0m (version 1.1.5) .
+    [35;1mmeo[0m (version 1.1.6) .
 
 DESCRIPTION
-    [35;1mmeo[0m is a program that allows to manage packages installed from the Github 
+    [35;1mmeo[0m is a program that allows to manage installed packages from the Github 
     repository [32;1m`https://github.com/baldeuniversel/linux.git`[0m (Use from the terminal) .
 
 OVERVIEW
