@@ -550,6 +550,109 @@ function isNewVersionOfPkgAvailable
 
 :   '
 /**
+* @overview The `spinnerAnimation` function allows to make animations while a process is in progress
+*
+* @param {int} $1 // The pid of the process 
+*/
+
+    '
+function spinnerAnimation
+{
+  
+    # Declaration variables
+    local pidCmd=$1
+    local delay=0.3
+    local getRandValue=` shuf -i 1-5 -n 1 `
+    
+    local spinString=""
+    local spinStringA="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+    local spinStringB="◰◳◲◱◰◳◲◱" 
+    local spinStringC="☼☀☁☂☃☄☽☾"
+    local spinStringD="◴◷◶◵◴◷◶◵"
+    local spinStringE="♚♛♜♝♞♟"
+    
+
+    local infotext="\e[36;1mwait...\e[0m \U00270B \U001F449 ⏳ "
+    local firstChar=""
+
+
+  
+    ### Choice the spin string -> start tag[c0]
+
+    if [[ $getRandValue -eq 1 ]]
+    then
+        #
+        spinString=$spinStringA
+
+    elif [[ $getRandValue -eq 2 ]]
+    then
+        #
+        spinString=$spinStringB
+
+    elif [[ $getRandValue -eq 3 ]]
+    then
+        #
+        spinString=$spinStringC
+        
+    elif [[ $getRandValue -eq 4 ]]
+    then
+        #
+        spinString=$spinStringD
+
+    elif [[ $getRandValue -eq 5 ]]
+    then
+        #
+        spinString=$spinStringE
+    fi
+
+    ### Choice the spin string -> start tag[c0]
+
+
+
+    #
+    trap "setterm --cursor on" SIGINT
+  
+    #
+    setterm --cursor off
+
+    echo "~"
+  
+
+
+    # Animation 
+    while [[ ` ps -p "$pidCmd" | grep -- "$pidCmd" ` ]]
+    do
+
+      firstChar=${spinString#?}
+
+      echo -en "$infotext $spinString"
+
+      spinString=$firstChar${spinString%"$firstChar"}
+
+      sleep $delay
+
+      echo -ne "\r"
+
+    done
+
+    #
+    echo -ne "\e[36;1mwait...\e[0m \U00270B \U001F449 ⌛ $spinString \r"
+
+    #
+    echo ""
+    echo ""
+
+    #
+    setterm --cursor on
+
+}
+
+
+
+
+
+:   '
+/**
 * @overview The `removeFileDir` allows to remove files/dirs created during operations
 *
 */
@@ -612,8 +715,14 @@ then
     local getMeoRefreshVersion=""
 
 
+
     # Call the function
-    refreshPackageFile
+    refreshPackageFile &
+
+    # Call the function
+    spinnerAnimation $!
+
+
 
     #
     if [[ -e "$meoListAvailablePkgs" ]]
@@ -700,7 +809,10 @@ then
             if [[ $counterCloneGit -eq 0 ]]
             then
                 # Call the function
-                clonePersonalGit
+                clonePersonalGit &
+
+                # Call the function
+                spinnerAnimation $!
 
                 #
                 counterCloneGit=$(( counterCloneGit + 1 ))
@@ -830,8 +942,15 @@ then
 
     done < $meoListInstalledPkgsPure
 
+
+
     # Call the function 
-    refreshPackageFile
+    refreshPackageFile &
+
+    # Call the function
+    spinnerAnimation $!
+
+
 
     # Load the refreshed/upgradable packages and their version in an array
     while IFS= read -r lineFile
@@ -969,8 +1088,13 @@ then
 
     done < $meoListInstalledPkgsPure
 
+
+
     # Call the function 
-    refreshPackageFile
+    refreshPackageFile &
+
+    # Call the function
+    spinnerAnimation $!
 
 
 
@@ -1094,9 +1218,19 @@ then
     declare -a listOfUpgradedPkg=()
 
 
+
+    # Call the function 
+    refreshPackageFile &
+
+    # Call the function
+    spinnerAnimation $!
+
     # Skip the `upgrade` option
     shift 1
 
+
+
+    #
     for givenPkg in $@
     do
         flagPkgFound=$( isPackageInstalled $givenPkg )
@@ -1306,7 +1440,10 @@ then
 
     
     # Call the function
-    clonePersonalGit
+    clonePersonalGit &
+
+    # Call the function
+    spinnerAnimation $!
 
     #
     shift 1
@@ -1492,7 +1629,10 @@ then
     declare -a listOfFoundPkg=()
 
     # Call the function
-    refreshPackageFile
+    refreshPackageFile &
+
+    # Call the function
+    spinnerAnimation $!
 
     #
     shift 1
