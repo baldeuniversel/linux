@@ -89,10 +89,10 @@
     *
     * :option <--move> type(string) // An option allows to move files/directories directly
     *
-    * :option <--in> type(string) // This option allows to execute an action (move or copy) directly
+    * :option <--in> type(string) // This option allows is linked to the [ --move, --copy ] options
     *  Use case :
     *            Ex : am-okay --copy <your_dirs/files> --in <your_target_dir>
-    *            Ex : am-okay --move <your_dirs/files>--in <your_target_dir>
+    *            Ex : am-okay --move <your_dirs/files> --in <your_target_dir>
     *
     * :option <--reset> type(string) // To reset the desired actions, a prompt will be triggered for the 
     *  possible choices.
