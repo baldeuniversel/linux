@@ -13,7 +13,7 @@
 #
 # Version :
 # --------
-# @version 3.0.7 (19 november 2023)
+# @version 3.0.8 (19 December 2023)
     '
 #####
 
@@ -225,7 +225,7 @@ function display_progress_bar
         fi
 
         #
-        if [[  ! ` ps -p "$getPidCommandCp" | grep -w -- "$getPidCommandCp" ` ]] 
+        if [[ ! ` ps -p "$getPidCommandCp" | grep -w -- "$getPidCommandCp" ` ]]
         then
 
             #

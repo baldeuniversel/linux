@@ -1,4 +1,4 @@
-#!/usr/bin/zsh
+#!/usr/bin/bash
 
 :   ' 
     /**
@@ -9,15 +9,17 @@
     *
     * @requires The only options supported are [ --copy, --cut, --paste-copy, --paste-cut, --array,
     *                                            --index, --put, --stat-copy, --stat-cut, --stat, 
-    *                                            --reset, --doc, --help ] 
+    *                                            --reset, --in, --move, --doc, --help ] 
     * && the command <<am-okay>> has to have at least one option then(if that is the goal) the target directory/directories or 
     * file/files. Example : am-okay --copy <myTargetDir> (for sure without the hyphens)
     * && with the option <--index> there is a limit at the level of the indexes and the indexes have to be 
     * a positive integer(min 0 and max 3)
     * && the <--index>,  <--put> and <--stat> options are linked to the <--array> option
     * && <--stat-copy> is linked to the <--copy> option 
-    * && <--stat-cut> is linked to the <--cut> option .
-    * && the <--reset> option has to follow by the "request" value .
+    * && <--stat-cut> is linked to the <--cut> option 
+    * && <--in> option is linked to the [ --copy, --move ] options
+    * && the <--reset> option has to follow by the "request" value
+    * && the files or directories do not have the character `?` at the level of their name
     *
     *
     * Options :
@@ -85,6 +87,13 @@
     *            Ex : am-okay --array --index 0-2 --stat // The indexes between `0` and `2`.
     *            Ex : am-okay --array --index 0,2 --stat // The index `0` and `2`.
     *
+    * :option <--move> type(string) // An option allows to move files/directories directly
+    *
+    * :option <--in> type(string) // This option allows to execute an action (move or copy) directly
+    *  Use case :
+    *            Ex : am-okay --copy <your_dirs/files> --in <your_target_dir>
+    *            Ex : am-okay --move <your_dirs/files>--in <your_target_dir>
+    *
     * :option <--reset> type(string) // To reset the desired actions, a prompt will be triggered for the 
     *  possible choices.
     *                                                                Ex : am-okay --doc
@@ -109,6 +118,9 @@
     * by <--copy> option requires the <--paste-copy> option for pasting, and an action
     * done by <--cut> option requires <--paste-cut> option for pasting. The two
     * [ --copy, --cut ] options have different hash codes.
+    *
+    * The files or directories do not have the character `?` at the level of their name.
+    *
     * When you execute the command am-okay , the command in question works with the profile
     * it was run with. Running it with different profiles will result in different scenarios, because
     * for the program each user is different. So when you realise an action, make sure to conserve
@@ -137,12 +149,13 @@ trap "setterm --cursor on" SIGINT
 
 # Declaration variables
 listOfParams=("--copy" "--cut" "--paste-copy" "--paste-cut" "--array" \
-    "--index" "--put" "--stat-copy" "--stat-cut" "--stat" "--reset" "--doc" "--help" "--version")
+    "--index" "--put" "--stat-copy" "--stat-cut" "--stat" "--reset" \
+    "--in" "--move" "--doc" "--help" "--version")
 
 counterOption=0
 
 
-#Check the inputs parameters
+# Check the inputs parameters
 for optionUP in ${listOfParams[@]}
 do
     if [[ $1 != $optionUP ]]
@@ -151,7 +164,7 @@ do
     fi
 
     #
-    if [[ $counterOption -eq 14  ]]
+    if [[ $counterOption -eq 16  ]]
     then
         echo "~"
         echo -e "Unknown `tput setaf 3; tput bold`$1` tput sgr0 ` option \U001F9D0 ."
@@ -159,8 +172,8 @@ do
     fi
 done
 #
-if [[ $1 != "--stat-copy" ]] && [[ $1 != "--stat-cut"  ]] && [[ $1 != "--paste-copy" ]] \
-    && [[ $1 != "--paste-cut" ]] && [[ $1 != "--doc" ]] && [[ $1 != "--help" ]] && [[ $1 != "--version" ]] \
+if [[ $1 != "--stat-copy" ]] && [[ $1 != "--stat-cut"  ]] \
+    && [[ $1 != "--doc" ]] && [[ $1 != "--help" ]] && [[ $1 != "--version" ]] \
     && [[ $# -lt 2 ]] 
 then
     echo "~"
@@ -244,6 +257,15 @@ fi
 
 
 
+# Remove the `am-okay` temporary directory according the user
+if [[ -e "/tmp/.am-okay/$USER" ]]
+then           
+    #
+    rm -r "/tmp/.am-okay/$USER"
+fi
+
+
+
 
 
 :   '
@@ -272,7 +294,17 @@ function alertNonEffectiveAction
                 echo -en "in the target dir ."
 
                 #
-                setterm -cursor on
+                setterm --cursor on
+
+
+                #
+                if [[ -e "/tmp/.am-okay/$USER"  ]]
+                then
+                    
+                    #
+                    rm -r "/tmp/.am-okay/$USER"
+                fi
+
                 exit 1 
             fi
         fi
@@ -398,18 +430,21 @@ function copyCutAction
     local indexValue=$4
     local statusCopyCutActionFile=""
     local onlyCopyCutActionFile=""
+    local getParamThree=` echo "$3" | tr -d "\n" `
+
     #
     local counter=0
     local getCurrentPath=` pwd `
  
     # Redefine the `separator`
     saveIFS=$IFS
-    IFS="?"
+    IFS='?'
 
     # Append the files/dirs in the array
-    for dir_file in `echo $3 `
+    for dir_file in ` echo "$getParamThree" `
     do
-        targetElems+=` echo "$dir_file" | awk '{ gsub(/^[ \t]+|[ \t]+$/, ""); print }' `
+        #
+        targetElems+=( ` echo "$dir_file" | awk '{ gsub(/^[ \t]+|[ \t]+$/, ""); print }' ` )
     done
 
     # Restore the separator
@@ -459,7 +494,7 @@ function copyCutAction
 
 
     # Check the existence of directory/directories or file/files and do ...
-    for elemDirFile in ${targetElems[@]}
+    for elemDirFile in "${targetElems[@]}"
     do
         #
         if [[ ! ( -e "$elemDirFile" ) ]]
@@ -532,6 +567,9 @@ function copyCutAction
         # Increment the `$counter`
         counter=$(( counter + 1 ))
     done
+
+    #
+    IFS=$saveIFS
 
 
 }
@@ -914,6 +952,131 @@ function pasteAction
 
 
 
+
+
+:   '
+# :param $1 type(string) // Realize action from the request `--copy` or `--cut` request
+# :param $2 type(string) // The source (file/directory)
+# :param $3 type(string) // The target directory
+    '
+function pasteActionIn 
+{
+
+    # Declaration/Assignation variables
+    getTheTargetDir=` echo "$3" |  awk '{ if ( substr($0, length($0), 1) == "/" ) $0 = substr($0, 1, length($0) - 1); print }' `
+    getTheTargetDir=` echo "$getTheTargetDir" |  awk '{ if ( substr($0, 1, 2) == "./" ) $0 = substr($0, 3, length($0)); print }' `
+
+    getProperSrc=` echo "$2" |  awk '{ if ( substr($0, 1, 2) == "./" ) $0 = substr($0, 3, length($0)); print }' `
+    getProperSrc=` echo "$getProperSrc" |  awk '{ if ( substr($0, length($0), 1) == "/" ) $0 = substr($0, 1, length($0) - 1); print }' `
+
+    getLastElemInSrc=""
+
+
+    #
+    if [[ ` echo "$getProperSrc"  | grep -i -- "/" ` ]]
+    then
+
+        getLastElemInSrc=` echo "$getProperSrc" | tac -s "/" | head -n 1 `
+    else
+        getLastElemInSrc=$getProperSrc
+    fi
+
+    #
+    if [[ "$3" == "." ]]
+    then
+        getTheTargetDir=` pwd `
+    fi
+
+
+    #
+    setterm --cursor off
+
+
+    #
+    if [[ $1 == "--copy"  ]]
+    then
+        
+        # Copy the files/directories towards the given directory
+        cp -ra "$getProperSrc" "$getTheTargetDir" 2> $fileCodeCommandErrorCp &
+                    
+        # Store the pid of the last command
+        echo "$!" > $filePidCommandCp
+
+        #
+        sleep 0.0005
+
+        # Call the function ->  ` alertNonEffectiveAction `
+        alertNonEffectiveAction $fileCodeCommandErrorCp 
+
+        truncate -s 0 $fileCodeCommandErrorCp
+                
+        #
+        touch "$getTheTargetDir/.am-okay-checker-access" 2> $fileCodeCommandReturn
+            
+        # Call the function ->  ` alertNonEffectiveAction `
+        alertNonEffectiveAction $fileCodeCommandReturn
+
+        #
+        truncate -s 0 $fileCodeCommandReturn
+
+
+        # Display the status of the transfer
+        /usr/lib/am-okay/library/progress-bar-copy.sh "$getProperSrc" "$getTheTargetDir/$getLastElemInSrc"
+
+        #
+        truncate -s 0 $fileCodeCommandReturn 2> /dev/null
+        truncate -s 0 $filePidCommandCp 2> /dev/null
+
+    elif [[ $1 == "--cut" ]]
+    then
+
+        # Copy the files/directories towards the given directory
+        mv --backup=numbered "$getProperSrc" "$getTheTargetDir" 2> $fileCodeCommandErrorMv &
+                    
+        # Store the pid of the last command
+        echo "$!" > $filePidCommandMv
+
+        #
+        sleep 0.0005
+
+        # Call the function ->  ` alertNonEffectiveAction `
+        alertNonEffectiveAction $fileCodeCommandErrorMv
+
+        truncate -s 0 $fileCodeCommandErrorMv
+                
+        #
+        touch "$getTheTargetDir/.am-okay-checker-access" 2> $fileCodeCommandReturn
+            
+        # Call the function ->  ` alertNonEffectiveAction `
+        alertNonEffectiveAction $fileCodeCommandReturn
+
+        #
+        truncate -s 0 $fileCodeCommandReturn
+
+
+        # Display the status of the transfer
+        /usr/lib/am-okay/library/progress-bar-cut.sh "$getProperSrc" "$getTheTargetDir/$getLastElemInSrc"
+
+        #
+        truncate -s 0 $fileCodeCommandReturn 2> /dev/null
+        truncate -s 0 $filePidCommandMv 2> /dev/null
+
+    fi
+
+    #
+    setterm --cursor on
+
+
+    #
+    if [[ -e "$getTheTargetDir/.am-okay-checker-access" ]]
+    then
+        rm -r "$getTheTargetDir/.am-okay-checker-access" &> /dev/null
+    fi
+    
+}
+
+### Creation some necessaries files/dirs -> start tag[e0]
+
 # Creation dirs where the error code will be sent
 if [[ ! ( -e "/tmp/.am-okay/$USER" ) ]]
 then
@@ -1015,7 +1178,183 @@ then
     truncate -s 0 $fileCodeCommandReturn
 fi
 
-### End of [tag0]
+### Creation some necessaries files/dirs -> end tag[e0]
+
+
+
+
+
+### Treatment the `copy` and `move` actions (directly) -> start tag[i7]
+
+if ( [[ $1 == "--copy"  ]] || [[ $1 == "--move" ]] ) && ( [[ ` echo  "$@" | grep -w -- "--in" ` ]] )
+then
+
+    # Declaration/Assignation variables
+    getNbOfParam=` echo "$#" `
+    getTheFirstParam=$1
+    getBeforeLastParamPos=$(( getNbOfParam - 1  ))
+    getLastParam=${!getNbOfParam}
+    counterInOption=0
+    tabFileDir=()
+
+    #
+    if [[ "${!getBeforeLastParamPos}" == "--in" ]] && ( [[ -e "${!getNbOfParam}" ]] && [[ -d "${!getNbOfParam}" ]] )
+    then
+        
+        #
+        if [[ -e "$getLastParam" ]] && [[ -d "$getLastParam" ]]
+        then
+            
+            # Get all the input parameters
+            arrayParam=("$@")
+
+            # Get the current input field separator
+            getCurrentIFS=$IFS
+            
+            # Change the input field separator
+            IFS=$'\n'
+
+            # Ignore `--copy` or `--move` option
+            shift 1
+            
+            # Check if the request action is valid 
+            for inputParam in "$@"
+            do
+                #
+                if [[ $inputParam != "--in" ]] && [[ $counterInOption -lt 2 ]]
+                then
+                    
+                    #
+                    if [[ -e "$inputParam" ]]
+                    then
+
+                        # Add the file or directory to the array 
+                        tabFileDir+=("$inputParam")                    
+                    else
+                        echo "~"
+                        echo -e "The file/directory \e[35;1m$inputParam\e[0m does not exist \U001F9D0"
+                        exit 1
+                    fi
+                else
+
+                    #
+                    counterInOption=$(( counterInOption + 1 ))
+
+                    if [[ $counterInOption -gt 1 ]]
+                    then
+
+                        echo "~"
+                        echo -e "Invalid request \U001F9D0"
+
+                        exit 1
+                    fi
+                fi
+            done
+ 
+            #
+            set -- ${arrayParam[@]}
+            
+            #
+            IFS=$getCurrentIFS
+        fi
+
+    elif  [[ "${!getBeforeLastParamPos}" != "--in" ]]
+    then
+        echo "~"
+        echo -e "Invalid request \U001F9D0, the option \e[36;1m--in\e[0m has to be in penultimate position"
+        exit 1
+
+    elif [[ -e "${!getNbOfParam}" ]] 
+    then
+
+        #
+        if [[ ! ( -d "${!getNbOfParam}" ) ]]
+        then
+            #
+            echo "~"
+            echo -e "The target entry \e[35;1m${!getNbOfParam}\e[0m has to be a directory \U001F9D0"
+            exit 1
+        fi
+
+    elif [[ ! ( -e "${!getNbOfParam}" ) ]]
+    then
+        #
+        echo "~"
+        echo -e "The target input \e[35;1m${!getNbOfParam}\e[0m was not found \U001F9D0"
+        exit 1
+    else
+        #
+        echo "~"
+        echo -e "Invalid request \U001F9D0"
+
+        exit 1
+    fi
+
+
+    # Finalize the action `copy` or `move`
+    if [[ $getTheFirstParam == "--copy" ]]
+    then
+
+        echo -e ""
+
+        # Backup the `input field separator` , then ...
+        saveIFS=$IFS
+
+        # New `input field separator`
+        IFS=$'\n'
+
+
+        # Put the files/dirs in the array
+        for dirFile in "${tabFileDir[@]}"
+        do
+            if [[ "$dirFile" != "$getLastParam" ]]
+            then
+                # Call the function `pasteActionIn`
+                pasteActionIn "--copy" "$dirFile" "$getLastParam"
+            fi
+
+        done
+        
+        # Restore 
+        IFS=$saveIFS
+
+        #
+        exit 0
+
+    elif [[ $getTheFirstParam == "--move"  ]]
+    then
+
+        # Backup the `input field separator` , then ...
+        saveIFS=$IFS
+
+        # New `input field separator`
+        IFS=$'\n'
+
+
+        # Put the files/dirs in the array
+        for dirFile in "${tabFileDir[@]}"
+        do
+            if [[ "$dirFile" != "$getLastParam" ]]
+            then
+                # Call the function `pasteActionIn`
+                pasteActionIn "--cut" "$dirFile" "$getLastParam"
+            fi
+
+        done
+        
+        # Restore 
+        IFS=$saveIFS
+
+        #
+        exit 0
+    fi
+
+    exit 0
+    
+fi
+
+### Treatment the `copy` and `move` actions (directly) -> end tag[i7]
+
 
 
 ### Manage the actions done by the [ --copy, --cut, --stat-copy, --stat-cut, --paste-copy, 
@@ -1036,10 +1375,10 @@ then
 
         # Backup the `input field separator`
         saveIFS=$IFS
-        IFS=$"\n"
+        IFS=$'\n'
 
         # Put the files/dirs in the array
-        for dir_file in $@
+        for dir_file in "$@"
         do
             arrayDirsFiles+=` echo "$dir_file" | awk '{ gsub(/^[ \t]+|[ \t]+$/, ""); print }' `
             arrayDirsFiles+="?"
@@ -1062,10 +1401,10 @@ then
 
         # Backup the `input field separator`
         saveIFS=$IFS
-        IFS=$"\n"
+        IFS=$'\n'
 
         # Put the files/dirs in the array
-        for dir_file in $@
+        for dir_file in "$@"
         do
             arrayDirsFiles+=` echo "$dir_file" | awk '{ gsub(/^[ \t]+|[ \t]+$/, ""); print }' `
             arrayDirsFiles+="?"
@@ -1113,10 +1452,10 @@ then
 
                 # Backup the `input field separator`
                 saveIFS=$IFS
-                IFS=$"\n"
+                IFS=$'\n'
 
                 # Put the files/dirs in the array
-                for dir_file in $@
+                for dir_file in "$@"
                 do
                     arrayDirsFiles+=` echo "$dir_file" | awk '{ gsub(/^[ \t]+|[ \t]+$/, ""); print }' `
                     arrayDirsFiles+="?"
@@ -1140,10 +1479,10 @@ then
 
                 # Backup the `input field separator`
                 saveIFS=$IFS
-                IFS=$"\n"
+                IFS=$'\n'
 
                 # Put the files/dirs in the array
-                for dir_file in $@
+                for dir_file in "$@"
                 do
                     arrayDirsFiles+=` echo "$dir_file" | awk '{ gsub(/^[ \t]+|[ \t]+$/, ""); print }' `
                     arrayDirsFiles+="?"
@@ -1169,10 +1508,10 @@ then
 
                 # Backup the `input field separator`
                 saveIFS=$IFS
-                IFS=$"\n"
+                IFS=$'\n'
 
                 # Put the files/dirs in the array
-                for dir_file in $@
+                for dir_file in "$@"
                 do
                     arrayDirsFiles+=` echo "$dir_file" | awk '{ gsub(/^[ \t]+|[ \t]+$/, ""); print }' `
                     arrayDirsFiles+="?"
@@ -1196,10 +1535,10 @@ then
 
                 # Backup the `input field separator`
                 saveIFS=$IFS
-                IFS=$"\n"
+                IFS=$'\n'
 
                 # Put the files/dirs in the array
-                for dir_file in $@
+                for dir_file in "$@"
                 do
                     arrayDirsFiles+=` echo "$dir_file" | awk '{ gsub(/^[ \t]+|[ \t]+$/, ""); print }' `
                     arrayDirsFiles+="?"
@@ -1225,10 +1564,10 @@ then
 
                 # Backup the `input field separator`
                 saveIFS=$IFS
-                IFS=$"\n"
+                IFS=$'\n'
 
                 # Put the files/dirs in the array
-                for dir_file in $@
+                for dir_file in "$@"
                 do
                     arrayDirsFiles+=` echo "$dir_file" | awk '{ gsub(/^[ \t]+|[ \t]+$/, ""); print }' `
                     arrayDirsFiles+="?"
@@ -1251,10 +1590,10 @@ then
 
                 # Backup the `input field separator`
                 saveIFS=$IFS
-                IFS=$"\n"
+                IFS=$'\n'
 
                 # Put the files/dirs in the array
-                for dir_file in $@
+                for dir_file in "$@"
                 do
                     arrayDirsFiles+=` echo "$dir_file" | awk '{ gsub(/^[ \t]+|[ \t]+$/, ""); print }' `
                     arrayDirsFiles+="?"
@@ -1280,10 +1619,10 @@ then
 
                 # Backup the `input field separator`
                 saveIFS=$IFS
-                IFS=$"\n"
+                IFS=$'\n'
 
                 # Put the files/dirs in the array
-                for dir_file in $@
+                for dir_file in "$@"
                 do
                     arrayDirsFiles+=` echo "$dir_file" | awk '{ gsub(/^[ \t]+|[ \t]+$/, ""); print }' `
                     arrayDirsFiles+="?"
@@ -1306,10 +1645,10 @@ then
 
                 # Backup the `input field separator`
                 saveIFS=$IFS
-                IFS=$"\n"
+                IFS=$'\n'
 
                 # Put the files/dirs in the array
-                for dir_file in $@
+                for dir_file in "$@"
                 do
                     arrayDirsFiles+=` echo "$dir_file" | awk '{ gsub(/^[ \t]+|[ \t]+$/, ""); print }' `
                     arrayDirsFiles+="?"
