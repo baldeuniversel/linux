@@ -27,8 +27,8 @@ then
     if [[ ! ` cat $meoListInstalledPkgsPure | grep -w -- "am-okay" ` ]]
     then
         #
-        sed -i "$ a am-okay : v(3.0.8)" "$meoListInstalledPkgsPure" 2> /dev/null
-        sed -i -e "$ a ` echo -e "\e[32;1mam-okay\e[0m : \e[36;1mv(3.0.8)\e[0m" ` " "$meoListInstalledPkgs" 2> /dev/null
+        sed -i "$ a am-okay : v(3.0.9)" "$meoListInstalledPkgsPure" 2> /dev/null
+        sed -i -e "$ a ` echo -e "\e[32;1mam-okay\e[0m : \e[36;1mv(3.0.9)\e[0m" ` " "$meoListInstalledPkgs" 2> /dev/null
     fi
 fi
 

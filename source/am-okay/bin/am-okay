@@ -155,6 +155,16 @@ listOfParams=("--copy" "--cut" "--paste-copy" "--paste-cut" "--array" \
 counterOption=0
 
 
+
+# Return an error when the number of parameters is lower than one 
+if [[ $# -lt 1 ]]
+then
+    echo "~"
+    echo -e "There is at least one parameter \U001F914"
+
+    exit 1
+fi
+
 # Check the inputs parameters
 for optionUP in ${listOfParams[@]}
 do
