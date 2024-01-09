@@ -355,7 +355,7 @@ then
     while [[ $counterRetypePasswd < 3 ]]
     do
         # Declaration variables
-        local passwdUser=""
+        passwdUser=""
     
     
     
