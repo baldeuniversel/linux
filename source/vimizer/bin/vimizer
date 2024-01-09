@@ -10,6 +10,21 @@ set -o pipefail
 
 
 
+### Action for the deployment -> start tag[d0]
+echo "~"
+
+read -p "Your are about do deploy configurations, continue ? [y/n] :" checkInput
+
+if [[ $checkInput != "y"  ]] && [[ $checkInput != "yes" ]]
+then
+    echo ""
+    echo -e "The deployment was aborted \U001F917"
+
+    exit 0
+fi
+
+### Action for the deployment -> end tag[d0]
+
 
 
 ### Manager input parameters -> start tag[m0]
