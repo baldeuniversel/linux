@@ -9,7 +9,7 @@
     *
     * @requires The only options supported are [ --copy, --cut, --paste-copy, --paste-cut, --array,
     *                                            --index, --put, --stat-copy, --stat-cut, --stat, 
-    *                                            --reset, --in, --move, --doc, --help ] 
+    *                                            --reset, --out, --move, --doc, --help ] 
     * && the command <<am-okay>> has to have at least one option then(if that is the goal) the target directory/directories or 
     * file/files. Example : am-okay --copy <myTargetDir> (for sure without the hyphens)
     * && with the option <--index> there is a limit at the level of the indexes and the indexes have to be 
@@ -17,7 +17,7 @@
     * && the <--index>,  <--put> and <--stat> options are linked to the <--array> option
     * && <--stat-copy> is linked to the <--copy> option 
     * && <--stat-cut> is linked to the <--cut> option 
-    * && <--in> option is linked to the [ --copy, --move ] options
+    * && <--out> option is linked to the [ --copy, --move ] options
     * && the <--reset> option has to follow by the "request" value
     * && the files or directories do not have the character `?` at the level of their name
     *
@@ -89,10 +89,10 @@
     *
     * :option <--move> type(string) // An option allows to move files/directories directly
     *
-    * :option <--in> type(string) // This option allows is linked to the [ --move, --copy ] options
+    * :option <--out> type(string) // This option is linked to the [ --move, --copy ] options
     *  Use case :
-    *            Ex : am-okay --copy <your_dirs/files> --in <your_target_dir>
-    *            Ex : am-okay --move <your_dirs/files> --in <your_target_dir>
+    *            Ex : am-okay --copy <your_dirs/files> --out <your_target_dir>
+    *            Ex : am-okay --move <your_dirs/files> --out <your_target_dir>
     *
     * :option <--reset> type(string) // To reset the desired actions, a prompt will be triggered for the 
     *  possible choices.
@@ -150,7 +150,7 @@ trap "setterm --cursor on" SIGINT
 # Declaration variables
 listOfParams=("--copy" "--cut" "--paste-copy" "--paste-cut" "--array" \
     "--index" "--put" "--stat-copy" "--stat-cut" "--stat" "--reset" \
-    "--in" "--move" "--doc" "--help" "--version")
+    "--out" "--move" "--doc" "--help" "--version")
 
 counterOption=0
 
@@ -204,7 +204,7 @@ fi
 
 
 ### Creation of directories, files and functions for the actions linked to the 
-# [ --copy, --cut, --paste-copy, --paste-cut, --put, --stat-cut, --stat-put, --stat,
+# [ --copy, --cut, --paste-copy, --paste-cut, --put, --stat-cut, --stat-copy, --stat,
 #   --reset, --index, --array, --doc, --help ] options. [tag0]
 
 # Declaration variables
@@ -1196,7 +1196,7 @@ fi
 
 ### Treatment the `copy` and `move` actions (directly) -> start tag[i7]
 
-if ( [[ $1 == "--copy"  ]] || [[ $1 == "--move" ]] ) && ( [[ ` echo  "$@" | grep -w -- "--in" ` ]] )
+if ( [[ $1 == "--copy"  ]] || [[ $1 == "--move" ]] ) && ( [[ ` echo  "$@" | grep -w -- "--out" ` ]] )
 then
 
     # Declaration/Assignation variables
@@ -1208,7 +1208,7 @@ then
     tabFileDir=()
 
     #
-    if [[ "${!getBeforeLastParamPos}" == "--in" ]] && ( [[ -e "${!getNbOfParam}" ]] && [[ -d "${!getNbOfParam}" ]] )
+    if [[ "${!getBeforeLastParamPos}" == "--out" ]] && ( [[ -e "${!getNbOfParam}" ]] && [[ -d "${!getNbOfParam}" ]] )
     then
         
         #
@@ -1231,7 +1231,7 @@ then
             for inputParam in "$@"
             do
                 #
-                if [[ $inputParam != "--in" ]] && [[ $counterInOption -lt 2 ]]
+                if [[ $inputParam != "--out" ]] && [[ $counterInOption -lt 2 ]]
                 then
                     
                     #
@@ -1268,10 +1268,10 @@ then
             IFS=$getCurrentIFS
         fi
 
-    elif  [[ "${!getBeforeLastParamPos}" != "--in" ]]
+    elif  [[ "${!getBeforeLastParamPos}" != "--out" ]]
     then
         echo "~"
-        echo -e "Invalid request \U001F9D0, the option \e[36;1m--in\e[0m has to be in penultimate position"
+        echo -e "Invalid request \U001F9D0, the option \e[36;1m--out\e[0m has to be in penultimate position"
         exit 1
 
     elif [[ -e "${!getNbOfParam}" ]] 
