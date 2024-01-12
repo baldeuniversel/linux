@@ -40,3 +40,89 @@ then
 fi
 
 ### End of [tag0]
+
+
+
+:   '
+@overview A function allowing to install dependencies
+    '
+function installer
+{
+
+    # Install `debianutils` if the package does not exist
+    if [[ ! ` dpkg -l | grep -w -- "debianutils" ` ]]
+    then
+        
+        # Update 
+        apt-get update
+        
+        # upgrade
+        apt-get install debianutils --assume-yes
+    fi
+
+    # Install `grep` if the package does not exist
+    if [[ ! ` which grep ` ]]
+    then
+        
+        # Update 
+        apt-get update
+        
+        # upgrade
+        apt-get install grep --assume-yes
+    fi
+    
+
+    ### Action to install dependencies -> start tag[i0]
+
+    # Declaration variables
+    declare -a tabDep=("bash" "coreutils" "systemd" "software-properties-common" "curl" "bc" \
+        "python3" "gzip" "awk" "gawk" "zsh" "util-linux")
+    
+    local counter=0
+
+
+
+    # Installing dependencies
+    for pkg in ${tabDep[@]}
+    do
+        #
+        if [[ $counter -eq 0  ]]
+        then
+            
+            #
+            apt-get update 
+
+            counter=$(( counter + 1 ))
+        fi
+
+
+        #
+        if [[  "$pkg" != "coreutils"  ]] && [[ "$pkg" != "util-linux" ]] && [[ "$pkg" != "software-properties-common" ]]
+        then
+            #
+            if [[ ! ` which $pkg  ` ]]
+            then
+                
+                #
+                apt-get install "$pkg" --assume-yes
+            fi
+
+        else
+            
+            #
+            if [[ ! ` dpkg -l | grep -w -- "$pkg" `  ]]
+            then
+                #
+                apt-get install $pkg --assume-yes
+            fi
+
+        fi
+    done
+
+    ### Action to install dependencies -> start tag[i0]
+
+}
+
+# Call the function
+installer
+
