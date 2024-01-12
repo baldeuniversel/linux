@@ -13,7 +13,7 @@
 #
 # Version :
 # --------
-# @version 3.0.9 (08 January 2024)
+# @version 3.1.0 (12 January 2024)
     '
 #####
 
@@ -119,12 +119,7 @@ function display_progress_bar
 
     # Call the constructor <<__init__>>
     __init__
-
-
-    # Get the size of the source data -> call the function <<get_size>>
-    a_size_source=$(get_size $a_source_data)
-
-
+ 
 
 
     # Action to get the two last directories if there is more than three directories
@@ -150,7 +145,6 @@ function display_progress_bar
 
 
 
-
     #
     echo -e "   $source_dir_file      -->     $destination_dir_file"
 
@@ -164,6 +158,13 @@ function display_progress_bar
 
     # Reset the white color
     echo -en "|  $a_percent_stat  \033[0m"
+
+
+
+    # Get the size of the source data -> call the function <<get_size>>
+    a_size_source=$(get_size $a_source_data)
+
+
  
     #
     while [[ $a_terminate_process == "TRUE" ]]

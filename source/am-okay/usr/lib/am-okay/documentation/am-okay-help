@@ -68,9 +68,9 @@
 
        [36;1m--move[0m        type(string) // An option allows to move files/directories directly
 
-       [36;1m--in[0m          type(string) // This option is linked to the [ [36;1m--move[0m, [36;1m--copy[0m ] options
-                          Ex : [35;1mam-okay[0m [36;1m--copy[0m <your_dirs/files> [36;1m--in[0m <your_target_dir>
-                          Ex : [35;1mam-okay[0m [36;1m--move[0m <your_dirs/files> [36;1m--in[0m <your_target_dir>
+       [36;1m--out[0m          type(string) // This option is linked to the [ [36;1m--move[0m, [36;1m--copy[0m ] options
+                          Ex : [35;1mam-okay[0m [36;1m--copy[0m <your_dirs/files> [36;1m--out[0m <your_target_dir>
+                          Ex : [35;1mam-okay[0m [36;1m--move[0m <your_dirs/files> [36;1m--out[0m <your_target_dir>
 
        [36;1m--reset[0m       type(string) // To reset your desired action(s), there will be a prompt for the
                      possible choices ( note : you have to encode expressly the `request` word ) .

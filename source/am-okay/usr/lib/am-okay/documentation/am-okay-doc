@@ -1,7 +1,7 @@
 [35;1mam-okay[0m('1')                                                                                                                     [35;1mam-okay[0m('1')
 
 [32;1mNAME[0m
-       [35;1mam-okay[0m (version 3.0.9) .
+       [35;1mam-okay[0m (version 3.1.0) .
 
 [32;1mDESCRIPTION[0m
        [35;1mam-okay[0m is a program that allows dynamically to copy and cut files or
@@ -16,7 +16,7 @@
 [32;1mREQUIRES[0m
        @requires The only options supported are [ [36;1m--copy[0m, [36;1m--cut[0m, [36;1m--paste-copy[0m, [36;1m--paste-cut[0m, [36;1m--array[0m,
                                                   [36;1m--index[0m, [36;1m--put[0m, [36;1m--stat-copy[0m, [36;1m--stat-cut[0m, [36;1m--stat[0m,
-                                                  [36;1m--reset[0m, [36;1m--in[0m, [36;1m--move[0m,[36;1m--doc[0m, [36;1m--help[0m ]
+                                                  [36;1m--reset[0m, [36;1m--out[0m, [36;1m--move[0m,[36;1m--doc[0m, [36;1m--help[0m ]
        && the command [35;1mam-okay[0m has to have at least one option then (if that's your goal) the target
        directory/directories or file/files.
            Example : [35;1mam-okay[0m [36;1m--copy[0m <myTargetDir> (for sure without the hyphens)
@@ -27,7 +27,7 @@
        && <[36;1m--stat-copy[0m> is linked to the <[36;1m--copy[0m> option
        && <[36;1m--stat-cut[0m> is linked to the <[36;1m--cut[0m> option
        && the <[36;1m--reset[0m> option has to follow by the request value
-       && <[36;1m--in[0m> option is linked to the [ [36;1m--copy[0m, [36;1m--move[0m ] options
+       && <[36;1m--out[0m> option is linked to the [ [36;1m--copy[0m, [36;1m--move[0m ] options
        && the files or directories do not have the character `?` at the level of their name.
 
 [32;1mSYNOPSIS[0m
@@ -104,9 +104,9 @@
 
        [36;1m--move[0m        type(string) // An option allows to move files/directories directly
 
-       [36;1m--in[0m          type(string) // This option is linked to the [ [36;1m--move[0m, [36;1m--copy[0m ] options
-                          Ex : [35;1mam-okay[0m [36;1m--copy[0m <your_dirs/files> [36;1m--in[0m <your_target_dir>
-                          Ex : [35;1mam-okay[0m [36;1m--move[0m <your_dirs/files> [36;1m--in[0m <your_target_dir>
+       [36;1m--out[0m          type(string) // This option is linked to the [ [36;1m--move[0m, [36;1m--copy[0m ] options
+                          Ex : [35;1mam-okay[0m [36;1m--copy[0m <your_dirs/files> [36;1m--out[0m <your_target_dir>
+                          Ex : [35;1mam-okay[0m [36;1m--move[0m <your_dirs/files> [36;1m--out[0m <your_target_dir>
 
        [36;1m--reset[0m       type(string) // To reset your desired action(s), there will be a prompt for the
                      possible choices ( note : you have to encode expressly the `request` word ) .
@@ -139,7 +139,7 @@
        the same profile to paste .
        A progress bar will be displayed to indicate the move and copy status when you execute the
        command [35;1mam-okay[0m with the <[36;1m--paste-copy[0m>, <[36;1m--paste-cut[0m>, <[36;1m--put[0m>,
-       <[36;1m--move[0m>, <[36;1m--in[0m> options .
+       <[36;1m--move[0m>, <[36;1m--out[0m> options .
 
 [32;1mAUTHOR[0m
        Author    : Baldé Amadou <baldeuniversel@protonmail.com>
@@ -147,4 +147,4 @@
 [32;1mCONTRIBUTOR[0m
        Contributor    : Diallo Ismaila <diallois@protonmail.com>
 
-[35;1mam-okay[0m program                                                   2023-12-19                                                     [35;1mam-okay[0m('1')
+[35;1mam-okay[0m program                                                   2024-01-12                                                     [35;1mam-okay[0m('1')
