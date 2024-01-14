@@ -2,16 +2,16 @@
 
 :   ' 
     /**
-    * @overview This program allows to manage the installed packages from the git repository 
+    * @overview This program allows to manage the available packages from the git repository 
     * `https://github.com/baldeuniversel/linux.git` (First of all, this program is written for 
     *                                                the <<Ve-Quantic>> members) .
-    * The program also allows to list available packages from the same git repository.
+    * The program also allows to list available packages from the same git repository .
     *
     *
     *
     * @requires The only options supported are [ self-update, install, update, upgrade, remove
     *                                            download, list, list-installed, search, show, 
-    *                                            --help, --doc, --version ] 
+    *                                            info, --help, --doc, --version ] 
     * && the <<meo>> command has to have at least one option .  Ex: meo self-update
     * && with the options [ install, remove, search, show, download ] you have to give the package(s)
     * && with the options [ self-update, list, update, list-installed, --help, --doc, --version ] 
@@ -19,7 +19,11 @@
     * && with the options [ upgrade ], you can either upgrade all the installed packages 
     *                                              by `meo` or upgrade target installed packages 
     *                                Ex : meo upgrade    (to upgrade all the installed packages by `meo`) 
-    *                                Ex : meo upgrade am-okay    (to upgrade the target installed package)    
+    *                                Ex : meo upgrade am-okay    (to upgrade the target installed package)
+    *
+    * && with the option [ info ], one available (from `https://github.com/baldeuniversel/linux.git`) package 
+    *                                                                    can be given . Ex : meo info am-okay
+    *
     * && you can not call `meo` program to install it itself . Ex : meo install meo
     *
     *
@@ -62,6 +66,10 @@
     * @param {string} show // This option allows to have information on the installed packages from the `control` 
     *                         files
     *                         Ex : meo show am-okay
+
+    * @param {string} info // This option allows to get information about a available package from the Github
+    *                         repository `https/github.com/baldeuniversel/linux`
+    *                         Ex : meo info am-okay
     *
     * @param {string} --help // This option allows getting help on the `meo` program
     *                           Ex : meo --help
@@ -74,7 +82,7 @@
     *
     *
     * @ensure Successfully execution if the preconditions are satisfied. That is to say, with the 
-    * above options and the appropriated sequences allowed for these options.
+    * above options and the appropriated sequences allowed for these options .
     *
     *
     *
@@ -91,15 +99,24 @@
 
 
 
-
-
 set -uo pipefail # To exit the script if there is an error
 
 
 
-#
+# Check to see if there is at least one option for `meo` in input
+if [[ $# -lt 1 ]]
+then
+    getMeoName=` echo "$0" | gawk '{ split($0, array, "/"); print array[length(array)] }' `
+
+    echo "~"
+    echo -e "It has to be at least one parameter for the \e[32;1m$getMeoName\e[0m program \U001F9D0 "
+    exit 1
+fi
+
+
+# Exclude some sensitive actions 
 if ( [[ $USER != "root" ]] ) && ( [[ $1 != "list" ]] && [[ $1 != "list-installed" ]] && [[ $1 != "--version" ]] \
-     && [[ $1 != "show" ]] && [[ $1 != "--doc" ]] && [[ $1 != "--help" ]] )
+     && [[ $1 != "show" ]] && [[ $1 != "info" ]] && [[ $1 != "--doc" ]] && [[ $1 != "--help" ]] )
 then
     echo "~"
     echo -e "Only the root/admin has the right to execute this \e[32;1mmeo\e[0m action \U001F6A7 "
@@ -108,28 +125,15 @@ fi
 
 
 
-
-
 # Declaration variables
 listOfParams=("self-update" "install" "update" "upgrade" "remove" "download" \
-    "list" "list-installed" "search" "show" "--help" "--doc" "--version")
+    "list" "list-installed" "search" "show" "info" "--help" "--doc" "--version")
 
 counterOption=0
 
 
 
-
-
 ### Check the input options -> start tag[p0]
-#
-if [[ $# -lt 1 ]]
-then
-    local getMeoName=` echo "$0" | gawk '{ split($0, array, "/"); print array[length(array)] }' `
-
-    echo "~"
-    echo -e "It has to be at least one parameter for the \e[32;1m$getMeoName\e[0m program \U001F9D0 "
-    exit 1
-fi
 #
 for optionUP in ${listOfParams[@]}
 do
@@ -139,7 +143,7 @@ do
     fi
 
     #
-    if [[ $counterOption -eq 13  ]]
+    if [[ $counterOption -eq 14  ]]
     then
         echo "~"
         echo -e "Unknown `tput setaf 3; tput bold`$1` tput sgr0 ` option \U001F9D0 "
@@ -161,6 +165,13 @@ if ( [[ $1 == "install" ]] || [[ $1 == "remove"  ]] || [[ $1 == "search"  ]] || 
 then
     echo "~"
     echo -e "There have to be at least two parameters when the \e[32;1m$1\e[0m option is invoked \U001F9D0 "
+    exit 1
+fi
+#
+if ( [[ $1 == "info" ]] && [[ $# -ne 2 ]] )
+then
+    echo "~"
+    echo -e "There have to be two parameters when the \e[32;1m$1\e[0m option is invoked \U001F9D0 "
     exit 1
 fi
 
