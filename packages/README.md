@@ -67,7 +67,6 @@ to use this program .
 
 
 
-### Info
-
+#### Info
 For any request, write to me via this email address : 
-```baldeuniversel@protonmail.com```
+`baldeuniversel@protonmail.com`
