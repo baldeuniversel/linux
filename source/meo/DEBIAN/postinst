@@ -7,10 +7,11 @@
 set -euo pipefail
 
 # Declaration variables
+#
+meoInfoDir="/usr/lib/meo/library/info"
 meoListInstalledPkgs="/usr/lib/meo/library/info/list-installed-packages"
 meoListInstalledPkgsPure="/usr/lib/meo/library/info/list-installed-packages-pure"
 
-meoInfoDir="/usr/lib/meo/library/info"
 
 
 
@@ -31,8 +32,8 @@ then
     then
 
         # Add `meo` program as an installed package
-        sed -i -e "$ a ` echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.6)\e[0m" ` " $meoListInstalledPkgs
-        sed -i "$ a meo : v(1.1.6)" $meoListInstalledPkgsPure
+        sed -i -e "$ a ` echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.7)\e[0m" ` " $meoListInstalledPkgs
+        sed -i "$ a meo : v(1.1.7)" $meoListInstalledPkgsPure
     
     elif [[ ` cat "$meoListInstalledPkgsPure" | grep -w -- "meo" ` ]]
     then
@@ -41,23 +42,22 @@ then
         getLineMeoString=` cat "$meoListInstalledPkgsPure" | grep -wn "meo" | cut -d ":" -f 1 `
 
         # Replace the old version of the `meo` program
-        sed -i -e "$getLineMeoString s/...*/` echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.6)\e[0m" `/" $meoListInstalledPkgs 2> /dev/null
-        sed -i -e "$getLineMeoString s/...*/` echo -e "meo : v(1.1.6)" `/" $meoListInstalledPkgsPure 2> /dev/null
+        sed -i -e "$getLineMeoString s/...*/` echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.7)\e[0m" `/" $meoListInstalledPkgs 2> /dev/null
+        sed -i -e "$getLineMeoString s/...*/` echo -e "meo : v(1.1.7)" `/" $meoListInstalledPkgsPure 2> /dev/null
     fi
 
 elif [[ -e "$meoListInstalledPkgsPure" ]] && [[ ! -s "$meoListInstalledPkgsPure" ]]
 then
-readme
     # Add `meo` program as an installed package
-    echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.6)\e[0m" >> $meoListInstalledPkgs
-    echo -e "meo : v(1.1.6)" >> $meoListInstalledPkgsPure
+    echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.7)\e[0m" >> $meoListInstalledPkgs
+    echo -e "meo : v(1.1.7)" >> $meoListInstalledPkgsPure
 
 elif [[ ! -e "$meoListInstalledPkgsPure" ]]
 then
 
     # Add `meo` program as an installed package
-    echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.6)\e[0m" >> $meoListInstalledPkgs
-    echo -e "meo : v(1.1.6)" >> $meoListInstalledPkgsPure
+    echo -e "\e[32;1mmeo\e[0m : \e[36;1mv(1.1.7)\e[0m" > $meoListInstalledPkgs
+    echo -e "meo : v(1.1.7)" > $meoListInstalledPkgsPure
 fi
 
 

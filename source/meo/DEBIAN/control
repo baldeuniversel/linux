@@ -1,9 +1,9 @@
 Package: meo
-Version: 1.1.6
+Version: 1.1.7
 Section: base   
 Priority: optional
 Architecture: all
 Maintainer: Baldé <baldeuniversel@protonmail.com>
-Depends: bash, coreutils, systemd, software-properties-common, dpkg, curl, bc, python3, debianutils, git, gzip, awk, gawk, zsh, util-linux
-Description: <The <<meo>> program allows to manage installed packages from the Github \
-              repository `https://github.com/baldeuniversel/linux.git` (Use from the terminal)>
+Depends: bash, coreutils, dpkg, curl, bc, debianutils, git, awk, gawk, zsh, util-linux
+Description: The <<meo>> program allows to manage the available packages from the Github \
+             repository `https://github.com/baldeuniversel/linux.git` (Use from the terminal)

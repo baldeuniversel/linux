@@ -10,15 +10,15 @@ set -euo pipefail
 
 
 # Declaration variables
+#
 getOS=""
 
 meoTmpDir="/tmp/.meo/$USER/github"
-fileGithubAction="$meoTmpDir/github-action"
 
+meoInfoDir="/usr/lib/meo/library/info"
 meoListAvailablePkgsPure="/usr/lib/meo/library/info/list-available-packages-pure"
 meoListAvailablePkgs="/usr/lib/meo/library/info/list-available-packages"
 
-meoInfoDir="/usr/lib/meo/library/info"
 
 
 #
@@ -43,7 +43,8 @@ fi
 if [[ ! ( -e "/tmp" ) ]]
 then
 
-    sudo mkdir -p /tmp 2> /dev/null
+    mkdir -p /tmp 2> /dev/null
+    chmod 777 /tmp 2> /dev/null
 
     # Check the return value of the last command <<mkdir>>
     if [[ $? -ne 0 ]]
@@ -71,7 +72,8 @@ fi
 
 
 
-### Download the available packages and store the name of these packages with their version -> start tag[d0]
+### Download the available packages file and store the name of these packages with their 
+### version and hash -> start tag[d0]
 
 #
 if [[ ! ( -e "$meoTmpDir" ) ]]
@@ -91,40 +93,21 @@ then
 fi
 
 # Clone the git repository
-git clone https://github.com/baldeuniversel/linux.git "$meoTmpDir/linux" 2> /dev/null
+git clone --branch current-version-pkgs --single-branch --depth 1 https://github.com/baldeuniversel/linux.git "$meoTmpDir/linux" 2> /dev/null
 
 #
 if [[ $? -eq 0 ]]
 then
     
-    # Action to get the packages without the `deb` extension
-    find "$meoTmpDir/linux"  -name "*.deb" -type f | gawk '{ split($0, array, "/");  print array[length(array)] }' \
-        | gawk '{ split($0, array, ".deb" ); print array[length(array)-1] }' >> $fileGithubAction 2> /dev/null
-
+    # Action to save in another file the content of the file that contents the available packages
+    find "$meoTmpDir/linux"  -name "current-version-pkgs" -type f -exec \
+        cat {} \; | grep -A 2 "package" | awk '{ gsub(/^[[:space:]]*|,|--/, "");  print }' > $meoListAvailablePkgsPure
 
     #
-    if [[ ! ( -e "$meoListAvailablePkgsPure" ) ]]
-    then
-        touch "$meoListAvailablePkgsPure" 2> /dev/null
-    fi
-    
-    # Action to store the available packages and their version on the specific file
-    while IFS= read -r lineFile
-    do
-        getNameOfPkg=` echo "$lineFile" | gawk '{ split($0, array, "." ); print array[length(array)-2] }' \
-            | gawk '{ print substr($0, 1, length($0)-2) }' `
-    
-        getVersionOfPkg=` echo -e $lineFile | gawk '{ split($0, array, "-" ); print array[length(array)] }' `
-    
-
-        if [[ !  ` cat $meoListAvailablePkgsPure | grep -w -- "$getNameOfPkg"  `  ]]
-        then
-            echo -e "\e[32;1m$getNameOfPkg\e[0m : \e[36;1mv($getVersionOfPkg)\e[0m" >> $meoListAvailablePkgs 2> /dev/null
-            echo -e "$getNameOfPkg : v($getVersionOfPkg)" >> $meoListAvailablePkgsPure 2> /dev/null
-        fi
-    
-    done < $fileGithubAction
-
+    find "$meoTmpDir/linux"  -name "current-version-pkgs" -type f -exec \
+        cat {} \; | grep -A 2 "package" | awk '{ gsub(/^[[:space:]]*|,|--/, ""); print }' | \
+        awk -F ": " 'length($0) > 3 && NF > 0 {printf "\033[1;036m%s\033[0m: \033[1;32m%s\033[0m\n", $1, $2}; \
+        length($0) < 3 && NF <= 0 {print}' > $meoListAvailablePkgs
 fi
 
 # Remove `.meo` directory in /tmp
@@ -133,5 +116,5 @@ then
     rm -rf "/tmp/.meo/$USER" 2> /dev/null
 fi
 
-### Download the available packages and store the name of these packages with their version -> end tag[d0]
- 
+### Download the available packages file and store the name of these packages with their 
+### version and hash -> end tag[d0]
