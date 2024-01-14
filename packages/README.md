@@ -1,19 +1,28 @@
-:   '
+# Info about the packages available on this repository
 
-    The <<meo>> program allows to manage available packages of the
-Github repository `https://github.com/baldeuniversel/linux.git`
-(Use from the terminal) .
+## meo
+    
+    <div style="font-size: 18px;">
+        <p>
+            The <span style="font-weight: bold;">meo</span> program allows to manage available packages of the
+            Github repository `https://github.com/baldeuniversel/linux.git`
+            (Use from the terminal) .
+        </p>
 
-    Otherwise <<meo>> program is a package manager for all programs
-of this Github repository `https://github.com/baldeuniversel/linux`
-at the level of the `main` branch. So, you could first install the
-<<meo>> program to manage(install, remove, update ...) the packages
-that are on this Github repository(in the main branch) .
+        <p>
+            Otherwise <span style="font-weight: bold;">meo</span> program is a package manager for all programs
+            of this Github repository `https://github.com/baldeuniversel/linux`
+            at the level of the `main` branch. So, you could first install the
+            <span style="font-weight: bold;">meo</span> program to manage(install, remove, update ...) the packages
+            that are on this Github repository(in the main branch) .
+        </p>
 
-    After installing the <<meo>> program, from your terminal execute this
-command `meo --help` or `meo --doc` to see how to use the <<meo>> program .
+        <p>
+            After installing the <span style="font-weight: bold;">meo</span> program, from your terminal execute this
+            command `meo --help` or `meo --doc` to see how to use the <<meo>> program .
+        </p>
+    </div>
 
-    '
 
 
 
