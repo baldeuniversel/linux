@@ -2,11 +2,11 @@
 
 ## meo
 
-    <span style="font-size: 18px;">
+    <font size="5">
         The **meo** program allows to manage available packages of the
         Github repository `https://github.com/baldeuniversel/linux.git`
         (Use from the terminal) .
-    </span>
+    </font>
 
 
     <span>
