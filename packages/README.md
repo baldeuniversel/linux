@@ -34,7 +34,7 @@ via a console(terminal), and paste these items via a another console(terminal) .
 
 
 After installing the **am-okay** program, you can execute (from the terminal) the 
-command `**am-okay --help**` or **am-okay --doc** or **man am-okay** to get more information 
+command **am-okay --help** or **am-okay --doc** or **man am-okay** to get more information 
 on how to use the **am-okay** program. A lot of actions are possible, you can even tag 
 files or directories in arrays and paste them wherever you want in your Linux system .
 
