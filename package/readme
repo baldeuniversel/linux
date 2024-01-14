@@ -1,0 +1,13 @@
+/**
+* The <<meo>> program allows to manage installed packages from the 
+* Github repository `https://github.com/baldeuniversel/linux.git` 
+* (Use from the terminal) .
+*
+* Otherwise <<meo>> program is a package manager for all programs 
+* of this Github repository `https://github.com/baldeuniversel/linux` 
+* at the level of the `main` branch. So, you could first install the <<meo>> 
+* program to manage the packages found on the Github repository in question .
+*
+* After installing the <<meo>> program, from your terminal execute this 
+* command `meo --help` or `meo --doc` to see how to use the <<meo>> program .
+*/
