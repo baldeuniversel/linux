@@ -6,7 +6,7 @@
 ## meo
 
 The **meo** program allows to manage available packages of the Github 
-repository `https://github.com/baldeuniversel/linux.git`
+repository `https://github.com/&nbsp;baldeuniversel&nbsp;/linux.gi&nbsp;t`
 (Use from the terminal) .
 
 
