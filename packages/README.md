@@ -1,9 +1,13 @@
 # Info about the packages available on this repository
 
+
+
+
 ## meo
 
 The **meo** program allows to manage available packages of the Github 
-repository `https://github.com/baldeuniversel/linux.git`(Use from the terminal).
+repository `https://github.com/baldeuniversel/linux.git`
+(Use from the terminal) .
 
 
 Otherwise **meo** program is a package manager for all programs
@@ -37,47 +41,33 @@ files or directories in arrays and paste them wherever you want in your Linux sy
 
 
 
+## lumus
 
-
-:   '
-
-    The <<lumus>> program allows to manage the luminosity of the Linux system 
+The **lumus** program allows to manage the luminosity of the Linux system 
 (Use from the terminal) .
 
-    To see how to use <<lumus>> program, execute this command from a 
-terminal (of course after installing the program) `lumus --help` or `man lumus` .
-
-    '
+To see how to use **lumus** program, execute this command from a 
+terminal (of course after installing the program) **lumus --help** or **man lumus** .
 
 
 
 
+## vimizer
 
-:   '
+The **vimizer** program allows to install, change the shell and configure 
+the `vim` and `zsh` program on your Linux system(Use from the terminal) .
 
-    The <<vimizer>> program allows to install, change the shell and configure 
-the vim and zsh program on your Linux system(Use from the terminal) .
+After installing the **vimizer** program, you can execute (from the terminal) 
+the command **vimizer --help** or **man vimizer** to get more information about the 
+**vimizer** program .
 
-    After installing the <<vimizer>> program, you can execute (from the terminal) 
-the command `vimizer --help` or `man vimizer` to get more information about the 
-<<vimizer>> program .
-
-Note : Except the options[ --version, --help ] , no input parameter is required 
+`Note` : Except the options`[ --version, --help ]` , no input parameter is required 
 to use this program .
 
-    '
 
 
 
+## Info
 
-
-#####
-#####
-#####
-#
-#   For any request, write to me via this email address : 
-# `baldeuniversel@protonmail.com`
-#
-#####
-#####
-#####
+For any request, write to me via this email address : 
+`baldeuniversel@protonmail.com`
