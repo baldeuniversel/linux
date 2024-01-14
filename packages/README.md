@@ -2,24 +2,22 @@
 
 ## meo
 
-    <font size="5">The **meo** program allows to manage available packages of the Github repository 
-    `https://github.com/baldeuniversel/linux.git`(Use from the terminal) .</font>
+    The **meo** program allows to manage available packages of the Github repository 
+    `https://github.com/baldeuniversel/linux.git`(Use from the terminal).
 
 
-    <span>
-        Otherwise <span style="font-weight: bold;">meo</span> program is a package manager for all programs
+    
+        Otherwise meo program is a package manager for all programs
         of this Github repository `https://github.com/baldeuniversel/linux`
         at the level of the `main` branch. So, you could first install the
-        <span style="font-weight: bold;">meo</span> program to manage(install, remove, update ...) the packages
+        meo program to manage(install, remove, update ...) the packages
         that are on this Github repository(in the main branch) .
-    </span>
 
 
-    <span>
-        After installing the <span style="font-weight: bold;">meo</span> program, from your terminal execute this
-        command `meo --help` or `meo --doc` to see how to use the <<meo>> program .
-    </span>
 
+    
+        After installing the meo program, from your terminal execute this
+        command `meo --help` or `meo --doc` to see how to use the meo program .
 
 
 
