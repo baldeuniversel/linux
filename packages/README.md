@@ -1,8 +1,11 @@
 # Info about the packages available on this repository
 
 ## meo
-   <span style="font-size: 18px;">Ceci est un texte avec une taille de police de 18 pixels.</span>
-   <font size="5">Ceci est un texte avec une taille de police plus grande.</font>
+   <span style="font-size: 30px;">Ceci est un texte avec une taille de police de 30 pixels.</span>
+
+
+
+   <font size="6">Ceci est un texte avec une taille de police plus grande.</font>
 
     <div style="font-size: 18px;">
         <p>
