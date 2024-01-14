@@ -61,6 +61,8 @@ the command **vimizer --help** or **man vimizer** to get more information about 
 `Note` : Except the options `[ --version, --help ]` , no input parameter is required 
 to use this program .
 
+<br /> 
+
 <br />
 
 ---
