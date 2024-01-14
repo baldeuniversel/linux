@@ -245,11 +245,11 @@ function alertNonEffectiveAction
     getPathOfFileForReturnLastCommand=$1
     getNumberOfLine=0
 
-    if [[ $# -eq 1 ]] && [[ $getPathOfFileForReturnLastCommand != "none" ]]
+    if [[ $# -eq 1 ]] && [[ "$getPathOfFileForReturnLastCommand" != "none" ]]
     then
         if [[ -e "$getPathOfFileForReturnLastCommand" ]]
         then
-            getNumberOfLine=` wc -l $getPathOfFileForReturnLastCommand | cut -d " " -f1 | tr -d "[[:space:]]" `
+            getNumberOfLine=` wc -l "$getPathOfFileForReturnLastCommand" | cut -d " " -f1 | tr -d "[[:space:]]" `
 
             #
             if [[ $getNumberOfLine -gt 0 ]]
@@ -258,7 +258,7 @@ function alertNonEffectiveAction
                 echo -en "Something wrong \U001F9D0, please make sure you have a permission to \nexecute the \e[32;1mmeo\e[0m program "
 
                 # Call the function
-                $( truncateFileData $getPathOfFileForReturnLastCommand )
+                $( truncateFileData "$getPathOfFileForReturnLastCommand" )
 
                 #
                 setterm --cursor on
@@ -274,7 +274,8 @@ function alertNonEffectiveAction
 
 :   '
 /**
-* @overview The `refreshPackageFile` function allows to update the list of packages from the Github repository
+* @overview The `refreshPackageFile` function allows to update the files that contain the 
+* list of available packages from the Github repository
 */
     '
 function refreshPackageFile
