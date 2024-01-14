@@ -13,7 +13,7 @@ repository `https://github.com/baldeuniversel/linux.git`
 Otherwise **meo** program is a package manager for all programs
 of this Github repository `https://github.com/baldeuniversel/linux`
 at the level of the `main` branch. So, you could first install the
-**meo** program to manage(install, remove, update ...) the packages
+**meo** program to manage (install, remove, update ...) the packages
 that are on this Github repository(in the main branch) .
 
 
@@ -33,8 +33,8 @@ With this program you can tag files or directories as items to copy or move
 via a console(terminal), and paste these items via a another console(terminal) .
 
 
-After installing the **am-okay** program, you can execute(from the terminal) the 
-command **am-okay --help** or **am-okay --doc** or **man am-okay** to get more information 
+After installing the **am-okay** program, you can execute (from the terminal) the 
+command `**am-okay --help**` or **am-okay --doc** or **man am-okay** to get more information 
 on how to use the **am-okay** program. A lot of actions are possible, you can even tag 
 files or directories in arrays and paste them wherever you want in your Linux system .
 
@@ -55,13 +55,13 @@ terminal (of course after installing the program) **lumus --help** or **man lumu
 ## vimizer
 
 The **vimizer** program allows to install, change the shell and configure 
-the `vim` and `zsh` program on your Linux system(Use from the terminal) .
+the `vim` and `zsh` program on your Linux system (Use from the terminal) .
 
 After installing the **vimizer** program, you can execute (from the terminal) 
 the command **vimizer --help** or **man vimizer** to get more information about the 
 **vimizer** program .
 
-`Note` : Except the options`[ --version, --help ]` , no input parameter is required 
+`Note` : Except the options `[ --version, --help ]` , no input parameter is required 
 to use this program .
 
 
