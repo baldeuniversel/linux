@@ -4,14 +4,31 @@
 # postinst script
 ####
 
+
 set -euo pipefail
 
+
+
+# Declaration variables
+meoInfoDir="/usr/lib/meo/library/info"
+
+
+
+#
+if [[ ! -e "$meoInfoDir" ]]
+then
+    #
+    mkdir -p "$meoInfoDir" 2> /dev/null
+fi
+
+
+
+:   '
 # Declaration variables
 #
 meoInfoDir="/usr/lib/meo/library/info"
 meoListInstalledPkgs="/usr/lib/meo/library/info/list-installed-packages"
 meoListInstalledPkgsPure="/usr/lib/meo/library/info/list-installed-packages-pure"
-
 
 
 
@@ -60,7 +77,7 @@ then
     echo -e "meo : v(1.1.7)" > $meoListInstalledPkgsPure
 fi
 
-
+    '
 
 # Just to print the name of the author
 echo ""
