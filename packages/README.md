@@ -1,7 +1,9 @@
 # Info about the packages available on this repository
 
 ## meo
-    
+   <span style="font-size: 18px;">Ceci est un texte avec une taille de police de 18 pixels.</span>
+   <font size="5">Ceci est un texte avec une taille de police plus grande.</font>
+
     <div style="font-size: 18px;">
         <p>
             The <span style="font-weight: bold;">meo</span> program allows to manage available packages of the
