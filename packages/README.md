@@ -1,31 +1,29 @@
 # Info about the packages available on this repository
 
 ## meo
-   <span style="font-size: 30px;">Ceci est un texte avec une taille de police de 30 pixels.</span>
 
-
-   <font size="6">Ceci est un texte avec une taille de police plus grande.</font>
-
-    <div style="font-size: 18px;">
-        <p>
+    <span style="font-size: 18px;">
+        <span>
             The <span style="font-weight: bold;">meo</span> program allows to manage available packages of the
             Github repository `https://github.com/baldeuniversel/linux.git`
             (Use from the terminal) .
-        </p>
+        </span>
 
-        <p>
+
+        <span>
             Otherwise <span style="font-weight: bold;">meo</span> program is a package manager for all programs
             of this Github repository `https://github.com/baldeuniversel/linux`
             at the level of the `main` branch. So, you could first install the
             <span style="font-weight: bold;">meo</span> program to manage(install, remove, update ...) the packages
             that are on this Github repository(in the main branch) .
-        </p>
+        </span>
 
-        <p>
+
+        <span>
             After installing the <span style="font-weight: bold;">meo</span> program, from your terminal execute this
             command `meo --help` or `meo --doc` to see how to use the <<meo>> program .
-        </p>
-    </div>
+        </span>
+    </span>
 
 
 
