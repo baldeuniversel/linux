@@ -99,7 +99,7 @@ git clone --branch current-version-pkgs --single-branch --depth 1 https://github
 if [[ $? -eq 0 ]]
 then
     
-    # Action to save in another file the content of the file that contents the available packages
+    # Action to save in another files the content of the file that contents the available packages
     find "$meoTmpDir/linux"  -name "current-version-pkgs" -type f -exec \
         cat {} \; | grep -A 2 "package" | awk '{ gsub(/^[[:space:]]*|,|--/, "");  print }' > $meoListAvailablePkgsPure
 
