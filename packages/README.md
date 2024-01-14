@@ -37,8 +37,7 @@ command **am-okay --help** or **am-okay --doc** or **man am-okay** to get more i
 on how to use the **am-okay** program. A lot of actions are possible, you can even tag 
 files or directories in arrays and paste them wherever you want in your Linux system .
 
-
-
+<br />
 
 ## lumus
 
@@ -48,8 +47,7 @@ The **lumus** program allows to manage the luminosity of the Linux system
 To see how to use **lumus** program, execute this command from a 
 terminal (of course after installing the program) **lumus --help** or **man lumus** .
 
-
-
+<br />
 
 ## vimizer
 
@@ -63,7 +61,7 @@ the command **vimizer --help** or **man vimizer** to get more information about 
 `Note` : Except the options `[ --version, --help ]` , no input parameter is required 
 to use this program .
 
-
+<br />
 
 ---
 #### *Info*
