@@ -2,11 +2,8 @@
 
 ## meo
 
-    <font size="5">
-        The **meo** program allows to manage available packages of the
-        Github repository `https://github.com/baldeuniversel/linux.git`
-        (Use from the terminal) .
-    </font>
+    <font size="5">The **meo** program allows to manage available packages of the Github repository 
+    `https://github.com/baldeuniversel/linux.git`(Use from the terminal) .</font>
 
 
     <span>
