@@ -20,7 +20,7 @@ that are on this Github repository(in the main branch) .
 After installing the **meo** program, from your terminal execute this
 command **meo --help** or **meo --doc** to see how to use the **meo** program .
 
-<br /> <br />
+<br />
 
 ## am-okay
 
