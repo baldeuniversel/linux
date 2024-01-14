@@ -274,14 +274,12 @@ function alertNonEffectiveAction
 
 :   '
 /**
-* @overview The `refreshPackageFile` function allows to update the files that contain the 
+* @overview The `refreshAvailablePkgsFile` function allows to update the files that contain the 
 * list of available packages from the Github repository
 */
     '
-function refreshPackageFile
+function refreshAvailablePkgsFile
 {
-
-    ### Download the available packages and store the name of these packages with their version -> start tag[d0]
     
     # Declarations variables
     local fileGithubAction="$meoTmpDirGithub/github-action"
@@ -303,40 +301,23 @@ function refreshPackageFile
     fi
 
     # Clone the git repository
-    git clone https://github.com/baldeuniversel/linux.git "$meoTmpDirGithub/linux" 2> /dev/null
+    git clone --branch current-version-pkgs --single-branch --depth 1 \
+        https://github.com/baldeuniversel/linux.git "$meoTmpDirGithub/linux" 2> /dev/null
     
     #
     if [[ $? -eq 0 ]]
     then
     
-        # Action to get the packages without the `deb` extension
-        find "$meoTmpDirGithub/linux"  -name "*.deb" -type f | gawk '{ split($0, array, "/");  print array[length(array)] }' \
-            | gawk '{ split($0, array, ".deb" ); print array[length(array)-1] }' >> $fileGithubAction 2> /dev/null
+        # Action to save in another files the content of the file that contents the available packages  
+        find "$meoTmpDirGithub/linux"  -name "current-version-pkgs" -type f -exec \
+            cat {} \; | grep -A 2 "package" | awk '{ gsub(/^[[:space:]]*|,|--/, "");  print }' > $meoListAvailablePkgsPure
     
-
-        # Remove the current data in the file that contains the list of available packages
-        if [[ -e "$meoListAvailablePkgs" ]]
-        then
-            truncate -s 0 "$meoListAvailablePkgs" 2> /dev/null
-            truncate -s 0 "$meoListAvailablePkgsPure" 2> /dev/null
-        fi
-    
-        # Action to store the available packages and their version on the specific file
-        while IFS= read -r lineFile
-        do
-            getNameOfPkg=` echo "$lineFile" | gawk '{ split($0, array, "." ); print array[length(array)-2] }' \
-                | gawk '{ print substr($0, 1, length($0)-2) }' `
-    
-            getVersionOfPkg=` echo -e $lineFile | gawk '{ split($0, array, "-" ); print array[length(array)] }' `
-    
-            echo -e "\e[32;1m$getNameOfPkg\e[0m : \e[36;1mv($getVersionOfPkg)\e[0m" >> $meoListAvailablePkgs 2> /dev/null
-            echo -e "$getNameOfPkg : v($getVersionOfPkg)" >> $meoListAvailablePkgsPure 2> /dev/null
-    
-        done < $fileGithubAction
-    
+        #
+        find "$meoTmpDirGithub/linux"  -name "current-version-pkgs" -type f -exec \
+            cat {} \; | grep -A 2 "package" | awk '{ gsub(/^[[:space:]]*|,|--/, ""); print }' | \
+            awk -F ": " 'length($0) > 3 && NF > 0 {printf "\033[1;036m%s\033[0m: \033[1;32m%s\033[0m\n", $1, $2}; \
+            length($0) < 3 && NF <= 0 {print}' > $meoListAvailablePkgs
     fi
-        
-    ### Download the available packages and store the name of these packages with their version -> end tag[d0]
 
 }
 
@@ -364,6 +345,35 @@ function clonePersonalGit
     # Clone the git repository
     git clone https://github.com/baldeuniversel/linux.git "$meoTmpDirGithub/linux" 2> /dev/null
 
+}
+
+
+
+
+
+:   '
+/**
+* @overview `cloneSingleBranchGit` allows to clone a single branch via a git 
+* repository (see where the clone is putted)
+*
+* @param {string} $1 // The branch to clone
+*/
+    '
+function cloneSingleBranchGit
+{
+    # Check if there is internet connection
+    curl ifconfig.me &> /dev/null   
+    #
+    if [[ $? -ne 0 ]]
+    then
+        echo "~"
+        echo -e "Your internet connection seems not to be established \U001F30D"
+        exit 1
+    fi
+
+    # Clone the git repository
+    git clone --branch "$1" --single-branch --depth 1 https://github.com/baldeuniversel/linux.git \
+        "$meoTmpDirGithub/linux" 2> /dev/null
 }
 
 
@@ -526,7 +536,7 @@ function isNewVersionOfPkgAvailable
 
 
     # Call the function
-    $( refreshPackageFile )
+    $( refreshAvailablePkgsFile )
 
 
 
@@ -729,7 +739,7 @@ then
 
 
     # Call the function
-    refreshPackageFile &
+    refreshAvailablePkgsFile &
 
     # Call the function
     spinnerAnimation $!
@@ -957,7 +967,7 @@ then
 
 
     # Call the function 
-    refreshPackageFile &
+    refreshAvailablePkgsFile &
 
     # Call the function
     spinnerAnimation $!
@@ -1103,7 +1113,7 @@ then
 
 
     # Call the function 
-    refreshPackageFile &
+    refreshAvailablePkgsFile &
 
     # Call the function
     spinnerAnimation $!
@@ -1232,7 +1242,7 @@ then
 
 
     # Call the function 
-    refreshPackageFile &
+    refreshAvailablePkgsFile &
 
     # Call the function
     spinnerAnimation $!
@@ -1641,7 +1651,7 @@ then
     declare -a listOfFoundPkg=()
 
     # Call the function
-    refreshPackageFile &
+    refreshAvailablePkgsFile &
 
     # Call the function
     spinnerAnimation $!
