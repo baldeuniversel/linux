@@ -343,7 +343,7 @@ function clonePersonalGit
     fi
 
     # Clone the git repository
-    git clone https://github.com/baldeuniversel/linux.git "$meoTmpDirGithub/linux" 2> /dev/null
+    git clone --branch main --single-branch --depth 1 https://github.com/baldeuniversel/linux.git "$meoTmpDirGithub/linux" 2> /dev/null
 
 }
 
@@ -374,6 +374,7 @@ function cloneSingleBranchGit
     # Clone the git repository
     git clone --branch "$1" --single-branch --depth 1 https://github.com/baldeuniversel/linux.git \
         "$meoTmpDirGithub/linux" 2> /dev/null
+
 }
 
 
@@ -385,7 +386,10 @@ function cloneSingleBranchGit
 * @overview The `storeInslalledPkg` function allows to store the installed packages
 * on the `list-available-packages` file 
 *
-* @param {string} $1 // The program to treat and store
+*
+* @param {string} $1 // The file where the package information is located
+*
+* @param {string} $2 // The program to install 
 */
     '
 function storeInslalledPkg
@@ -393,6 +397,12 @@ function storeInslalledPkg
 
     # Declaration variables
     local fileGithubAction="$meoTmpDirGithub/github-action"
+    local counterLine=0
+    local getNameOfPkg=""
+    local getVersionOfPkg=""
+    local getPkgHash=""
+
+
 
     #
     if [[ ! -e  $meoTmpDirGithub ]]
@@ -404,36 +414,68 @@ function storeInslalledPkg
     $( truncateFileData $fileGithubAction )
     
 
-    # Action to get the packages without the `deb` extension
-    find "$meoTmpDirGithub/linux"  -name "$1*" -type f | gawk '{ split($0, array, "/");  print array[length(array)] }' \
-        | gawk '{ split($0, array, ".deb" ); print array[length(array)-1] }' >> $fileGithubAction 2> /dev/null
+    # Action to save in another file the info about the file
+    find "$meoTmpDirGithub/linux"  -name "$1" -type f -exec cat {} \; | grep -A 2 "package" \
+        | awk '{ gsub(/^[[:space:]]*|,|--/, ""); print }'  > $fileGithubAction 2> /dev/null
 
 
-    # Action to store the available packages and their version on the specific file
+    # Action to store the info about the package
     while IFS= read -r lineFile
     do
-        getNameOfPkg=` echo "$lineFile" | gawk '{ split($0, array, "." ); print array[length(array)-2] }' \
-            | gawk '{ print substr($0, 1, length($0)-2) }' `
+        # Get the name of the package
+        if [[ $counterLine -eq 0 ]]
+        then
+            #
+            getNameOfPkg=` echo "$lineFile" | awk '{ split($0, array, ": " ); print array[length(array)] }' `
 
-        getVersionOfPkg=` echo -e $lineFile | gawk '{ split($0, array, "-" ); print array[length(array)] }' `
+            #
+            counterLine=$(( counterLine + 1 ))
+
+        # Get the version
+        elif [[ $counterLine -eq 1 ]]
+        then
+            #
+            getVersionOfPkg=` echo -e $lineFile | awk '{ split($0, array, ": " ); print array[length(array)] }' `
+
+            #
+            counterLine=$(( counterLine + 1 ))
+        
+        # Get the hash (md5sum)
+        elif [[ $counterLine -eq 2 ]]
+        then
+            #
+            getPkgHash=` echo -e $lineFile | awk '{ split($0, array, ": " ); print array[length(array)] }' `
+
+            #
+            counterLine=$(( counterLine + 1 ))
+        fi
+        
+
 
         #
-        if [[ -e "$meoListInstalledPkgs" ]]
+        if [[ -e "$meoListInstalledPkgsPure" ]] && [[ $counterLine -eq 3 ]]
         then
-            if [[ ! ` cat $meoListInstalledPkgsPure | cut -d ":" -f 1 | grep -w "$1" ` ]]
+            
+            # Check if the package does not exist in the target file `$meoListInstalledPkgsPure`, then ...
+            if [[ ! ` cat $meoListInstalledPkgsPure | cut -d ":" -f 1 | grep -w "$2" ` ]]
             then
-                echo -e "\e[32;1m$getNameOfPkg\e[0m : \e[36;1mv($getVersionOfPkg)\e[0m" >> $meoListInstalledPkgs 2> /dev/null
-                echo -e "$getNameOfPkg : v($getVersionOfPkg)" >> $meoListInstalledPkgsPure 2> /dev/null
+                #
+                echo -e "$getNameOfPkg : v($getVersionOfPkg) , hash(md5sum) : $getPkgHash" >> \
+                    $meoListInstalledPkgsPure 2> /dev/null
 
+            # Check the version, then ...
             else
                 #
-                if [[ ! ` cat $meoListInstalledPkgsPure | cut -d ":" -f 1 | grep -w "$getVersionOfPkg" ` ]]
+                if [[ ! ` cat $meoListInstalledPkgsPure | cut -d ":" -f 2 | grep -w "$getVersionOfPkg" ` ]]
                 then
+                    # Get the line number of the package via the given file `$meoListInstalledPkgsPure` 
                     getLineNbPkgOldVersion=` grep -nw "$getNameOfPkg"  $meoListInstalledPkgsPure | cut -d ":" -f 1 `
-                    getTheOldVersion=` sed -n "$getLineNbPkgOldVersion p" $meoListInstalledPkgsPure | \
-                        cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
 
-                    #
+                    # Get the version of the package via the given file ...
+                    getTheOldVersion=` sed -n "$getLineNbPkgOldVersion p" $meoListInstalledPkgsPure | \
+                        cut -d ":" -f2 | cut -d "," -f1 | cut -d "(" -f2 | cut -d ")" -f 1 `
+
+                    # Substitute the old version by the new one 
                     sed -i "$getLineNbPkgOldVersion s/$getTheOldVersion/$getVersionOfPkg/" $meoListInstalledPkgsPure 
                 fi
             fi
@@ -498,7 +540,7 @@ function isPackageAvailable
     if [[ -e "$meoListAvailablePkgs" ]]
     then
         #
-        getPackage=` cat $meoListAvailablePkgsPure | cut -d ":" -f 1 | tr -d "[ \t]+" | grep -w -- "^$getFirstParam$" `
+        getPackage=` cat $meoListAvailablePkgsPure | cut -d ":" -f 2 | tr -d "[ \t]+" | grep -w -- "^$getFirstParam$" `
 
         #
         if [[ -n "$getPackage" ]]
@@ -508,7 +550,6 @@ function isPackageAvailable
             echo "false"
         fi
     fi
-
 }
 
 
@@ -544,8 +585,8 @@ function isNewVersionOfPkgAvailable
     if [[ -e "$meoListAvailablePkgs" ]]
     then
         #
-        getPkgRefreshVersion=` cat $meoListAvailablePkgsPure | grep -i "$getPkg" | \
-            cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
+        getPkgRefreshVersion=` cat $meoListAvailablePkgsPure | grep -w -- "^$getPkg$" | \
+            cut -d ":" -f2 | tr -d "[ \t]+" `
 
         getPkgVersionPkgInstalled=` $getPkg --version `
 
@@ -563,7 +604,6 @@ function isNewVersionOfPkgAvailable
 
         exit 1
     fi
-
 }
 
 
