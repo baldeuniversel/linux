@@ -11,7 +11,7 @@ repository [`https://github.com/baldeuniversel/linux.git`](https://github.com/ba
 
 
 Otherwise **meo** program is a package manager for all programs
-of this Github repository `https://github.com/baldeuniversel/linux`
+of this Github repository [`https://github.com/baldeuniversel/linux.git`](https://github.com/baldeuniversel/linux.git)
 at the level of the `main` branch. So, you could first install the
 **meo** program to manage (install, remove, update ...) the packages
 that are on this Github repository(in the main branch) .
@@ -69,4 +69,4 @@ to use this program .
 
 #### Info
 For any request, write to me via this email address : 
-`baldeuniversel@protonmail.com`
+[baldeuniversel@protonmail.com](mailto:baldeuniversel@protonmail.com)
