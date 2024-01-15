@@ -106,7 +106,9 @@ set -uo pipefail # To exit the script if there is an error
 # Check to see if there is at least one option for `meo` in input
 if [[ $# -lt 1 ]]
 then
-    getMeoName=` echo "$0" | gawk '{ split($0, array, "/"); print array[length(array)] }' `
+    
+    #
+    getMeoName=` echo "$0" | awk '{ split($0, array, "/"); print array[length(array)] }' `
 
     echo "~"
     echo -e "It has to be at least one parameter for the \e[32;1m$getMeoName\e[0m program \U001F9D0 "
@@ -221,10 +223,15 @@ fileCodeReturnCommand="$meoTmp/code-return-command"
     '
 function truncateFileData
 {
+    # Declaration variables
+    local getTheFile="$1"
+
+
+
     # Remove the data contained in the target file
-    if [[ -e "$1" ]]
+    if [[ -e "$getTheFile" ]] && [[ -f "$getTheFile" ]]
     then
-        truncate -s 0 "$1" 2> /dev/null
+        truncate -s 0 "$getTheFile" 2> /dev/null
     fi
 }
 
@@ -242,10 +249,15 @@ function truncateFileData
     '
 function removeDirFile
 {
+    # Declaration variables
+    local getTheDirFile="$1"
+
+
+
     # Remove the file or directory if it exists
-    if [[ -e "$1" ]]
+    if [[ -e "$getTheDirFile" ]]
     then
-        rm -fr "$1" 2> /dev/null
+        rm -fr "$getTheDirFile" 2> /dev/null
     fi
 }
 
@@ -263,8 +275,10 @@ function removeDirFile
 function alertNonEffectiveAction 
 {
     # Declaration variables
-    getPathOfFileForReturnLastCommand=$1
-    getNumberOfLine=0
+    local getPathOfFileForReturnLastCommand="$1"
+    local getNumberOfLine=0
+
+
 
     if [[ $# -eq 1 ]] && [[ "$getPathOfFileForReturnLastCommand" != "none" ]]
     then
@@ -305,6 +319,8 @@ function refreshAvailablePkgsFile
     # Declarations variables
     local fileGithubAction="$meoTmpDirGithub/github-action"
     
+
+
     #
     if [[ ! ( -e "$meoTmpDirGithub" ) ]]
     then
@@ -390,6 +406,11 @@ function clonePersonalGit
     '
 function cloneSingleBranchGit
 {
+    # Declaration variables
+    local getTheBranch="$1"
+
+
+
     # Check if there is internet connection
     curl ifconfig.me &> /dev/null   
     #
@@ -405,7 +426,7 @@ function cloneSingleBranchGit
     $( removeDirFile "$meoTmpDirGithub/linux" )
 
     # Clone the git repository
-    git clone --branch "$1" --single-branch --depth 1 https://github.com/baldeuniversel/linux.git \
+    git clone --branch "$getTheBranch" --single-branch --depth 1 https://github.com/baldeuniversel/linux.git \
         "$meoTmpDirGithub/linux" 2> /dev/null
 
 }
@@ -434,6 +455,8 @@ function storeInslalledPkg
     local getNameOfPkg=""
     local getVersionOfPkg=""
     local getPkgHash=""
+    local getTheFileListPkg="$1"
+    local getTheProgram="$2"
 
 
 
@@ -449,7 +472,7 @@ function storeInslalledPkg
     
 
     # Action to save a given file in another file
-    find "$meoTmpDirGithub/linux"  -name "$1" -type f -exec cat {} \; | grep -A 2 "package" \
+    find "$meoTmpDirGithub/linux"  -name "$getTheFileListPkg" -type f -exec cat {} \; | grep -A 2 "package" \
         | awk '{ gsub(/^[[:space:]]*|,|--/, ""); print }'  > $fileGithubAction 2> /dev/null
 
 
@@ -491,7 +514,7 @@ function storeInslalledPkg
         then
             
             # Check if the package does not exist in the target file `$meoListInstalledPkgsPure`, then ...
-            if [[ ! ` cat $meoListInstalledPkgsPure | cut -d ":" -f 1 | grep -w "$2" ` ]]
+            if [[ ! ` cat $meoListInstalledPkgsPure | cut -d ":" -f 1 | grep -w "$getTheProgram" ` ]]
             then
                 #
                 echo -e "$getNameOfPkg : v($getVersionOfPkg) , hash(md5sum) : $getPkgHash" >> \
@@ -537,7 +560,11 @@ function storeInslalledPkg
 function isPackageInstalled
 {
     # Declaration variables
-    which ` echo $1 ` &> /dev/null
+    local getPkg="$1"
+
+
+
+    which ` echo "$getPkg" ` &> /dev/null
 
     #
     if [[ $? -eq 0 ]]
@@ -566,9 +593,10 @@ function isPackageAvailable
 {
     # Declaration variables
     local getPackage=""
-    local getFirstParam=$1
+    local getFirstParam="$1"
 
     
+
     # Call the function
     $( refreshAvailablePkgsFile )
 
@@ -608,7 +636,7 @@ function isPackageAvailable
 function isNewVersionOfPkgAvailable
 {
     # Declaration variables
-    local getPkg=$1
+    local getPkg="$1"
     local getDebPkg=""
 
 
@@ -658,7 +686,7 @@ function isNewRevisionOfPkgAvailable
 {
 
     # Declaration variables
-    local getPkg=$1
+    local getPkg="$1"
     local getDebPkg=""
 
 
@@ -830,7 +858,10 @@ function removeGitDownloadGitAction
     '
 function colorElem
 {
-    echo -e "\033[36m$1\033[0m"
+    # Declaration variables
+    getTheString="$1"
+
+    echo -e "\033[36m$getTheString\033[0m"
 }
 
 
