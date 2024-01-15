@@ -224,7 +224,28 @@ function truncateFileData
     # Remove the data contained in the target file
     if [[ -e "$1" ]]
     then
-        truncate -s 0 $1 2> /dev/null
+        truncate -s 0 "$1" 2> /dev/null
+    fi
+}
+
+
+
+
+
+:   '
+/**
+* @overview The `removeDirFile` allows to remove a directory or file
+*
+* @param {string} $1 // The file or directory to remove
+*
+*/
+    '
+function removeDirFile
+{
+    # Remove the file or directory if it exists
+    if [[ -e "$1" ]]
+    then
+        rm -fr "$1" 2> /dev/null
     fi
 }
 
@@ -300,6 +321,10 @@ function refreshAvailablePkgsFile
         exit 1
     fi
 
+
+    # Call the function
+    $( removeDirFile "$meoTmpDirGithub/linux" )
+
     # Clone the git repository
     git clone --branch current-version-pkgs --single-branch --depth 1 \
         https://github.com/baldeuniversel/linux.git "$meoTmpDirGithub/linux" 2> /dev/null
@@ -342,6 +367,10 @@ function clonePersonalGit
         exit 1
     fi
 
+
+    # Call the function
+    $( removeDirFile "$meoTmpDirGithub/linux" )
+
     # Clone the git repository
     git clone --branch main --single-branch --depth 1 https://github.com/baldeuniversel/linux.git "$meoTmpDirGithub/linux" 2> /dev/null
 
@@ -370,6 +399,10 @@ function cloneSingleBranchGit
         echo -e "Your internet connection seems not to be established \U001F30D"
         exit 1
     fi
+
+
+    # Call the function
+    $( removeDirFile "$meoTmpDirGithub/linux" )
 
     # Clone the git repository
     git clone --branch "$1" --single-branch --depth 1 https://github.com/baldeuniversel/linux.git \
@@ -410,11 +443,12 @@ function storeInslalledPkg
         mkdir -p $meoTmpDirGithub 2> /dev/null
     fi
   
-    # Call the function
+
+    ## Call the function
     $( truncateFileData $fileGithubAction )
     
 
-    # Action to save in another file the info about the file
+    # Action to save a given file in another file
     find "$meoTmpDirGithub/linux"  -name "$1" -type f -exec cat {} \; | grep -A 2 "package" \
         | awk '{ gsub(/^[[:space:]]*|,|--/, ""); print }'  > $fileGithubAction 2> /dev/null
 
@@ -534,6 +568,9 @@ function isPackageAvailable
     local getPackage=""
     local getFirstParam=$1
 
+    
+    # Call the function
+    $( refreshAvailablePkgsFile )
 
 
     #
@@ -576,17 +613,12 @@ function isNewVersionOfPkgAvailable
 
 
 
-    # Call the function
-    $( refreshAvailablePkgsFile )
-
-
-
     #
-    if [[ -e "$meoListAvailablePkgs" ]]
+    if [[ -e "$meoListAvailablePkgsPure" ]]
     then
         #
-        getPkgRefreshVersion=` cat $meoListAvailablePkgsPure | grep -w -- "^$getPkg$" | \
-            cut -d ":" -f2 | tr -d "[ \t]+" `
+        getPkgRefreshVersion=` cat $meoListAvailablePkgsPure | cut -d ":" -f2 | tr -d "[ \t]+" | \
+            grep -w -A3 -- "^$getPkg$" | head -n 2 | tail -n 1 `
 
         getPkgVersionPkgInstalled=` $getPkg --version `
 
@@ -604,6 +636,58 @@ function isNewVersionOfPkgAvailable
 
         exit 1
     fi
+}
+
+
+
+
+
+:   '
+/**
+* @overview The `isNewRevisionOfPkgAvailable` allows to verify if a new version of
+* a installed package is available
+*
+* @param {string} $1 // The package to examine
+*
+* @return {string} // A `true` string will be returned if a new revision is available,
+* else `false` value will be returned
+*
+*/
+    '
+function isNewRevisionOfPkgAvailable
+{
+
+    # Declaration variables
+    local getPkg=$1
+    local getDebPkg=""
+
+
+
+    #
+    if [[ -e "$meoListAvailablePkgsPure" ]]
+    then
+        #
+        getRefreshRevisionPkgHash=` cat $meoListAvailablePkgsPure | cut -d ":" -f2 | tr -d "[ \t]+" | \
+            grep -w -A3 -- "^$getPkg$" | head -n 3 | tail -n 1 `
+
+        getHashPkgInstalled=` cat $meoListInstalledPkgsPure | awk -F '[: ]' -v getPkg="$1" '$1 == getPkg {print}' | \
+            cut -d "," -f 2 | cut -d ":" -f 2 | tr -d "[ \t]" `
+
+            
+        # Verify the match versions, then do ...
+        if [[ "$getRefreshRevisionPkgHash" == "$getHashPkgInstalled" ]]
+        then
+            echo "false"
+        else
+            echo "true"
+        fi
+    else 
+        echo "~"
+        echo "Something is wrong, a file is missing \U001F9D0, please reinstall the \e[32;1mmeo\e[0m program "
+
+        exit 1
+    fi
+
 }
 
 
@@ -715,11 +799,11 @@ function spinnerAnimation
 
 :   '
 /**
-* @overview The `removeFileDir` allows to remove files/dirs created during operations
+* @overview The `removeGitDownloadGitAction` allows to remove files/dirs created during operations
 *
 */
     '
-function removeFileDir
+function removeGitDownloadGitAction
 {
     # Remove the packages in /tmp/.meo
     if [[ -e "$meoTmpDirGithub/linux"  ]]
@@ -804,7 +888,7 @@ then
 
 
             # Call the function
-            removeFileDir
+            removeGitDownloadGitAction
 
             exit 0
         else
@@ -816,7 +900,7 @@ then
             echo -e "command -> \e[36;1msudo meo download meo\e[0m  "
 
             # Call the function
-            removeFileDir
+            removeGitDownloadGitAction
             
             exit 0
         fi
@@ -944,7 +1028,7 @@ then
    
 
     # Call the function
-    removeFileDir
+    removeGitDownloadGitAction
 
     #
     if [[ $? -eq 0 ]]
@@ -1084,7 +1168,7 @@ then
    
 
     # Call the function
-    removeFileDir
+    removeGitDownloadGitAction
 
     exit 0
 else
@@ -1264,7 +1348,7 @@ then
 
 
     # Call the function
-    removeFileDir
+    removeGitDownloadGitAction
  
     exit 0
 
@@ -1372,7 +1456,7 @@ then
     fi
 
     # Call the function
-    removeFileDir
+    removeGitDownloadGitAction
 
     exit 0
 fi
@@ -1462,7 +1546,7 @@ then
     fi
 
     # Call the function
-    removeFileDir
+    removeGitDownloadGitAction
 
 
     #
@@ -1566,7 +1650,7 @@ then
     fi
     
     # Call the function
-    removeFileDir
+    removeGitDownloadGitAction
 
     exit 0
 else
@@ -1741,7 +1825,7 @@ then
     fi
 
     # Call the function
-    removeFileDir
+    removeGitDownloadGitAction
 
     exit 0
 
