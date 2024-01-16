@@ -13,7 +13,7 @@ set -euo pipefail
 getTheDebProgram=""
 
 getMngDebDirectory="/usr/lib/meo/library/packages-info/meo/deb"
-getTmpCloneGit="/tmp/.meo/download-branch"
+getTmpCloneGit="/tmp/$USER/.meo/download-branch"
 getBranch="meo"
 getProgram="meo"
 getURL="https://github.com/baldeuniversel/linux.git"
