@@ -19,6 +19,9 @@ meoInfoDir="/usr/lib/meo/library/info"
 meoListAvailablePkgsPure="/usr/lib/meo/library/info/list-available-packages-pure"
 meoListAvailablePkgs="/usr/lib/meo/library/info/list-available-packages"
 
+getCurrentFileVersionPkgs="current-version-pkgs"
+getURL="https://github.com/baldeuniversel/linux.git"
+
 
 
 #
@@ -93,7 +96,9 @@ then
 fi
 
 # Clone the git repository
-git clone --branch current-version-pkgs --single-branch --depth 1 https://github.com/baldeuniversel/linux.git "$meoTmpDir/linux" 2> /dev/null
+git clone --branch "$getCurrentFileVersionPkgs" --single-branch --depth 1 "$getURL" "$meoTmpDir/linux" 2> /dev/null
+
+
 
 #
 if [[ $? -eq 0 ]]
