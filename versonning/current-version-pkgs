@@ -23,7 +23,7 @@
     
     {
         package: meo ,
-        version: 1.1.7 ,
+        version: 1.1.6 ,
         pkg-md5sum: c9078e4afcf64cc13d5a341bf08fce5d
     }
 ]
