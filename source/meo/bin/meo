@@ -30,9 +30,8 @@
     *
     * Options :
     * --------
-    * @param {string} self-update // This option allows to verify if there is a new version of `meo` program
-    *                                that is ready to upgrade, and it also allows to update the list of 
-    *                                packages available on the Github repository
+    * @param {string} self-update // This option allows to verify if there is a new version/revision of `meo` 
+    *                                program that is ready to upgrade
     *                                Ex : meo self-update
     * 
     * @param {string} install // This option allows installing packages
@@ -893,6 +892,7 @@ then
     getMeoRefreshVersion=""
     getMeoRefreshVersionHash=""
     getMeoVersionPkgInstalledHash=""
+    getDebPkg=""
     
     getURLPkg="https://github.com/baldeuniversel/linux/tree/main/packages"
     getMeoVersionPkgInstalled=` meo --version `
@@ -906,6 +906,17 @@ then
 
     # Call the function and give the `pid` of the last command 
     spinnerAnimation $!
+
+    # Call the function
+    cloneSingleBranchGit "$getPkg" &
+
+    # Call the function and give the `pid` of the last command 
+    spinnerAnimation $!
+
+    # Get the meo package after having downloading it 
+    getDebPkg=` find "$meoTmpDirGithub/linux" -name "$getPkg*.deb" -type f -printf "%f\n" `
+
+
 
 
 
