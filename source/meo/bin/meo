@@ -898,6 +898,7 @@ then
     getMeoVersionPkgInstalled=` meo --version `
     getPkg="meo"
     fieldAlgoHash="pkg-md5sum"
+    getMeoDebDir="/usr/lib/meo/library/packages-info/meo/deb"
 
 
 
@@ -907,17 +908,25 @@ then
     # Call the function and give the `pid` of the last command 
     spinnerAnimation $!
 
-    # Call the function
-    cloneSingleBranchGit "$getPkg" &
+    #
+    if [[ -e "$getMeoDebDir" ]]
+    then
+        # Get the meo package after having downloading it 
+        getDebPkg=` find "$getMeoDebDir" -name "$getPkg*.deb" -type f -printf "%f\n" `
 
-    # Call the function and give the `pid` of the last command 
-    spinnerAnimation $!
+        # Get the hash of the package
+        getMeoVersionPkgInstalledHash=` md5sum "$getDebPkg" | cut -d " " -f 1 `
 
-    # Get the meo package after having downloading it 
-    getDebPkg=` find "$meoTmpDirGithub/linux" -name "$getPkg*.deb" -type f -printf "%f\n" `
+    else
+        echo "~"
+        echo "Something is wrong, a $getPkg deb package is missing \U001F9D0, please reinstall the \e[32;1m$getPkg\e[0m program" 
 
+        # Call the function
+        removeGitDownloadGitAction
 
-
+        exit 1
+    fi
+    
 
 
     #
@@ -932,13 +941,9 @@ then
         #
         getMeoRefreshVersionHash=`cat $meoListAvailablePkgsPure | awk -v getPkg="$getPkg" 'BEGIN { counter=0 } /\<getPkg\>/ \
             {counter=3} { if ( counter && counter > 0) { print; counter-- } }' | \
-                awk -v fieldAlgoHash="$fieldAlgoHash" '/\<fieldAlgoHash\>/ {FS=": "; print $2} ' `
-
-        #
-        getMeoVersionPkgInstalledHash=` cat $meoListInstalledPkgsPure | awk -F '[: ]' -v getPkg="$getPkg" '$1 == getPkg {print}' | \
-            cut -d "," -f 2 | cut -d ":" -f 2 | tr -d "[ \t]" `
-
+                awk -v fieldAlgoHash="$fieldAlgoHash" '/\<fieldAlgoHash\>/ {FS=": "; print $2} ' ` 
             
+
         # Verify the match versions, then do ...
         if ( [[ ` echo "$getMeoRefreshVersion" | tr -d "[[:space:]]" ` == \
             ` echo "$getMeoVersionPkgInstalled" | tr -d "[[:space:]]" ` ]] ) \
@@ -986,7 +991,7 @@ then
         fi
     else 
         echo "~"
-        echo "Something is wrong, a file is missing \U001F9D0, please reinstall the \e[32;1m$getPkg\e[0m program "
+        echo "Something is wrong, a file is missing \U001F9D0, please reinstall the \e[32;1m$getPkg\e[0m program"
 
         # Call the function
         removeGitDownloadGitAction
