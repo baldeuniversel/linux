@@ -43,10 +43,10 @@ fi
 
 
 # Clone the branch
-git clone --branch "$getBranch" --single-branch --depth 1 "$getURL" "$getTmpCloneGit" 2> /dev/null
+git clone --branch "$getBranch" --single-branch --depth 1 "$getURL" "$getTmpCloneGit/linux" 2> /dev/null
 
 #
-getTheDebProgram=` find $getTmpCloneGit -name "$getProgram*.deb" -type f -printf "%f\n" `
+getTheDebProgram=` find "$getTmpCloneGit/linux" -name "$getProgram*.deb" -type f -printf "%f\n" 2> /dev/null ` 
 
 # Move the deb program
 mv "$getTheDebProgram" "$getMngDebDirectory" 2> /dev/null
