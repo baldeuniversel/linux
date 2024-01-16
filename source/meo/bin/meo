@@ -317,6 +317,7 @@ function refreshAvailablePkgsFile
     
     # Declarations variables
     local fileGithubAction="$meoTmpDirGithub/github-action"
+    local getURL="https://github.com/baldeuniversel/linux.git"
     
 
 
@@ -342,7 +343,7 @@ function refreshAvailablePkgsFile
 
     # Clone the git repository
     git clone --branch current-version-pkgs --single-branch --depth 1 \
-        https://github.com/baldeuniversel/linux.git "$meoTmpDirGithub/linux" 2> /dev/null
+        "$getURL" "$meoTmpDirGithub/linux" 2> /dev/null
     
     #
     if [[ $? -eq 0 ]]
@@ -372,6 +373,11 @@ function refreshAvailablePkgsFile
     '
 function clonePersonalGit
 {
+    # Declaration variable
+    local getURL="https://github.com/baldeuniversel/linux.git"
+
+
+
     # Check if there is internet connection
     curl ifconfig.me &> /dev/null   
     #
@@ -387,7 +393,7 @@ function clonePersonalGit
     $( removeDirFile "$meoTmpDirGithub/linux" )
 
     # Clone the git repository
-    git clone --branch main --single-branch --depth 1 https://github.com/baldeuniversel/linux.git "$meoTmpDirGithub/linux" 2> /dev/null
+    git clone --branch main --single-branch --depth 1 "$getURL" "$meoTmpDirGithub/linux" 2> /dev/null
 
 }
 
@@ -407,6 +413,7 @@ function cloneSingleBranchGit
 {
     # Declaration variables
     local getTheBranch="$1"
+    local getURL="https://github.com/baldeuniversel/linux.git"
 
 
 
@@ -424,8 +431,25 @@ function cloneSingleBranchGit
     # Call the function
     $( removeDirFile "$meoTmpDirGithub/linux" )
 
+    #
+    if [[ ! -e "$meoTmpDirGithub" ]]
+    then
+        #
+        mkdir -p "$meoTmpDirGithub" 2> /dev/null 
+        
+        #
+        if [[ $? -ne 0 ]]
+        then
+            #
+            echo "~"
+            echo -e "Something is wrong, make sure you have the permission to write to the [ /tmp ] directory \U001F9D0 "
+
+            exit 1
+        fi
+    fi
+
     # Clone the git repository
-    git clone --branch "$getTheBranch" --single-branch --depth 1 https://github.com/baldeuniversel/linux.git \
+    git clone --branch "$getTheBranch" --single-branch --depth 1 "$getURL" \
         "$meoTmpDirGithub/linux" 2> /dev/null
 
 }
@@ -849,6 +873,62 @@ function removeGitDownloadGitAction
 
 
 
+
+:   '
+/**
+* @overview The `createDirPackageToInstall` function allows to create a directory where the packages
+* to install will be moved .
+*
+* @return {string} // The created directory will be returned
+*/
+    '
+function createDirPackageToInstall
+{
+
+    # Declaration variables
+    local getDirPkgToInstall="/tmp/.meo/package-to-install"
+
+
+
+    #
+    if [[  ! -e "$getDirPkgToInstall"  ]]
+    then
+        #
+        mkdir -p "$getDirPkgToInstall" 2> /dev/null
+
+        if [[ $? -ne 0 ]]
+        then
+            echo "~"
+            echo -e "Something is wrong, make sure you have the permission to write to the [ /tmp ] directory \U001F9D0 "
+
+            exit 1
+        fi
+    else
+        
+        #
+        rm -rf "$getDirPkgToInstall" 2> /dev/null
+        
+        mkdir -p "$getDirPkgToInstall" 2> /dev/null
+
+        if [[ $? -ne 0 ]]
+        then
+            echo "~"
+            echo -e "Something is wrong, make sure you have the permission to write to the [ /tmp ] directory \U001F9D0 "
+
+            exit 1
+        fi
+    fi
+
+
+    # Return the directory
+    echo "$getDirPkgToInstall"
+
+}
+
+
+
+
+
 :   '
 /**
 * @overview The function `colorElem` allows to color strings
@@ -1012,23 +1092,32 @@ if [[ $1 == "install" ]] && [[ $# -gt 1 ]]
 then
     
     # Declaration variables
-    local flagPackageFound=""
-    local flagPackageInstalledFound=""
+    flagPackageFound=""
+    flagPackageInstalledFound=""
 
-    local getDebPkg=""
-    local counterInstalledPkg=0
-    local counterCloneGit=0
+    getDebPkg=""
+    getDirPkgToInstall=""
+    getPkgMng="meo"
+    
+    counterInstalledPkg=0
+    counterCloneGit=0
+    counterNotFoundPkg=0
+    counterFlagMng=0
 
     declare -a listOfInstalledPkg=()   
+    declare -a listOfNotInstalledPkg=() 
 
+    
 
+    # Call the function
+    getDirPkgToInstall=` createDirPackageToInstall `
 
     # Shift one position
     shift 1
 
 
 
-    # Install the package if it exists
+    # Dowload the packages if it exists
     for packageUP in $@
     do
         #
@@ -1036,75 +1125,71 @@ then
         flagPackageInstalledFound=` isPackageInstalled $packageUP  `
 
         #
-        if [[ $flagPackageFound == "true" ]] && [[ $flagPackageInstalledFound == "false" ]]
+        if [[ $flagPackageFound == "true" ]] && [[ ! ` echo "$packageUP" | grep -w -- "^$getPkgMng$" ` ]]
         then 
             
-            # Clone the git repository 
-            if [[ $counterCloneGit -eq 0 ]]
-            then
-                # Call the function
-                clonePersonalGit &
+            # Call the function
+            cloneSingleBranchGit "$packageUP"
 
-                # Call the function
-                spinnerAnimation $!
+            # Move the package
+            find "$meoTmpDirGithub/linux" -name "$packageUP" -type f -exec mv {} $getDirPkgToInstall \; 
 
-                #
-                counterCloneGit=$(( counterCloneGit + 1 ))
-            fi
-           
-            # Get the `deb` file via the input parameter
-            getDebPkg=$( find "$meoTmpDirGithub/linux" -name "$packageUP*" -type f 2> /dev/null )
+            # Append the package to the array
+            listOfInstalledPkg+="$packageUP"
 
-            # Cast an exception if the target program to install is `meo`
-            if [[ ` echo "$getDebPkg" | grep -i -- "meo-" ` ]]
-            then
-                echo "~"
-                echo "You can not install the \e[32;1mmeo\e[0m program itself 🚨"
+            #
+            counterCloneGit=$(( counterCloneGit + 1 ))
 
-                continue
-
-            else
-
-                # Verify if there is content(that's to if, the `deb` file was found), then ...
-                if [[ -n "$getDebPkg"  ]]
-                then
-                   
-                    # Installing
-                    dpkg --install $getDebPkg
-
-                    #
-                    if [[ $? -eq 0 ]]
-                    then
-                        # Call the function
-                        storeInslalledPkg $packageUP
-
-                        #
-                        counterInstalledPkg=$(( counterInstalledPkg + 1 ))
-                        
-                        #
-                        listOfInstalledPkg+=$packageUP
-                    fi
-                fi
-            fi
         #
-        elif [[ $flagPackageInstalledFound == "true" ]]
+        elif [[ $flagPackageFound == "false" ]]
         then
-            echo "~"
-            echo -e "The program \e[36;1m$packageUP\e[0m is already installed \U002705 "
-            echo ""
+            #
+            listOfNotInstalledPkg+="$packageUP"
 
-        #
-        else
-            echo ""
-            echo "~"
-            echo -e "The package \e[33;1m$packageUP\e[0m was not found in the \e[32;1mmeo\e[0m repository \U001F9D0"
+            #
+            counterNotFoundPkg=$(( counterNotFoundPkg + 1 ))
+
+        elif [[ ` echo "$packageUP" | grep -w -- "^$getPkgMng$" ` ]]
+        then
+            #
+            counterFlagMng=$(( counterFlagMng + 1 ))
         fi
 
-    done
+    done & 
 
-    # List the package(s) installed
+
+    # Call the function (for the loop above)
+    spinnerAnimation $!
+
+
+
+    # If the package manager was included among the package(s) to install, cast an alert 
+    if [[ $counterFlagMng -gt 0 ]]
+    then
+        #
+        echo "~"
+        echo "You can not install the \e[32;1m$getPkgMng\e[0m program itself 🚨"
+    fi
+
+    
+    # The list of uninstalled packages
+    if [[ $counterNotFoundPkg -gt 0 ]]
+    then
+        #
+        echo ""
+        echo "~"
+
+        for notInstalledPkg in ${listOfNotInstalledPkg[@]}
+        do
+            echo -e "\e[32;1m$notInstalledPkg\e[0m not found \U00274C "
+        done
+    fi
+    
+
+    # The list of package(s) installed
     if [[ $counterInstalledPkg -gt 0 ]]
     then
+        #
         echo ""
         echo "~"
 
@@ -1125,7 +1210,6 @@ then
     else
         exit 1
     fi
-
 fi
 
 ### Action based on the `install` option -> end tag[i1]
