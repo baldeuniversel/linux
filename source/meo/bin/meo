@@ -951,7 +951,7 @@ then
             ` echo "$getMeoVersionPkgInstalledHash" | tr -d "[[:space:]]" ` ]] )
         then
             echo "~"
-            echo -e "The job is clean, \e[32;1m$getPkg\e[0m program is already up to date \U002705 "
+            echo -e "The job is clean, \e[32;1m$getPkg\e[0m program is up to date \U002705 "
 
 
             # Call the function
@@ -967,8 +967,8 @@ then
             echo -e "(\e[1;032m$getMeoRefreshVersionHash\e[0m) ."
 
             echo ""
-            echo -e "Go to this Github \e[1;4;032m$getURLPkg\e[0m " 
-            echo -e "repository to download the \e[032;1m$getPkg\e[0m program or download the \e[032;1m$getPkg\e[0m program via the "
+            echo -e "Go to this Github \e[1;4;032m$getURLPkg\e[0m repository to" 
+            echo -e "download the \e[032;1m$getPkg\e[0m program or download the \e[032;1m$getPkg\e[0m program via the "
             echo -e "command -> \e[036;1msudo $getPkg download $getPkg\e[0m , then install it ."
 
 
@@ -978,10 +978,10 @@ then
             exit 0
         else
             echo "~"
-            echo -e "A new version($getMeoRefreshVersion)\e[1;036m ⬆ \e[0m for the \e[032;1m$getPkg\e[0m program is available ."
+            echo -e "A new version ($getMeoRefreshVersion) \e[1;036m ⬆ \e[0m for the \e[032;1m$getPkg\e[0m program is available ."
             echo ""
-            echo -e "Go to this Github \e[1;4;032m$getURLPkg\e[0m " 
-            echo -e "repository to download the \e[032;1m$getPkg\e[0m program or download the \e[032;1m$getPkg\e[0m program via the "
+            echo -e "Go to this Github \e[1;4;032m$getURLPkg\e[0m repository" 
+            echo -e "to download the \e[032;1m$getPkg\e[0m program or download the \e[032;1m$getPkg\e[0m program via the "
             echo -e "command -> \e[036;1msudo $getPkg download $getPkg\e[0m , then install it ."
 
             # Call the function
