@@ -110,10 +110,10 @@ fi
     '
 
 # Remove the `tmp/..` directory
-if [[ -e "$mngDebDirectory" ]]
+if [[ -e "$getTmpCloneGit" ]]
 then
     # 
-    rm -fr "$mngDebDirectory" 2> /dev/null
+    rm -fr "$getTmpCloneGit" 2> /dev/null
 fi
 
 
