@@ -652,7 +652,8 @@ function isNewVersionOfPkgAvailable
 
             
         # Verify the match versions, then do ...
-        if [[ "$getPkgRefreshVersion" == "$getPkgVersionPkgInstalled" ]]
+        if [[ ` echo "$getPkgRefreshVersion" | tr -d "[[:space:]]" ` == \
+            ` echo "$getPkgVersionPkgInstalled" | tr -d "[[:space:]]" ` ]]
         then
             echo "false"
         else
@@ -698,12 +699,13 @@ function isNewRevisionOfPkgAvailable
         getRefreshRevisionPkgHash=` cat $meoListAvailablePkgsPure | cut -d ":" -f2 | tr -d "[ \t]+" | \
             grep -w -A3 -- "^$getPkg$" | head -n 3 | tail -n 1 `
 
-        getHashPkgInstalled=` cat $meoListInstalledPkgsPure | awk -F '[: ]' -v getPkg="$1" '$1 == getPkg {print}' | \
+        getHashPkgInstalled=` cat $meoListInstalledPkgsPure | awk -F '[: ]' -v getPkg="$getPkg" '$1 == getPkg {print}' | \
             cut -d "," -f 2 | cut -d ":" -f 2 | tr -d "[ \t]" `
 
             
         # Verify the match versions, then do ...
-        if [[ "$getRefreshRevisionPkgHash" == "$getHashPkgInstalled" ]]
+        if [[ ` echo "$getRefreshRevisionPkgHash" | tr -d "[[:space:]]" ` == \
+            ` echo "$getHashPkgInstalled" | tr -d "[[:space:]]" ` ]]
         then
             echo "false"
         else
@@ -728,7 +730,6 @@ function isNewRevisionOfPkgAvailable
 *
 * @param {int} $1 // The pid of the process 
 */
-
     '
 function spinnerAnimation
 {
@@ -889,33 +890,70 @@ if [[ $1 == "self-update" ]] && [[ $# -eq 1 ]]
 then
     
     # Declaration variables
-    local getMeoRefreshVersion=""
+    getMeoRefreshVersion=""
+    getMeoRefreshVersionHash=""
+    getMeoVersionPkgInstalledHash=""
+    
+    getURLPkg="https://github.com/baldeuniversel/linux/tree/main/packages"
+    getMeoVersionPkgInstalled=` meo --version `
+    getPkg="meo"
+    fieldAlgoHash="pkg-md5sum"
 
 
 
     # Call the function
     refreshAvailablePkgsFile &
 
-    # Call the function
+    # Call the function and give the `pid` of the last command 
     spinnerAnimation $!
 
 
 
     #
-    if [[ -e "$meoListAvailablePkgs" ]]
+    if [[ -e "$meoListAvailablePkgsPure" ]]
     then
         
-        getMeoRefreshVersion=` cat $meoListAvailablePkgsPure | grep -i "meo" | \
-            cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
+        #
+        getMeoRefreshVersion=` cat $meoListAvailablePkgsPure | awk -v getPkg="$getPkg" 'BEGIN { counter=0 } /\<getPkg\>/ \
+            {counter=3} { if ( counter && counter > 0) { print; counter-- } }' | \
+                awk -v getVersionPkg="$getMeoVersionPkgInstalled" '/\<getVersionPkg\>/ {FS=": "; print $2} ' `
 
-        getMeoVersionPkgInstalled=` meo --version `
+        #
+        getMeoRefreshVersionHash=`cat $meoListAvailablePkgsPure | awk -v getPkg="$getPkg" 'BEGIN { counter=0 } /\<getPkg\>/ \
+            {counter=3} { if ( counter && counter > 0) { print; counter-- } }' | \
+                awk -v fieldAlgoHash="$fieldAlgoHash" '/\<fieldAlgoHash\>/ {FS=": "; print $2} ' `
+
+        #
+        getMeoVersionPkgInstalledHash=` cat $meoListInstalledPkgsPure | awk -F '[: ]' -v getPkg="$getPkg" '$1 == getPkg {print}' | \
+            cut -d "," -f 2 | cut -d ":" -f 2 | tr -d "[ \t]" `
 
             
         # Verify the match versions, then do ...
-        if [[ "$getMeoRefreshVersion" == "$getMeoVersionPkgInstalled" ]]
+        if ( [[ ` echo "$getMeoRefreshVersion" | tr -d "[[:space:]]" ` == \
+            ` echo "$getMeoVersionPkgInstalled" | tr -d "[[:space:]]" ` ]] ) \
+            && ( [[ ` echo "$getMeoRefreshVersionHash" | tr -d "[[:space:]]" ` == \
+            ` echo "$getMeoVersionPkgInstalledHash" | tr -d "[[:space:]]" ` ]] )
         then
             echo "~"
-            echo -e "The job is clean, \e[32;1mmeo\e[0m program is already up to date \U002705 "
+            echo -e "The job is clean, \e[32;1m$getPkg\e[0m program is already up to date \U002705 "
+
+
+            # Call the function
+            removeGitDownloadGitAction
+
+            exit 0
+
+        elif [[ ` echo "$getMeoRefreshVersionHash" | tr -d "[[:space:]]" ` != \
+            ` echo "$getMeoVersionPkgInstalledHash" | tr -d "[[:space:]]" ` ]]
+        then
+            echo "~"
+            echo -e "A new revision \U001F4DD of the \e[032;1m$getPkg\e[0m program is available, hash-md5sum \c" 
+            echo -e "(\e[1;032m$getMeoRefreshVersionHash\e[0m) ."
+
+            echo ""
+            echo -e "Go to this Github \e[1;4;032m$getURLPkg\e[0m " 
+            echo -e "repository to download the \e[032;1m$getPkg\e[0m program or download the \e[032;1m$getPkg\e[0m program via the "
+            echo -e "command -> \e[036;1msudo $getPkg download $getPkg\e[0m , then install it ."
 
 
             # Call the function
@@ -924,11 +962,11 @@ then
             exit 0
         else
             echo "~"
-            echo -e "A new version($getMeoRefreshVersion)\e[36;1m⬆\e[0m for the \e[32;1mmeo\e[0m program is available "
+            echo -e "A new version($getMeoRefreshVersion)\e[1;036m ⬆ \e[0m for the \e[032;1m$getPkg\e[0m program is available ."
             echo ""
-            echo -e "Go to this Github \e[32;1mhttps://github.com/baldeuniversel/linux/tree/main/packages\e[0m " 
-            echo -e "repository to download the \e[32;1mmeo\e[0m program or download the \e[32;1mmeo\e[0m program via the "
-            echo -e "command -> \e[36;1msudo meo download meo\e[0m  "
+            echo -e "Go to this Github \e[1;4;032m$getURLPkg\e[0m " 
+            echo -e "repository to download the \e[032;1m$getPkg\e[0m program or download the \e[032;1m$getPkg\e[0m program via the "
+            echo -e "command -> \e[036;1msudo $getPkg download $getPkg\e[0m , then install it ."
 
             # Call the function
             removeGitDownloadGitAction
@@ -937,7 +975,10 @@ then
         fi
     else 
         echo "~"
-        echo "Something is wrong, a file is missing \U001F9D0, please reinstall the \e[32;1mmeo\e[0m program "
+        echo "Something is wrong, a file is missing \U001F9D0, please reinstall the \e[32;1m$getPkg\e[0m program "
+
+        # Call the function
+        removeGitDownloadGitAction
 
         exit 1
     fi
