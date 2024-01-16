@@ -13,7 +13,7 @@ set -euo pipefail
 #
 getOS=""
 
-meoTmpDir="/tmp/.meo/$USER/github"
+meoTmpDir="/tmp/$USER/.meo/github"
 
 meoInfoDir="/usr/lib/meo/library/info"
 meoListAvailablePkgsPure="/usr/lib/meo/library/info/list-available-packages-pure"
@@ -81,7 +81,14 @@ fi
 #
 if [[ ! ( -e "$meoTmpDir" ) ]]
 then
-    mkdir -p $meoTmpDir 2> /dev/null
+    #
+    mkdir -p "$meoTmpDir" 2> /dev/null
+else
+    #
+    rm -r "$meoTmpDir"
+
+    #
+    mkdir -p "$meoTmpDir" 2> /dev/null
 fi
 
 
@@ -116,9 +123,9 @@ then
 fi
 
 # Remove `.meo` directory in /tmp
-if [[ -e "/tmp/.meo/$USER"  ]]
+if [[ -e "$meoTmpDir"  ]]
 then
-    rm -rf "/tmp/.meo/$USER" 2> /dev/null
+    rm -rf "$meoTmpDir" 2> /dev/null
 fi
 
 ### Download the available packages file and store the name of these packages with their 
