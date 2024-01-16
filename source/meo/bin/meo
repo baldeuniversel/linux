@@ -912,10 +912,10 @@ then
     if [[ -e "$getMeoDebDir" ]]
     then
         # Get the meo package after having downloading it 
-        getDebPkg=` find "$getMeoDebDir" -name "$getPkg*.deb" -type f -printf "%f\n" `
+        getDebPkg=` find "$getMeoDebDir" -name "$getPkg*.deb" -type f `
 
         # Get the hash of the package
-        getMeoVersionPkgInstalledHash=` md5sum "$getDebPkg" | cut -d " " -f 1 `
+        getMeoVersionPkgInstalledHash=` md5sum "$getDebPkg" | cut -d " " -f 1 2> /dev/null `
 
     else
         echo "~"
@@ -934,15 +934,15 @@ then
     then
         
         #
-        getMeoRefreshVersion=` cat $meoListAvailablePkgsPure | awk -v getPkg="$getPkg" 'BEGIN { counter=0 } /\<getPkg\>/ \
+        getMeoRefreshVersion=` cat $meoListAvailablePkgsPure | awk 'BEGIN { counter=0 } /\<meo\>/ \
             {counter=3} { if ( counter && counter > 0) { print; counter-- } }' | \
-                awk -v getVersionPkg="$getMeoVersionPkgInstalled" '/\<getVersionPkg\>/ {FS=": "; print $2} ' `
+                awk '/\<version\>/ {FS=": "; print $2} ' `
 
         #
-        getMeoRefreshVersionHash=`cat $meoListAvailablePkgsPure | awk -v getPkg="$getPkg" 'BEGIN { counter=0 } /\<getPkg\>/ \
+        getMeoRefreshVersionHash=` cat $meoListAvailablePkgsPure | awk 'BEGIN { counter=0 } /\<meo\>/ \
             {counter=3} { if ( counter && counter > 0) { print; counter-- } }' | \
-                awk -v fieldAlgoHash="$fieldAlgoHash" '/\<fieldAlgoHash\>/ {FS=": "; print $2} ' ` 
-            
+                awk '/\<pkg-md5sum\>/ {FS=": "; print $2} ' ` 
+
 
         # Verify the match versions, then do ...
         if ( [[ ` echo "$getMeoRefreshVersion" | tr -d "[[:space:]]" ` == \
