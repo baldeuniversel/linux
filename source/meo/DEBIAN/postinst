@@ -11,11 +11,13 @@ set -euo pipefail
 
 # Declaration variables
 getTheDebProgram=""
+getTheInfoPkg=""
 
 getMngDebDirectory="/usr/lib/meo/library/packages-info/meo/deb"
 getTmpCloneGit="/tmp/$USER/.meo/download-branch"
 getBranch="meo"
 getProgram="meo"
+getNameInfoPkg="info-pkg"
 getURL="https://github.com/baldeuniversel/linux.git"
 
 
@@ -47,9 +49,11 @@ git clone --branch "$getBranch" --single-branch --depth 1 "$getURL" "$getTmpClon
 
 #
 getTheDebProgram=` find "$getTmpCloneGit/linux" -name "$getProgram*.deb" -type f 2> /dev/null ` 
+getTheInfoPkg=` find "$getTmpCloneGit/linux" -name "$getNameInfoPkg" -type f 2> /dev/null `
 
 # Move the deb program
 mv "$getTheDebProgram" "$getMngDebDirectory" 2> /dev/null
+mv "$getTheInfoPkg" "$getMngDebDirectory" 2> /dev/null
 
 
 
