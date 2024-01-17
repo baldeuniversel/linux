@@ -1,32 +1,16 @@
 #!/usr/bin/bash
 
+#####
 # postinst script
-#
+####
 
-set -eo pipefail
-
-
-# Declaration variables
-meoListInstalledPkgs="/usr/lib/meo/library/info/list-installed-packages"
-meoListInstalledPkgsPure="/usr/lib/meo/library/info/list-installed-packages-pure"
+set -euo pipefail
 
 
-
-# Add information about the package in these specific files
-if [[ -e "$meoListInstalledPkgsPure" ]]
-then
-
-    #
-    if [[ ! ` cat $meoListInstalledPkgsPure | grep -w -- "vimizer" ` ]]
-    then
-        #
-        sed -i "$ a vimizer : (1.0.4)" "$meoListInstalledPkgsPure" 2> /dev/null
-        sed -i -e "$ a ` echo -e "\e[32;1mvimizer\e[0m : \e[36;1mv(1.0.4)\e[0m" ` " "$meoListInstalledPkgs" 2> /dev/null
-    fi
-fi
-
-
-
-echo "~"
+# Just to print the name of the author
 echo ""
-tput setaf 2; tput bold;echo "By Baldé ~" `tput sgr0` 2> /dev/null
+echo ""
+echo "~"
+
+tput setaf 6; tput bold; echo "By Baldé ~" `tput sgr0` 2> /dev/null
+
