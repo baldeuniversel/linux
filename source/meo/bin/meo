@@ -498,6 +498,20 @@ function storeInslalledPkg
 
     # Put the content of the variable in the target file
     echo "$getTheFileListPkg" > $fileAction
+
+
+
+    # Create the directory and the files where some info about the installed packages will be save
+    if [[ ! -e "$meoLibraryDir/info" ]]
+    then
+        
+        mkdir -p "$meoLibraryDir/info" 2> /dev/null
+    fi
+    #
+    if [[ ! -e "$meoListInstalledPkgsPure" ]]
+    then
+        touch "$meoListInstalledPkgsPure" 2> /dev/null
+    fi
     
 
 
