@@ -12,9 +12,11 @@ set -euo pipefail
 # Declaration variables
 getTheDebProgram=""
 getTheInfoPkg=""
+getTheReadmeFile=""
 
 getMngDebDirectory="/usr/lib/meo/library/packages-info/meo/deb"
-getTmpCloneGit="/tmp/$USER/.meo/download-branch"
+getMngInfoDirectory="/usr/lib/meo/library/packages-info/meo/info"
+getTmpCloneGit="/tmp/.meo/$USER/download-branch"
 getBranch="meo"
 getProgram="meo"
 getNameInfoPkg="info-pkg"
@@ -35,6 +37,19 @@ else
 fi
 
 #
+if [[ ! -e "$getMngInfoDirectory" ]]
+then
+    #
+    mkdir -p "$getMngInfoDirectory" 2> /dev/null
+else
+    #
+    rm -fr "$getMngInfoDirectory" 2> /dev/null
+    
+    mkdir -p "$getMngInfoDirectory" 2> /dev/null
+fi
+
+
+#
 if [[ -e "$getTmpCloneGit" ]]
 then
     
@@ -48,12 +63,14 @@ fi
 git clone --branch "$getBranch" --single-branch --depth 1 "$getURL" "$getTmpCloneGit/linux" 2> /dev/null
 
 #
-getTheDebProgram=` find "$getTmpCloneGit/linux" -name "$getProgram*.deb" -type f 2> /dev/null ` 
-getTheInfoPkg=` find "$getTmpCloneGit/linux" -name "$getNameInfoPkg" -type f 2> /dev/null `
+getTheDebProgram=` find "$getTmpCloneGit/linux/package" -name "$getProgram*.deb" -type f 2> /dev/null ` 
+getTheInfoPkg=` find "$getTmpCloneGit/linux/package" -name "$getNameInfoPkg" -type f 2> /dev/null `
+getTheReadmeFile=` find "$getTmpCloneGit/linux/package" -name "readme" -type f 2> /dev/null `
 
 # Move the deb program
 mv "$getTheDebProgram" "$getMngDebDirectory" 2> /dev/null
-mv "$getTheInfoPkg" "$getMngDebDirectory" 2> /dev/null
+mv "$getTheInfoPkg" "$getMngInfoDirectory" 2> /dev/null
+mv "$getTheReadmeFile" "$getMngInfoDirectory" 2> /dev/null
 
 
 
