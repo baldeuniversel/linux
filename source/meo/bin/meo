@@ -316,9 +316,9 @@ function refreshAvailablePkgsFile
 {
     
     # Declarations variables
-    local fileGithubAction="$meoTmpDirGithub/github-action"
     local getURL="https://github.com/baldeuniversel/linux.git"
-    
+    local getBranch="current-version-pkgs" 
+    local getFileCurrentVersionPkg="current-version-pkgs"
 
 
     #
@@ -342,7 +342,7 @@ function refreshAvailablePkgsFile
     $( removeDirFile "$meoTmpDirGithub/linux" )
 
     # Clone the git repository
-    git clone --branch current-version-pkgs --single-branch --depth 1 \
+    git clone --branch "$getBranch" --single-branch --depth 1 \
         "$getURL" "$meoTmpDirGithub/linux" 2> /dev/null
     
     #
@@ -350,11 +350,11 @@ function refreshAvailablePkgsFile
     then
     
         # Action to save in another files the content of the file that contents the available packages  
-        find "$meoTmpDirGithub/linux"  -name "current-version-pkgs" -type f -exec \
+        find "$meoTmpDirGithub/linux"  -name "$getFileCurrentVersionPkg" -type f -exec \
             cat {} \; | grep -A 2 "package" | awk '{ gsub(/^[[:space:]]*|,|--/, "");  print }' > $meoListAvailablePkgsPure
     
         #
-        find "$meoTmpDirGithub/linux"  -name "current-version-pkgs" -type f -exec \
+        find "$meoTmpDirGithub/linux"  -name "$getFileCurrentVersionPkg" -type f -exec \
             cat {} \; | grep -A 2 "package" | awk '{ gsub(/^[[:space:]]*|,|--/, ""); print }' | \
             awk -F ": " 'length($0) > 3 && NF > 0 {printf "\033[1;036m%s\033[0m: \033[1;32m%s\033[0m\n", $1, $2}; \
             length($0) < 3 && NF <= 0 {print}' > $meoListAvailablePkgs
@@ -886,7 +886,7 @@ function createDirPackageToInstall
 {
 
     # Declaration variables
-    local getDirPkgToInstall="/tmp/.meo/package-to-install"
+    local getDirPkgToInstall="/tmp/.meo/$USER/package-to-install"
 
 
 
@@ -1098,12 +1098,20 @@ then
     getDebPkg=""
     getDirPkgToInstall=""
     getPkgMng="meo"
+    pkgDirectoryInMng="/usr/lib/meo/library/packages-info"
     
     counterInstalledPkg=0
     counterCloneGit=0
     counterNotFoundPkg=0
     counterFlagMng=0
+    counterAlreadyInstalledPkg=0
 
+    getCurrentBranchPkg="current-version-pkgs"
+    getNameFileCurrentVersionPkgUP="current-version-pkgs"
+    getPathDirCurrentVersionPkg="/tmp/.meo/$USER/current-version"
+
+    declare -a listOfDownloadedPkg=()
+    declare -a listOfAlreadyInstalledPkg=()
     declare -a listOfInstalledPkg=()   
     declare -a listOfNotInstalledPkg=() 
 
@@ -1117,7 +1125,7 @@ then
 
 
 
-    # Dowload the packages if it exists
+    # Download the packages if it exists
     for packageUP in $@
     do
         #
@@ -1125,20 +1133,66 @@ then
         flagPackageInstalledFound=` isPackageInstalled $packageUP  `
 
         #
-        if [[ $flagPackageFound == "true" ]] && [[ ! ` echo "$packageUP" | grep -w -- "^$getPkgMng$" ` ]]
+        if [[ $flagPackageFound == "true" ]] && [[ ! ` echo "$packageUP" | grep -w -- "^$getPkgMng$" ` ]] \
+            && [[ "$flagPackageInstalledFound" == "false" ]]
         then 
             
             # Call the function
             cloneSingleBranchGit "$packageUP"
+            
+
+            # Create a directory for the package to install in ...
+            if [[ ! -e "$pkgDirectoryInMng/$packageUP" ]]
+            then
+                mkdir -p "$pkgDirectoryInMng/$packageUP" 2> /dev/null
+
+            else 
+                #
+                rm -fr "$pkgDirectoryInMng/$packageUP" 2> /dev/null
+
+                #
+                mkdir -p "$pkgDirectoryInMng/$packageUP" 2> /dev/null
+            fi
 
             # Move the package
-            find "$meoTmpDirGithub/linux" -name "$packageUP" -type f -exec mv {} $getDirPkgToInstall \; 
+            find "$meoTmpDirGithub/linux/package" -name "$packageUP*.deb" -type f -exec mv {} $getDirPkgToInstall \; 
+
+            # Move the `info` directory of the package in ...
+            find "$meoTmpDirGithub/linux/package" -maxdepth 1 -name "info" -type d -exec mv {} "$pkgDirectoryInMng/$packageUP" \;
+
+            # Move the `depends` directory of the package in ...
+            find "$meoTmpDirGithub/linux/package" -maxdepth 1 -name "depends" -type d -exec \
+                mv {} "$pkgDirectoryInMng/$packageUP" \;
+
 
             # Append the package to the array
-            listOfInstalledPkg+="$packageUP"
+            listOfDownloadedPkg+="$packageUP"
 
             #
             counterCloneGit=$(( counterCloneGit + 1 ))
+
+            # Clone the file containing the current version of the packages
+            if [[ $counterCloneGit -eq 1 ]]
+            then
+                # Call the function
+                cloneSingleBranchGit "$getCurrentBranchPkg"
+                
+                #
+                if [[ ! -e "$getPathDirCurrentVersionPkg" ]]
+                then
+                    mkdir -p "$getPathDirCurrentVersionPkg" 2> /dev/null
+                else
+                    #
+                    rm -rf "$getPathDirCurrentVersionPkg" 2> /dev/null
+
+                    #
+                    mkdir -p "$getPathDirCurrentVersionPkg" 2> /dev/null
+                fi
+
+                #
+                find  "$meoTmpDirGithub/linux" -name "$getNameFileCurrentVersionPkgUP" -type f -exec \
+                    mv {} "$getPathDirCurrentVersionPkg"  2> /dev/null \;
+            fi
 
         #
         elif [[ $flagPackageFound == "false" ]]
@@ -1148,6 +1202,14 @@ then
 
             #
             counterNotFoundPkg=$(( counterNotFoundPkg + 1 ))
+
+        elif [[ "$flagPackageInstalledFound" == "true" ]]
+        then
+            #
+            listOfAlreadyInstalledPkg+="$packageUP"
+
+            #
+            counterAlreadyInstalledPkg=$(( counterAlreadyInstalledPkg + 1 ))
 
         elif [[ ` echo "$packageUP" | grep -w -- "^$getPkgMng$" ` ]]
         then
@@ -1160,6 +1222,40 @@ then
 
     # Call the function (for the loop above)
     spinnerAnimation $!
+
+
+
+    # Installation action
+    if [[ $counterCloneGit -gt 0 ]]
+    then
+        
+        #
+        getTheFileCurrentVersionPkg=` find "$getPathDirCurrentVersionPkg" -name "$getNameFileCurrentVersionPkgUP" -type f 2> /dev/null `
+
+        #
+        for downloadedPkg in ${listOfDownloadedPkg[@]}
+        do
+            
+            # The installer to install the dependencies of the package
+            getTheInstaller=` find "$pkgDirectoryInMng/$downloadedPkg/depends" -name "installer-depends.sh" -type f `
+
+            # Installing dependencies of the current package `$downloadedPkg`
+            bash "$getTheInstaller"
+            
+            # Install the package itself `downloadedPkg`
+            dpkg --install "$getDirPkgToInstall/$downloadedPkg*"
+
+            # Call the function
+            storeInslalledPkg "$getTheFileCurrentVersionPkg" "$downloadedPkg" 
+
+            #
+            counterInstalledPkg=$(( counterInstalledPkg + 1 ))
+        done
+
+        #
+        echo -e "\n"
+        echo ""
+    fi
 
 
 
@@ -1185,6 +1281,20 @@ then
         done
     fi
     
+    
+    # The list of package(s) already installed
+    if [[ $counterAlreadyInstalledPkg -gt 0 ]]
+    then
+        #
+        echo ""
+        echo "~"
+
+        for alreadyInstalledPkg in ${listOfAlreadyInstalledPkg[@]}
+        do
+            echo -e "\e[32;1m$alreadyInstalledPkg\e[0m already installed \U001F530 "
+        done
+    fi
+
 
     # The list of package(s) installed
     if [[ $counterInstalledPkg -gt 0 ]]
@@ -1202,6 +1312,9 @@ then
 
     # Call the function
     removeGitDownloadGitAction
+
+    # call the function
+    removeDirFile "$meoTmp"
 
     #
     if [[ $? -eq 0 ]]
