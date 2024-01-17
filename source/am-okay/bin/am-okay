@@ -251,7 +251,7 @@ then
 
     if [[ ! -e "$HOME/.config/autostart" ]]
     then
-        mkdir "$HOME/.config/autostart" 2> /dev/null
+        mkdir -p "$HOME/.config/autostart" 2> /dev/null
     fi
     
     echo -e "[Desktop Entry]" >>  "$HOME/.config/autostart/am-okay.desktop" 2> /dev/null 
