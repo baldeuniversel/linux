@@ -1374,7 +1374,9 @@ then
     removeGitDownloadGitAction
 
     # call the function
-    removeDirFile "$meoTmp"
+    removeDirFile "$meoTmp" "$tmp_counterCloneGit" "$tmp_counterNotFoundPkg" "$tmp_counterFlagMng" \
+        "$tmp_counterAlreadyInstalledPkg" "$tmp_listOfDownloadedPkg" "$tmp_listOfAlreadyInstalledPkg" \
+        "$tmp_listOfNotInstalledPkg"
 
     #
     if [[ $? -eq 0 ]]
