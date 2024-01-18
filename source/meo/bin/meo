@@ -1123,6 +1123,7 @@ then
     counterNotFoundPkg=0
     counterFlagMng=0
     counterAlreadyInstalledPkg=0
+    counterErrorInstall=0
 
     getCurrentBranchPkg="current-version-pkgs"
     getNameFileCurrentVersionPkg="current-version-pkgs"
@@ -1132,6 +1133,7 @@ then
     declare -a listOfAlreadyInstalledPkg=()
     declare -a listOfInstalledPkg=()   
     declare -a listOfNotInstalledPkg=() 
+    declare -a listOfErrorInstallingPkg=() 
     
     # Temporary files to save variables and arrays
     tmp_counterCloneGit=` mktemp  `
@@ -1302,15 +1304,26 @@ then
             # Install the package itself `downloadedPkg`
             dpkg --install "$getTheDebPkgToInstall"
 
-            # Call the function
-            storeInslalledPkg "$getTheFileCurrentVersionPkg" "$downloadedPkg" 
-
-
             #
-            listOfInstalledPkg+="$downloadedPkg"
+            if [[ $? -eq 0 ]]
+            then
 
-            #
-            counterInstalledPkg=$(( counterInstalledPkg + 1 ))
+                # Call the function
+                storeInslalledPkg "$getTheFileCurrentVersionPkg" "$downloadedPkg"
+
+                #
+                listOfInstalledPkg+="$downloadedPkg"
+
+                #
+                counterInstalledPkg=$(( counterInstalledPkg + 1 ))
+            else
+                #
+                listOfErrorInstallingPkg+="$downloadedPkg"
+
+                #
+                counterErrorInstall=$(( counterErrorInstall + 1 ))
+            fi
+
         done
 
         #
@@ -1340,6 +1353,21 @@ then
             echo -e "\e[32;1m$notInstalledPkg\e[0m not found \U00274C "
         done
     fi
+
+
+    # List of packages that could not be installed
+    if [[ $counterErrorInstall -gt 0 ]]
+    then
+        #
+        echo ""
+        echo "~"
+
+        for errorInstallingPkg in ${listOfErrorInstallingPkg[@]}
+        do
+            echo -e "\e[32;1m$errorInstallingPkg\e[0m could not be installed \U001F6AB "
+        done
+    fi
+
     
     
     # The list of package(s) already installed
