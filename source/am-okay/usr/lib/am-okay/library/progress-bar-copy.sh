@@ -32,7 +32,7 @@ a_old_percent=0
 a_terminate_process="TRUE"
 declare -a a_character_bar_front_list=("▊" "▉" "█")
 a_character_bar_back="-"
-filePidCommandCp="/tmp/.am-okay/$USER/pid-cp"
+filePidCommandCp="/tmp/.$USER/am-okay/pid-cp"
 
 
 

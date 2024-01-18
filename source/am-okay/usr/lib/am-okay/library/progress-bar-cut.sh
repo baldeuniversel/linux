@@ -33,7 +33,7 @@ a_terminate_process="TRUE"
 declare -a a_character_bar_front_list=("▊" "▉" "█")
 a_character_bar_back="-"
 
-filePidCommandMv="/tmp/.am-okay/$USER/pid-mv"
+filePidCommandMv="/tmp/.$USER/am-okay/pid-mv"
 
 
 
