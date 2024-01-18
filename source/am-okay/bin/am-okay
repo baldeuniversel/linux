@@ -187,7 +187,7 @@ if [[ $1 != "--stat-copy" ]] && [[ $1 != "--stat-cut"  ]] \
     && [[ $# -lt 2 ]] 
 then
     echo "~"
-    echo "It has to be at least two parameters ."
+    echo -e "It has to be at least two parameters \U001F9D0"
     exit 1
 fi
 #
@@ -208,7 +208,7 @@ fi
 #   --reset, --index, --array, --doc, --help ] options. [tag0]
 
 # Declaration variables
-getPersonalUserDir=$HOME
+getPersonalUserDir="$HOME"
 rootDirForActions="$HOME/.local/share/am-okay"
 rootDirCopyCutFiles="$rootDirForActions/classic"
 copyActionFile="$rootDirCopyCutFiles/copy-action"
@@ -238,11 +238,11 @@ arrayIndex3CopyCutActionFileOnly="$arrayRootDir/array-3/copy-cut-action-only"
 globalCounterReject="false"
 globalCounterOkay="false"
 
-fileCodeCommandReturn="/tmp/.am-okay/$USER/code-of-return"
-fileCodeCommandErrorMv="/tmp/.am-okay/$USER/error-move"
-fileCodeCommandErrorCp="/tmp/.am-okay/$USER/error-cp"
-filePidCommandMv="/tmp/.am-okay/$USER/pid-mv"
-filePidCommandCp="/tmp/.am-okay/$USER/pid-cp"
+fileCodeCommandReturn="/tmp/.$USER/am-okay/code-of-return"
+fileCodeCommandErrorMv="/tmp/.$USER/am-okay/error-move"
+fileCodeCommandErrorCp="/tmp/.$USER/am-okay/error-cp"
+filePidCommandMv="/tmp/.$USER/am-okay/pid-mv"
+filePidCommandCp="/tmp/.$USER/am-okay/pid-cp"
 
 
 # Launch a script by an autostart event -> Remove the historical of the actions done by `am-okay` command
@@ -268,10 +268,10 @@ fi
 
 
 # Remove the `am-okay` temporary directory according the user
-if [[ -e "/tmp/.am-okay/$USER" ]]
+if [[ -e "/tmp/.$USER/am-okay" ]]
 then           
     #
-    rm -r "/tmp/.am-okay/$USER"
+    rm -fr "/tmp/.$USER/am-okay"
 fi
 
 
@@ -308,11 +308,11 @@ function alertNonEffectiveAction
 
 
                 #
-                if [[ -e "/tmp/.am-okay/$USER"  ]]
+                if [[ -e "/tmp/.$USER/am-okay"  ]]
                 then
                     
                     #
-                    rm -r "/tmp/.am-okay/$USER"
+                    rm -fr "/tmp/.$USER/am-okay"
                 fi
 
                 exit 1 
@@ -1088,10 +1088,10 @@ function pasteActionIn
 ### Creation some necessaries files/dirs -> start tag[e0]
 
 # Creation dirs where the error code will be sent
-if [[ ! ( -e "/tmp/.am-okay/$USER" ) ]]
+if [[ ! ( -e "/tmp/.$USER/am-okay" ) ]]
 then
-    mkdir -p "/tmp/.am-okay/$USER" 2> /dev/null
-    chmod 700 "/tmp/.am-okay/$USER" 2> /dev/null
+    mkdir -p "/tmp/.$USER/am-okay" 2> /dev/null
+    chmod 700 "/tmp/.$USER/am-okay" 2> /dev/null
 fi
 
 # Creation the root directory for the `am-okay` actions
