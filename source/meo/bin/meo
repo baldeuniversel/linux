@@ -1328,7 +1328,8 @@ then
         echo ""
     fi
 
-
+    #
+    echo -e ""
 
     # If the package manager was included among the package(s) to install, cast an alert 
     if [[ $counterFlagMng -gt 0 ]]
