@@ -522,7 +522,7 @@ function storeInslalledPkg
         if [[ $counterLine -eq 0 ]]
         then
             #
-            getNameOfPkg=` echo "$lineFile" | awk '{ split($0, array, ": " ); print array[length(array)] }' `
+            getNameOfPkg=` echo "$lineFile" | awk '{ split($0, array, ": " ); print array[length(array)] }' | tr -d "[[:space:]]" `
 
             #
             counterLine=$(( counterLine + 1 ))
@@ -531,7 +531,7 @@ function storeInslalledPkg
         elif [[ $counterLine -eq 1 ]]
         then
             #
-            getVersionOfPkg=` echo -e $lineFile | awk '{ split($0, array, ": " ); print array[length(array)] }' `
+            getVersionOfPkg=` echo -e $lineFile | awk '{ split($0, array, ": " ); print array[length(array)] }' | tr -d "[[:space:]]" `
 
             #
             counterLine=$(( counterLine + 1 ))
@@ -540,7 +540,7 @@ function storeInslalledPkg
         elif [[ $counterLine -eq 2 ]]
         then
             #
-            getPkgHash=` echo -e $lineFile | awk '{ split($0, array, ": " ); print array[length(array)] }' `
+            getPkgHash=` echo -e $lineFile | awk '{ split($0, array, ": " ); print array[length(array)] }' | tr -d "[[:space:]]" `
 
             #
             counterLine=$(( counterLine + 1 ))
@@ -552,8 +552,6 @@ function storeInslalledPkg
         if [[ -e "$meoListInstalledPkgsPure" ]] && [[ $counterLine -eq 3 ]]
         then
            
-            #echo "name: $getNameOfPkg, v: $getVersionOfPkg, h: $getPkgHash "
-
             # Check if the package does not exist in the target file `$meoListInstalledPkgsPure`, then ...
             if [[ ! ` cat $meoListInstalledPkgsPure | cut -d ":" -f 1 | grep -w "$getTheProgram" ` ]]
             then
