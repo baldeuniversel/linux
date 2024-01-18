@@ -6,7 +6,7 @@ set -e
 
 
 #####
-# Action for deploying the program (before deployment) 
+# Action allowing to properly use the program after deployment 
 #####
 
 # Check if bash is installed
@@ -55,22 +55,22 @@ then
     then
 
         # Allow to all the users belonging to `sudo` group to write to the target file
-	    sudo chmod 664 /sys/class/backlight/*/brightness 2> /dev/null
-        sudo chgrp sudo /sys/class/backlight/*/brightness 2> /dev/null
+	    chmod 664 /sys/class/backlight/*/brightness 2> /dev/null
+        chgrp sudo /sys/class/backlight/*/brightness 2> /dev/null
 
 
         #
         if [[ ! -e "/usr/bin" ]]
         then
-            sudo mkdir -p /usr/bin 2> /dev/null
+            mkdir -p /usr/bin 2> /dev/null
         fi
 
         #
         if [[ ! -e "/usr/share/lumus/doc/info" ]]
         then
-            sudo mkdir -p /usr/share/lumus/doc/info 2> /dev/null
+            mkdir -p /usr/share/lumus/doc/info 2> /dev/null
 	  
-	        sudo chmod -R 755 /usr/share/lumus/doc/info 2> /dev/null
+	        chmod -R 755 /usr/share/lumus/doc/info 2> /dev/null
         fi
 
         if [[ $? -eq 0 ]]
@@ -80,7 +80,7 @@ then
             echo "To see how to use this program, encode from your terminal -> lumus --help"
             echo ""
 	        echo ""
-            sudo echo "YES" >  /usr/share/lumus/doc/info/lumus_status 2> /dev/null
+            echo "YES" >  /usr/share/lumus/doc/info/lumus_status 2> /dev/null
 	        echo ""
 
             exit 0
