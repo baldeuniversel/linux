@@ -18,6 +18,7 @@ meoTmpDir="/tmp/$USER/.meo/github"
 meoInfoDir="/usr/lib/meo/library/info"
 meoListAvailablePkgsPure="/usr/lib/meo/library/info/list-available-packages-pure"
 meoListAvailablePkgs="/usr/lib/meo/library/info/list-available-packages"
+meoListInstalledPkgsPure="/usr/lib/meo/library/info/list-installed-packages-pure"
 
 getCurrentFileVersionPkgs="current-version-pkgs"
 getURL="https://github.com/baldeuniversel/linux.git"
@@ -39,6 +40,12 @@ then
     fi
 fi
 
+#
+if [[ -e "$meoListInstalledPkgsPure" ]]
+then
+    #
+    sed -i "/meo/d" "$meoListInstalledPkgsPure" 2> /dev/null
+fi
 
 
 
