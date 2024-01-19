@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 #
-set -euo pipefail
+set -uo pipefail
 
 
 #####
@@ -92,7 +92,7 @@ then
     mkdir -p "$meoTmpDir" 2> /dev/null
 else
     #
-    rm -r "$meoTmpDir"
+    rm -fr "$meoTmpDir" 2> /dev/null
 
     #
     mkdir -p "$meoTmpDir" 2> /dev/null
