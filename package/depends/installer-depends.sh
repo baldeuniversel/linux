@@ -5,7 +5,7 @@
 # Installer `vimizer` dependencies
 ###
 
-set -euo pipefail
+set -uo pipefail
 
 
 
@@ -70,6 +70,7 @@ function installer
             #
             apt-get update 
 
+            #
             counter=$(( counter + 1 ))
         fi
 
@@ -86,9 +87,12 @@ function installer
                 #
                 apt-get install "$pkg" --assume-yes
             fi
-        else        
-            #
-            apt-get install "$pkg" --assume-yes
+        else 
+            if [[ ! ( ` dpkg-query -l "$pkg" | grep -w -- "^ii" ` ) ]]
+            then
+                #
+                apt-get install "$pkg" --assume-yes
+            fi
         fi
     done
 
