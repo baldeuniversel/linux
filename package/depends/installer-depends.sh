@@ -83,7 +83,6 @@ function installer
             #
             if [[ ! ` which $pkg  ` ]]
             then
-                
                 #
                 apt-get install "$pkg" --assume-yes
             fi
@@ -93,7 +92,7 @@ function installer
             if [[ ! ` dpkg-query -l "$pkg" ` ]]
             then
                 #
-                apt-get install $pkg --assume-yes
+                apt-get install "$pkg" --assume-yes
             fi
         fi
     done
