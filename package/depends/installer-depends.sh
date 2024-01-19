@@ -86,14 +86,9 @@ function installer
                 #
                 apt-get install "$pkg" --assume-yes
             fi
-
         else        
             #
-            if [[ ! ` dpkg-query -l "$pkg" ` ]]
-            then
-                #
-                apt-get install "$pkg" --assume-yes
-            fi
+            apt-get install "$pkg" --assume-yes
         fi
     done
 
