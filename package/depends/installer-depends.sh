@@ -87,10 +87,10 @@ function installer
 
         else        
             #
-            if [[ ! ` dpkg-query -l "$pkg" | grep -w -- "$pkg" ` ]]
+            if [[ ! ( ` dpkg-query -l "$pkg" | grep -w -- "$pkg" ` ) ]]
             then
                 #
-                apt-get install $pkg --assume-yes
+                apt-get install "$pkg" --assume-yes
             fi
         fi
     done
