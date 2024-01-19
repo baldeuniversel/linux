@@ -201,7 +201,7 @@ meoPackages="$meoLibraryDir/packages"
 
 meoDocumentationDir="$meoRootDir/documentation"
 
-meoTmp="/tmp/.meo/$USER"
+meoTmp="/tmp/.$USER/meo"
 meoTmpDirGithub="$meoTmp/github"
 
 fileCodeReturnCommand="$meoTmp/code-return-command"
@@ -242,7 +242,7 @@ function truncateFileData
 /**
 * @overview The `removeDirFile` allows to remove a directory or file
 *
-* @param {string} $1 // The file or directory to remove
+* @param {string} $@ // The files or directories to remove
 *
 */
     '
@@ -873,7 +873,7 @@ function spinnerAnimation
     '
 function removeGitDownloadGitAction
 {
-    # Remove the packages in /tmp/.meo
+    # Remove the content the given content 
     if [[ -e "$meoTmpDirGithub/linux"  ]]
     then
         rm -rf "$meoTmpDirGithub/linux" 2> /null
@@ -902,7 +902,7 @@ function createDirPackageToInstall
 {
 
     # Declaration variables
-    local getDirPkgToInstall="/tmp/.meo/$USER/package-to-install"
+    local getDirPkgToInstall="/tmp/.$USER/meo/package-to-install"
 
 
 
@@ -939,6 +939,80 @@ function createDirPackageToInstall
     # Return the directory
     echo "$getDirPkgToInstall"
 
+}
+
+
+
+
+
+:   '
+/**
+* @overview The `getNewVersionPkg` allows to get the new version of a program from a defined file 
+*
+* @param {string} $1 // The name of the package
+*
+* @return {string} // The version of the given package will be returned
+*/
+    '
+function getNewVersionPkg
+{
+    # Declaration variables
+    local getTheNewVersionPkg=""
+    local getTheCurrentVersionFile="$meoListAvailablePkgsPure"
+    local getNameOfPkg="$1"
+
+    #
+    if [[ -e "$getTheCurrentVersionFile" ]]
+    then
+        #
+        getTheNewVersionPkg=` cat $getTheCurrentVersionFile | grep -A 2 -w $getNameOfPkg | head -n 2 \
+            | grep -w "version" | tail -n 1 | cut -d ":" -f 2 | tr -d "[[:space:]]" `
+
+        # Display/return
+        echo "$getTheNewVersionPkg"
+    else
+        echo "~"
+        echo -e "Something is wrong, a missing file \U001F9D0. Please reinstall \e[1;032mmeo\e[0m program "
+
+        exit 1
+    fi
+}
+
+
+
+
+
+:   '
+/**
+* @overview The `getNewHashPkg` allows to get the new hash of a program from a defined file 
+*
+* @param {string} $1 // The name of the package
+*
+* @return {string} // The hash of the given package will be returned
+*/
+    '
+function getNewHashPkg
+{
+    # Declaration variables
+    local getTheNewHashPkg=""
+    local getTheCurrentVersionFile="$meoListAvailablePkgsPure"
+    local getNameOfPkg="$1"
+
+    #
+    if [[ -e "$getTheCurrentVersionFile" ]]
+    then
+        #
+        getTheNewHashPkg=` cat $getTheCurrentVersionFile | grep -A 3 -w "$getNameOfPkg" | tail -n 2 \
+            | grep -w -- "pkg-md5sum" | cut -d ":" -f 2 | tr -d "[[:space:]]" `
+        
+        # Display/return
+        echo "$getTheNewHashPkg"
+    else
+        echo "~"
+        echo -e "Something is wrong, a missing file \U001F9D0. Please reinstall \e[1;032mmeo\e[0m program "
+
+        exit 1
+    fi
 }
 
 
@@ -1125,7 +1199,7 @@ then
 
     getCurrentBranchPkg="current-version-pkgs"
     getNameFileCurrentVersionPkg="current-version-pkgs"
-    getPathDirCurrentVersionPkg="/tmp/.meo/$USER/current-version"
+    getPathDirCurrentVersionPkg="/tmp/.$USER/meo/current-version"
 
     declare -a listOfDownloadedPkg=()
     declare -a listOfAlreadyInstalledPkg=()
@@ -1426,44 +1500,30 @@ if [[ $# -eq 1 ]] && [[ $1 == "update" ]]
 then
     
     # Declaration variables
-    local getNameOfPkg=""
-    local getVersionOfPkg=""
+    getNameOfPkg=""
+    
+    flagProgramInstall=""
+    flagProgramNewVersion=""
+    flagProgramNewRevision=""
 
-    local counterPkgInstalled=0
-    local counterPkgUpgradable=0
+    counterPkgNewRevision=0
+    counterPkgNewVersion=0
 
-    typeset -A tableInstalledPkgAndVersion
-    typeset -A tableRefreshedPkgAndVersion
-    typeset -A tablePkgUpgradable
-
+    typeset -A tablePkgToRefreshVersion
+    typeset -A tablePkgToRefreshRevision
 
     
-    # Load the installed packages and their version in an array
-    while IFS= read -r lineFile
-    do
-        getNameOfPkg=` echo "$lineFile" | cut -d ":" -f 1 `
-        getVersionOfPkg=` echo "$lineFile" | cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
 
-        #
-        which ` echo $getNameOfPkg ` &> /dev/null
+    # Check if the file containing the programs installed exists
+    if [[ ! ( -e "$meoListInstalledPkgsPure" ) ]]
+    then
+        echo "~"
+        echo -e "Something is wrong, a file is missing \U001F9D0. Please reinstall the \e[1;032mmeo\e[0m program "
 
-        if [[ $? -eq 0 ]]
-        then
-            #
-            if [[ ! ` echo "$getNameOfPkg" | grep -w "meo" ` ]]
-            then
-                #
-                tableInstalledPkgAndVersion[$getNameOfPkg]=$getVersionOfPkg
+        exit 1
+    fi
 
-                #
-                counterPkgInstalled=$(( counterPkgInstalled + 1 ))
-            fi
-        fi
-
-    done < $meoListInstalledPkgsPure
-
-
-
+    
     # Call the function 
     refreshAvailablePkgsFile &
 
@@ -1471,76 +1531,114 @@ then
     spinnerAnimation $!
 
 
-
-    # Load the refreshed/upgradable packages and their version in an array
+    
+    # Load the installed packages, their version(new or old) and the hash(new) in arrays
     while IFS= read -r lineFile
     do
-        getNameOfPkg=` echo "$lineFile" | cut -d ":" -f 1 `
-        getVersionOfPkg=` echo "$lineFile" | cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
+        getNameOfPkg=` echo "$lineFile" | cut -d ":" -f 1 | tr -d "[[:space:]]" `
 
-        #
-        which ` echo $getNameOfPkg ` &> /dev/null
+        # Call the functions
+        flagProgramInstall=` isPackageInstalled $getNameOfPkg `
+        flagProgramNewVersion=` isNewVersionOfPkgAvailable $getNameOfPkg `
+        flagProgramNewRevision=` isNewRevisionOfPkgAvailable $getNameOfPkg `
 
-        if [[ $? -eq 0 ]]
+        
+        # If there is a new version of the program, then ...
+        if [[ "$flagProgramInstall" == "true" ]] && [[ "$flagProgramNewVersion" == "true" ]]
         then
+            # Call the function
+            getNewVersionProgram=` getNewVersionPkg $getNameOfPkg `
+            
+            # Call the function
+            getNewHashProgram=` getNewHashPkg $getNameOfPkg `
+            
+            # Save package info
+            tablePkgToRefreshVersion[$getNameOfPkg]="$getNameOfPkg : $getNewVersionProgram : $getNewHashProgram"
+
             #
-            if [[ !  ` echo "$getNameOfPkg" | grep -w "meo" ` ]]
-            then
-                tableRefreshedPkgAndVersion[$getNameOfPkg]=$getVersionOfPkg
-            fi
+            counterPkgNewVersion=$(( counterPkgNewVersion + 1 ))
+
+        elif [[ "$flagProgramNewRevision" == "true" ]] && [[ "$flagProgramInstall" == "true" ]]
+        then
+            # Call the function
+            getVersionProgram=` getNewVersionPkg $getNameOfPkg `
+            
+            # Call the function
+            getNewHashProgram=` getNewHashPkg $getNameOfPkg `
+            
+            # Save package info
+            tablePkgToRefreshRevision[$getNameOfPkg]="$getNameOfPkg : $getVersionProgram : $getNewHashProgram"
+
+            #
+            counterPkgNewRevision=$(( counterPkgNewRevision + 1 ))
         fi
 
-    done < $meoListAvailablePkgsPure
-
-    
-    #
-    for nameOfInsPkg in ${(k)tableInstalledPkgAndVersion}
-    do 
-        for nameOfRefreshPkg in ${(k)tableRefreshedPkgAndVersion}
-        do
-            if [[ "$nameOfInsPkg" == "$nameOfRefreshPkg" ]]
-            then
-                if [[ $tableInstalledPkgAndVersion[$nameOfInsPkg] != $tableRefreshedPkgAndVersion[$nameOfRefreshPkg] ]]
-                then
-                    #
-                    counterPkgUpgradable=$(( counterPkgUpgradable + 1 ))
-                    
-                    #
-                    local getVersionInsPkg="$tableInstalledPkgAndVersion[$nameOfInsPkg]"
-                    local getVersionRefreshPkg="$tableRefreshedPkgAndVersion[$nameOfRefreshPkg]" 
-
-                    #
-                    tablePkgUpgradable[$nameOfInsPkg]="$getVersionInsPkg : \e[36;1m$getVersionRefreshPkg\e[0m"
-                fi
-            fi
-        done
-    done
-
-
-    #
-    if [[ $counterPkgUpgradable -gt 0 ]]
-    then
-        echo -e "~"
-        echo -e "List of packages can be upgraded"
-        echo -e ""
-
-        for namePkgUpgradable in ${(k)tablePkgUpgradable}
-        do
-            echo -e "\e[32;1m$namePkgUpgradable\e[0m $tablePkgUpgradable[$namePkgUpgradable]"
-        done
-    
-        #
-        echo -e ""
-        echo -e ""
-        echo -e "\e[32;1m$counterPkgUpgradable\e[0m package(s) upgradable "
-
-    else
-        echo -e "~"
-        echo -e "The job is clean, the packages are up to date \U002705 "
-    fi
-
+    done < $meoListInstalledPkgsPure
    
 
+    
+    # The action of displaying the list of packages that may be up to date
+    if [[ $counterPkgNewVersion -gt 0 ]]
+    then
+        echo ""
+        echo "~"
+        echo -e "Here the list of package(s) can be updated \e[1;036m\U002B06\e[0m "
+        echo -e ""
+
+        #
+        for key value in ${(kv)tablePkgToRefreshVersion}
+        do
+            getTheVersionPkg=` echo "$value" | awk -F " : " '{print $2}' `
+            getTheHashPkg=` echo "$value" | awk -F " : " '{print $3}' `
+            getThePkg=` echo "$key" `
+            
+            #
+            echo "$getThePkg v($getTheVersionPkg) , hash($getTheHashPkg)"
+        done
+    fi
+
+
+    
+    # The action of displaying the list of packages that may be reviewed
+    if [[ $counterPkgNewRevision -gt 0 ]]
+    then
+        echo ""
+        echo ""
+        echo "~"
+
+        #
+        if [[ $counterPkgNewRevision -eq 1 ]]
+        then
+            echo -e "A review of this package is available \U001F4DD "
+        else 
+            echo -e "A review of these packages are available \U001F4DD "
+        fi
+        
+        #
+        echo -e ""
+
+        #
+        for key value in ${(kv)tablePkgToRefreshRevision}
+        do
+            getTheVersionPkg=` echo "$value" | awk -F " : " '{print $2}' `
+            getTheHashPkg=` echo "$value" | awk -F " : " '{print $3}' `
+            getThePkg=` echo "$key" `
+            
+            #
+            echo "$getThePkg v($getTheVersionPkg) , hash($getTheHashPkg)"
+        done
+    fi
+    
+
+    #
+    if [[ $counterPkgNewRevision -eq 0 ]] && [[ $counterPkgNewVersion -eq 0 ]]
+    then
+        echo -e "~"
+        echo -e "All packages installed by \e[1;032mmeo\e[0m are up to date \U002705 "
+    fi
+
+
+   
     # Call the function
     removeGitDownloadGitAction
 
@@ -1568,267 +1666,204 @@ if [[ $# -eq 1 ]] && [[ $1 == "upgrade" ]]
 then
     
     # Declaration variables
-    local getNameOfPkg=""
-    local getVersionOfPkg=""
-    getDebPkg=""
-    local fileGithubAction="$meoTmpDirGithub/github-action"
+    getNameOfPkg=""
+    
+    flagProgramInstall=""
+    flagProgramNewVersion=""
+    flagProgramNewRevision=""
+    theTmpDirPkgs="/tmp/.$USER/meo/package-dir"
 
-    local counterPkgInstalled=0
-    local counterPkgUpgradable=0
+    counterPkgNewRevision=0
+    counterPkgNewVersion=0
 
-    declare -a listOfUpgradedPkg=()
-
-    typeset -A tableInstalledPkgAndVersion
-    typeset -A tableRefreshedPkgAndVersion
-    typeset -A tablePkgUpgradable 
+    typeset -A tablePkgToRefreshVersion
+    typeset -A tablePkgToRefreshRevision
 
     
 
-    # Load the installed packages and their version in an array
-    while IFS= read -r lineFile
-    do
-        getNameOfPkg=` echo "$lineFile" | cut -d ":" -f 1 `
-        getVersionOfPkg=` echo "$lineFile" | cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
+    # Check if the file containing the programs installed exists
+    if [[ ! ( -e "$meoListInstalledPkgsPure" ) ]]
+    then
+        echo "~"
+        echo -e "Something is wrong, a file is missing \U001F9D0. Please reinstall the \e[1;032mmeo\e[0m program "
+
+        exit 1
+    fi
+
+    # Create a temporary directory where the content of packages will be sent
+    if [[ ! -e "$theTmpDirPkgs" ]]
+    then
+        #
+        mkdir -p "$theTmpDirPkgs" 2> /dev/null
 
         #
-        which ` echo $getNameOfPkg ` &> /dev/null
-
-        if [[ $? -eq 0 ]]
+        if [[ $? -ne 0 ]]
         then
-            ##
-            if [[ ! ` echo "$getNameOfPkg" | grep -w "meo" ` ]]
-            then
-                #
-                tableInstalledPkgAndVersion[$getNameOfPkg]=$getVersionOfPkg
-                #
-                counterPkgInstalled=$(( counterPkgInstalled + 1 ))
-            fi
+            echo "~"
+            echo -e "Something is wrong \U001F9D0, make sure you have the right to write in [ /tmp ]"
+
+            exit 1
+        fi
+    fi
+
+    
+    # Call the function 
+    refreshAvailablePkgsFile &
+
+    # Call the function
+    spinnerAnimation $!
+
+
+    
+    # Load the installed packages, their version(new or old) and the hash(new) in arrays
+    while IFS= read -r lineFile
+    do
+        getNameOfPkg=` echo "$lineFile" | cut -d ":" -f 1 | tr -d "[[:space:]]" `
+
+        # Call the functions
+        flagProgramInstall=` isPackageInstalled $getNameOfPkg `
+        flagProgramNewVersion=` isNewVersionOfPkgAvailable $getNameOfPkg `
+        flagProgramNewRevision=` isNewRevisionOfPkgAvailable $getNameOfPkg `
+
+        
+        # If there is a new version of the program, then ...
+        if [[ "$flagProgramInstall" == "true" ]] && [[ "$flagProgramNewVersion" == "true" ]]
+        then
+            # Call the function
+            getNewVersionProgram=` getNewVersionPkg $getNameOfPkg `
             
+            # Call the function
+            getNewHashProgram=` getNewHashPkg $getNameOfPkg ` 
+            
+            # Call the function
+            cloneSingleBranchGit "$getNameOfPkg" &
+
+            # Call the function
+            spinnerAnimation $!
+
+            #
+            echo -e "\033[F\033[K"
+
+            #
+            getCurrentPkg=` find "$meoTmpDirGithub/linux/package" -name "$getNameOfPkg"  2> /dev/null `
+
+            #
+            mv "$getCurrentPkg" "$theTmpDirPkgs" 
+
+
+
+            # Save package info
+            tablePkgToRefreshVersion[$getNameOfPkg]="$getNameOfPkg : $getNewVersionProgram : $getNewHashProgram"
+
+            #
+            counterPkgNewVersion=$(( counterPkgNewVersion + 1 ))
+
+        elif [[ "$flagProgramNewRevision" == "true" ]] && [[ "$flagProgramInstall" == "true" ]]
+        then
+            # Call the function
+            getVersionProgram=` getNewVersionPkg $getNameOfPkg `
+            
+            # Call the function
+            getNewHashProgram=` getNewHashPkg $getNameOfPkg `
+
+            # Call the function
+            cloneSingleBranchGit "$getNameOfPkg" &
+
+            # Call the function
+            spinnerAnimation $!
+
+            #
+            echo -e "\033[F\033[K"
+
+            #
+            getCurrentPkg=` find "$meoTmpDirGithub/linux/package" -name "$getNameOfPkg"  2> /dev/null `
+
+            #
+            mv "$getCurrentPkg" "$theTmpDirPkgs" 
+
+        
+
+            # Save package info
+            tablePkgToRefreshRevision[$getNameOfPkg]="$getNameOfPkg : $getVersionProgram : $getNewHashProgram"
+
+            #
+            counterPkgNewRevision=$(( counterPkgNewRevision + 1 ))
         fi
 
     done < $meoListInstalledPkgsPure
-
-
-
-    # Call the function 
-    refreshAvailablePkgsFile &
-
-    # Call the function
-    spinnerAnimation $!
-
-
-
-    # Load the refreshed/upgradable packages and their version in an array
-    while IFS= read -r lineFile
-    do
-        getNameOfPkg=` echo "$lineFile" | cut -d ":" -f 1 `
-        getVersionOfPkg=` echo "$lineFile" | cut -d ":" -f 2 | cut -d "(" -f 2 | cut -d ")" -f 1 `
-
-        #
-        which ` echo $getNameOfPkg ` &> /dev/null
-
-        if [[ $? -eq 0 ]]
-        then
-            #
-            if [[ ! ` echo "$getNameOfPkg" | grep -w -- "meo" ` ]]
-            then
-                tableRefreshedPkgAndVersion[$getNameOfPkg]=$getVersionOfPkg
-            fi
-        fi
-
-    done < $meoListAvailablePkgsPure
-
+   
     
+
     #
-    for nameOfInsPkg in ${(k)tableInstalledPkgAndVersion}
-    do 
-        for nameOfRefreshPkg in ${(k)tableRefreshedPkgAndVersion}
-        do
-            if [[ "$nameOfInsPkg" == "$nameOfRefreshPkg" ]]
-            then
-                if [[ $tableInstalledPkgAndVersion[$nameOfInsPkg] != $tableRefreshedPkgAndVersion[$nameOfRefreshPkg] ]]
-                then
-                    #
-                    counterPkgUpgradable=$(( counterPkgUpgradable + 1 ))
-                    
-                    #
-                    local getVersionInsPkg="$tableInstalledPkgAndVersion[$nameOfInsPkg]"
-                    local getVersionRefreshPkg="$tableRefreshedPkgAndVersion[$nameOfRefreshPkg]" 
-
-                    #
-                    tablePkgUpgradable[$nameOfInsPkg]="$getVersionInsPkg : \e[36;1m$getVersionRefreshPkg\e[0m"
-                fi
-            fi
-        done
-    done
-
-    
-
-    # Upgrading
-    if [[ $counterPkgUpgradable -gt 0 ]]
+    if [[ -e "$theTmpDirPkgs" ]]
     then
         #
-        for namePkgUpgradable in ${(k)tablePkgUpgradable}
+        echo ""
+    fi
+
+    
+    # The action of displaying the list of packages that may be up to date
+    if [[ $counterPkgNewVersion -gt 0 ]]
+    then
+        echo ""
+        echo "~"
+        echo -e "Here the list of package(s) can be updated \e[1;036m\U002B06\e[0m "
+        echo -e ""
+
+        #
+        for key value in ${(kv)tablePkgToRefreshVersion}
         do
-            local getNamePkgUpgradable=` echo $namePkgUpgradable | tr -d "[[:space:]]" `
-
-            if [[ "$getNamePkgUpgradable" != "meo" ]]
-            then
-                
-                #
-                getDebPkg=$( find "$meoTmpDirGithub/linux" -name "$getNamePkgUpgradable*" -type f 2> /dev/null )
-                
-                #
-                if [[ -e "$getDebPkg" ]] && [[ ! ` echo "$getNamePkgUpgradable" | grep -w -- "meo" ` ]]
-                then
-                    
-                    #
-                    dpkg --install "$getDebPkg"
-
-                    if [[ $? -eq 0 ]]
-                    then
-                        listOfUpgradedPkg+=$getNamePkgUpgradable
-
-                        # Call the function
-                        storeInslalledPkg $getNamePkgUpgradable
-                    fi
-                fi
-            fi    
+            getTheVersionPkg=` echo "$value" | awk -F " : " '{print $2}' `
+            getTheHashPkg=` echo "$value" | awk -F " : " '{print $3}' `
+            getThePkg=` echo "$key" `
+            
+            #
+            echo "$getThePkg v($getTheVersionPkg) , hash($getTheHashPkg)"
         done
-    else
+    fi
+
+
+    
+    # The action of displaying the list of packages that may be reviewed
+    if [[ $counterPkgNewRevision -gt 0 ]]
+    then
+        echo ""
+        echo ""
+        echo "~"
+
+        #
+        if [[ $counterPkgNewRevision -eq 1 ]]
+        then
+            echo -e "A review of this package is available \U001F4DD "
+        else 
+            echo -e "A review of these packages are available \U001F4DD "
+        fi
+        
+        #
+        echo -e ""
+
+        #
+        for key value in ${(kv)tablePkgToRefreshRevision}
+        do
+            getTheVersionPkg=` echo "$value" | awk -F " : " '{print $2}' `
+            getTheHashPkg=` echo "$value" | awk -F " : " '{print $3}' `
+            getThePkg=` echo "$key" `
+            
+            #
+            echo "$getThePkg v($getTheVersionPkg) , hash($getTheHashPkg)"
+        done
+    fi
+    
+
+    #
+    if [[ $counterPkgNewRevision -eq 0 ]] && [[ $counterPkgNewVersion -eq 0 ]]
+    then
         echo -e "~"
-        echo -e "The job is clean, the packages are up to date \U002705 "
+        echo -e "All packages installed by \e[1;032mmeo\e[0m are up to date \U002705 "
     fi
 
 
-    # List of package(s) that has been upgraded 
-    if [[ $counterPkgUpgradable -gt 0 ]]
-    then
-        echo ""
-        echo "~"
-        
-        #
-        for namePkgUpgraded in ${listOfUpgradedPkg[@]}
-        do
-            local getNamePkgUpgraded=` echo $namePkgUpgraded | tr -d "[[:space:]]" `
-
-            if [[ "$getNamePkgUpgraded" != "meo" ]]
-            then
-                echo -e "\e[32;1m$getNamePkgUpgraded\e[0m upgraded \U002705 "
-            fi    
-        done
-    fi
-        
-
-
-    # Call the function
-    removeGitDownloadGitAction
- 
-    exit 0
-
-elif [[ $# -gt 1 ]] && [[ $1 == "upgrade" ]]
-then
-    
-    # Declaration variables
-    local flagPkgFound=""
-    local flagPkgNewVersionFound=""
-    local getDebPkg=""
-    local counterPkgUpgraded=0
-
-    declare -a listOfUpgradedPkg=()
-
-
-
-    # Call the function 
-    refreshAvailablePkgsFile &
-
-    # Call the function
-    spinnerAnimation $!
-
-    # Skip the `upgrade` option
-    shift 1
-
-
-
-    #
-    for givenPkg in $@
-    do
-        flagPkgFound=$( isPackageInstalled $givenPkg )
-
-        if [[ $flagPkgFound == "true"  ]] && [[ ! ` echo "$givenPkg" | grep -w -- "meo" ` ]]
-        then
-            flagPkgNewVersionFound=` isNewVersionOfPkgAvailable $givenPkg `
-
-            #
-            if [[ $flagPkgNewVersionFound == "true" ]]
-            then
-                
-                #
-                getDebPkg=$( find "$meoTmpDirGithub/linux" -name "$givenPkg*" -type f 2> /dev/null )
-                
-                if [[ -e "$getDebPkg" ]] && [[ ! ` echo "$givenPkg" | grep -w -- "meo" ` ]]
-                then
-                
-                    #
-                    dpkg --install "$getDebPkg"
-
-                    if [[ $? -eq 0 ]]
-                    then
-
-                        listOfUpgradedPkg+=$givenPkg
-
-                        # Call the function
-                        storeInslalledPkg $givenPkg
-                    
-                        #
-                        counterPkgUpgraded=$(( counterPkgUpgraded + 1 ))
-                    fi
-                fi
-
-            else
-                echo ""
-                echo "~"
-                echo -e "The program \e[36;1m$givenPkg\e[0m is already up to date \U002705 "
-            fi
-
-        elif [[ $flagPkgFound == "true"  ]] && [[ ` echo "$givenPkg" | grep -w -- "meo" ` ]]
-        then
-
-            #
-            echo ""
-            echo "~"
-            echo "You can not upgrade the \e[32;1mmeo\e[0m program itself 🚨"
-                    
-            #
-            continue
-
-        else
-            echo ""
-            echo "~"
-            echo -e "The package \e[32;1m$givenPkg\e[0m is not installed \U001F9D0 " 
-        fi
-    done
-
-
-
-    # List of package(s) that has been upgraded 
-    if [[ $counterPkgUpgraded -gt 0 ]]
-    then
-        echo ""
-        echo "~"
-        
-        #
-        for namePkgUpgraded in ${listOfUpgradedPkg[@]}
-        do
-            local getNamePkgUpgraded=` echo $namePkgUpgraded | tr -d "[[:space:]]" `
-
-            if [[ "$getNamePkgUpgraded" != "meo" ]]
-            then
-                echo -e "\e[32;1m$getNamePkgUpgraded\e[0m upgraded \U002705 "
-            fi    
-        done
-    fi
-
+   
     # Call the function
     removeGitDownloadGitAction
 
