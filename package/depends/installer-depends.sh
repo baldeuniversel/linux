@@ -5,7 +5,7 @@
 # Installer `am-okay` dependencies
 ###
 
-set -euo pipefail
+set -uo pipefail
 
 
 
