@@ -5,7 +5,7 @@
 # Installer `vimizer` dependencies
 ###
 
-set -uo pipefail
+set -euo pipefail
 
 
 
