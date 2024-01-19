@@ -70,6 +70,7 @@ function installer
             #
             apt-get update 
 
+            #
             counter=$(( counter + 1 ))
         fi
 
@@ -78,9 +79,8 @@ function installer
         if [[ "$pkg" != "coreutils"  ]] && [[ "$pkg" != "util-linux" ]] && [[ "$pkg" != "software-properties-common" ]]
         then
             #
-            if [[ ! ` which $pkg  ` ]]
+            if [[ ! ( ` which $pkg  ` ) ]]
             then
-                
                 #
                 apt-get install "$pkg" --assume-yes
             fi
