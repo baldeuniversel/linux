@@ -5,7 +5,7 @@
 # Installer `lumus` dependencies
 ###
 
-set -euo pipefail
+set -uo pipefail
 
 
 
@@ -80,14 +80,13 @@ function installer
             #
             if [[ ! ` which $pkg  ` ]]
             then
-                
                 #
                 apt-get install "$pkg" --assume-yes
             fi
 
         else        
             #
-            if [[ ! ( ` dpkg-query -l "$pkg" | grep -w -- "$pkg" ` ) ]]
+            if [[ ! ( ` dpkg-query -l "$pkg" | grep -w -- "^ii" ` ) ]]
             then
                 #
                 apt-get install "$pkg" --assume-yes
