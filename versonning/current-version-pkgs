@@ -3,7 +3,7 @@
     {
         package: am-okay ,
         version: 3.1.0 ,
-        pkg-md5sum: 5bc7ec47dd435da437e92823014c98b6
+        pkg-md5sum: 5bc7ec47dd435da437e92823014c98b4
     },
 
 
@@ -16,7 +16,7 @@
 
     {
         package: vimizer , 
-        version: 1.0.5 ,
+        version: 1.0.4 ,
         pkg-md5sum: 5b16983dd78de933bdbbb86c1935ab2c
     },
 
