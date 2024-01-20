@@ -1659,7 +1659,6 @@ fi
 
 
 
-
 ### Action based on the `upgrade` option -> start tag[u1]
 
 if [[ $# -eq 1 ]] && [[ $1 == "upgrade" ]]
@@ -1672,12 +1671,22 @@ then
     flagProgramNewVersion=""
     flagProgramNewRevision=""
     theTmpDirPkgs="/tmp/.$USER/meo/package-dir"
+    
+    getCurrentBranchPkg="current-version-pkgs"
+    getNameFileCurrentVersionPkg="current-version-pkgs"
+    getPathDirCurrentVersionPkg="/tmp/.$USER/meo/current-version"
+
+    counterPkgNewVersion=0
+    counterPkgNewVersionInstalled=0
 
     counterPkgNewRevision=0
-    counterPkgNewVersion=0
+    counterPkgNewRevisionInstalled=0
 
     typeset -A tablePkgToRefreshVersion
+    typeset -A tablePkgToRefreshVersionInstalled
+
     typeset -A tablePkgToRefreshRevision
+    typeset -A tablePkgToRefreshRevisionInstalled
 
     
 
@@ -1713,8 +1722,54 @@ then
     # Call the function
     spinnerAnimation $!
 
+    # Delete the displayed lines (just above)
+    tput cuu1 
+    tput cuu1
+    tput cuu1 
+    tput el
+    tput el
 
+
+
+    # Call the function
+    cloneSingleBranchGit "$getCurrentBranchPkg" &
+
+    # Call the function
+    spinnerAnimation $!
+
+    # Delete the displayed lines (just above)
+    tput cuu1 
+    tput cuu1 
+    tput cuu1 
+    tput el
+    tput el
+
+
+                    
+    # Create a temporary directory where the versions of packages will be sent
+    if [[ ! -e "$getPathDirCurrentVersionPkg" ]]
+    then
+        mkdir -p "$getPathDirCurrentVersionPkg" 2> /dev/null
+    else
+        #
+        rm -rf "$getPathDirCurrentVersionPkg" 2> /dev/null
     
+        #
+        mkdir -p "$getPathDirCurrentVersionPkg" 2> /dev/null
+    fi
+    
+    # Move the file containing the package versions in ...
+    find  "$meoTmpDirGithub/linux/versonning" -name "$getNameFileCurrentVersionPkg" -type f -exec \
+        mv {} "$getPathDirCurrentVersionPkg"  2> /dev/null \;
+
+    # Get the file containing the package versions 
+    getTheFileCurrentVersionPkg=` find "$getPathDirCurrentVersionPkg" -name "$getNameFileCurrentVersionPkg" -type f 2> /dev/null `
+
+
+
+    # Set the cursor on off
+    setterm --cursor off
+
     # Load the installed packages, their version(new or old) and the hash(new) in arrays
     while IFS= read -r lineFile
     do
@@ -1741,16 +1796,18 @@ then
             # Call the function
             spinnerAnimation $!
 
-            #
-            echo -e "\033[F\033[K"
+            # Delete the displayed lines (just above)
+            tput cuu1 
+            tput cuu1 
+            tput cuu1 
+            tput el
+            tput el
 
             #
-            getCurrentPkg=` find "$meoTmpDirGithub/linux/package" -name "$getNameOfPkg"  2> /dev/null `
+            getCurrentPkg=` find "$meoTmpDirGithub/linux/package" -name "$getNameOfPkg*.deb"  2> /dev/null `
 
             #
             mv "$getCurrentPkg" "$theTmpDirPkgs" 
-
-
 
             # Save package info
             tablePkgToRefreshVersion[$getNameOfPkg]="$getNameOfPkg : $getNewVersionProgram : $getNewHashProgram"
@@ -1772,16 +1829,18 @@ then
             # Call the function
             spinnerAnimation $!
 
-            #
-            echo -e "\033[F\033[K"
+            # Delete the displayed lines (just above)
+            tput cuu1 
+            tput cuu1
+            tput cuu1
+            tput el
+            tput el
 
             #
-            getCurrentPkg=` find "$meoTmpDirGithub/linux/package" -name "$getNameOfPkg"  2> /dev/null `
+            getCurrentPkg=` find "$meoTmpDirGithub/linux/package" -name "$getNameOfPkg*.deb"  2> /dev/null `
 
             #
             mv "$getCurrentPkg" "$theTmpDirPkgs" 
-
-        
 
             # Save package info
             tablePkgToRefreshRevision[$getNameOfPkg]="$getNameOfPkg : $getVersionProgram : $getNewHashProgram"
@@ -1791,27 +1850,91 @@ then
         fi
 
     done < $meoListInstalledPkgsPure
-   
-    
+  
 
-    #
+
+    # Set the cursor on on
+    setterm --cursor on
+
+    # Process of installation
     if [[ -e "$theTmpDirPkgs" ]]
     then
+        # Declaration variables
+        fileOfPkgReadyToInstall="$theTmpDirPkgs/file-path-deb-pkg"
+
+        # Save the path of packages that are ready to install in a file
+        find "$theTmpDirPkgs" -name "*.deb" -type f > $fileOfPkgReadyToInstall 2> /dev/null
+
+
         #
-        echo ""
+        while IFS= read -r lineFile 
+        do
+            #
+            echo ""
+            echo "~"
+
+            # Install the `deb` package
+            dpkg --install "$lineFile"
+
+            # Check if the package was properly installed
+            if [[ $? -eq 0 ]]
+            then
+                
+                # Get the name of the package
+                getThePkgName=` echo "$lineFile" | awk -F "/" '{print $NF}' | awk -F "-" '{sub(/-[^-]*$/, ""); print}' `
+                
+                # Call the function
+                storeInslalledPkg "$getTheFileCurrentVersionPkg" "$getThePkgName"
+
+                # Save the installed package in an array -> source array `tablePkgToRefreshVersion`
+                for key value in ${(kv)tablePkgToRefreshVersion}
+                do
+                    if [[ ` echo "$key" | tr -d "[[:space:]]" ` == ` echo "$getThePkgName" | tr -d "[[:space:]]" ` ]]
+                    then
+                        #
+                        tablePkgToRefreshVersionInstalled[$getThePkgName]="$value"
+                        
+                        #
+                        counterPkgNewVersionInstalled=$(( counterPkgNewVersionInstalled + 1 ))
+
+                        # Stop the loop
+                        break 
+                    fi
+                done
+
+
+                # Save the installed package in an array -> source array `tablePkgToRefreshRevision`
+                for key value in ${(kv)tablePkgToRefreshRevision}
+                do
+                    if [[ ` echo "$key" | tr -d "[[:space:]]" ` == ` echo "$getThePkgName" | tr -d "[[:space:]]" ` ]]
+                    then
+                        #
+                        tablePkgToRefreshRevisionInstalled[$getThePkgName]="$value"
+                        
+                        #
+                        counterPkgNewRevisionInstalled=$(( counterPkgNewRevisionInstalled + 1 ))
+
+                        # Stop the loop
+                        break 
+                    fi
+                done
+            fi
+
+        done < $fileOfPkgReadyToInstall
+
     fi
 
     
-    # The action of displaying the list of packages that may be up to date
-    if [[ $counterPkgNewVersion -gt 0 ]]
+    # The action of displaying the list of packages which version has been updated
+    if [[ $counterPkgNewVersionInstalled -gt 0 ]]
     then
         echo ""
         echo "~"
-        echo -e "Here the list of package(s) can be updated \e[1;036m\U002B06\e[0m "
+        echo -e "Here the list of package(s) whose version has been \e[1;035mupdated\e[0m \e[1;036m\U002B06\e[0m "
         echo -e ""
 
         #
-        for key value in ${(kv)tablePkgToRefreshVersion}
+        for key value in ${(kv)tablePkgToRefreshVersionInstalled}
         do
             getTheVersionPkg=` echo "$value" | awk -F " : " '{print $2}' `
             getTheHashPkg=` echo "$value" | awk -F " : " '{print $3}' `
@@ -1824,26 +1947,19 @@ then
 
 
     
-    # The action of displaying the list of packages that may be reviewed
-    if [[ $counterPkgNewRevision -gt 0 ]]
+    # The action of displaying the list of packages that have been reviewed
+    if [[ $counterPkgNewRevisionInstalled -gt 0 ]]
     then
         echo ""
         echo ""
         echo "~"
 
         #
-        if [[ $counterPkgNewRevision -eq 1 ]]
-        then
-            echo -e "A review of this package is available \U001F4DD "
-        else 
-            echo -e "A review of these packages are available \U001F4DD "
-        fi
-        
-        #
+        echo -e "Here the list of packages that have been \e[1;035mreviewed\e[0m \U001F4DD "
         echo -e ""
 
         #
-        for key value in ${(kv)tablePkgToRefreshRevision}
+        for key value in ${(kv)tablePkgToRefreshRevisionInstalled}
         do
             getTheVersionPkg=` echo "$value" | awk -F " : " '{print $2}' `
             getTheHashPkg=` echo "$value" | awk -F " : " '{print $3}' `
@@ -1855,17 +1971,37 @@ then
     fi
     
 
-    #
+    # Some checking
     if [[ $counterPkgNewRevision -eq 0 ]] && [[ $counterPkgNewVersion -eq 0 ]]
     then
         echo -e "~"
         echo -e "All packages installed by \e[1;032mmeo\e[0m are up to date \U002705 "
+    fi
+    #
+    if [[ $counterPkgNewVersion -ne $counterPkgNewVersionInstalled ]]
+    then
+        echo ""
+        echo -e "~"
+        echo -e "At least one package has not been \e[1;035mupdated\e[0m by the \e[1;032mmeo\e[0m program \U001F9D0 ."
+        echo -e "Execute the following command to see this or these packages ."
+        echo -e "\e[1;032msudo meo update\e[0m "
+    fi
+    #
+    if [[ $counterPkgNewRevision -ne $counterPkgNewRevisionInstalled ]]
+    then
+        echo ""
+        echo -e "~"
+        echo -e "At least one package could not be \e[1;035mreviewed\e[0m by the \e[1;032mmeo\e[0m program \U001F9D0 ."
+        echo -e "Execute the following command to see this or these packages ."
+        echo -e "\e[1;032msudo meo update\e[0m "
     fi
 
 
    
     # Call the function
     removeGitDownloadGitAction
+    #
+    removeDirFile "$theTmpDirPkgs" "$getPathDirCurrentVersionPkg"
 
     exit 0
 fi
