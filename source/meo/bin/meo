@@ -626,6 +626,8 @@ function isPackageInstalled
 * 
 * @param {string} $1 // The package to verify the existence
 * @param {int} $2 // The counter (for the iteration)
+* @param {string | optional} $2 // A parameter flag allowing to call the function  `refreshAvailablePkgsFile`
+*                               or not
 *
 */
     '
@@ -635,11 +637,12 @@ function isPackageAvailable
     local getPackage=""
     local getFirstParam="$1"
     local getSecondParam="$2"
+    local getThirdParam="$3"
 
     
 
     #
-    if [[ $getSecondParam -lt 1 ]]
+    if [[ $getSecondParam -lt 1 ]] && [[ $getThirdParam == "yes" ]]
     then
         # Call the function
         $( refreshAvailablePkgsFile )
@@ -1239,7 +1242,7 @@ then
         for packageUP in $@
         do
             #
-            flagPackageFound=` isPackageAvailable $packageUP $counterInputPkg `
+            flagPackageFound=` isPackageAvailable "$packageUP" $counterInputPkg "yes" `
             flagPackageInstalledFound=` isPackageInstalled $packageUP  `
     
             #
@@ -2328,7 +2331,9 @@ then
 
     fi
 
-
+    
+    #
+    echo ""
     
     # Some checking
     if [[ $counterPkgNewRevision -eq 0 ]] && [[ $counterPkgNewVersion -eq 0 ]] && [[ $counterProgramNotFound -eq 0 ]]
@@ -2592,7 +2597,7 @@ then
     for pkgToDownload in $@
     do
         #
-        flagPkgFound=` isPackageAvailable $pkgToDownload $counterInputPkg ` 
+        flagPkgFound=` isPackageAvailable $pkgToDownload $counterInputPkg "yes" ` 
 
         #
         if [[ $flagPkgFound == "true" ]]
@@ -2808,7 +2813,7 @@ then
     for pkgSearched in $@
     do
         #
-        flagPkgFound=` isPackageAvailable $pkgSearched $counterInputPkg `
+        flagPkgFound=` isPackageAvailable "$pkgSearched" $counterInputPkg "yes" `
         getVersionOfPkg=` getNewVersionPkg $pkgSearched `
         getHashPkg=` getNewHashPkg $pkgSearched `
 
@@ -2825,7 +2830,7 @@ then
         else
             echo ""
             echo "~"
-            echo -e "The package \e[32;1m$pkgSearched\e[0m does not exist in the \e[32;1mmeo\e[0m repository \U001F9D0 "
+            echo -e "The package \e[031;1m$pkgSearched\e[0m does not exist in the \e[32;1mmeo\e[0m repository \U001F9D0 "
         fi
 
         #
@@ -2856,8 +2861,10 @@ then
 
     fi
 
+
     # Call the function
     removeGitDownloadGitAction
+    removeDirFile "$meoTmpDirGithub/linux"
 
     exit 0
 
@@ -2912,11 +2919,14 @@ then
         else
             echo ""
             echo "~"
-            echo -e "The package \e[32;1m$givenPkg\e[0m is not installed \U001F9D0 "
+            echo -e "The package \e[031;1m$givenPkg\e[0m is not installed \U001F9D0 "
         fi
 
     done
 
+
+    # Delete the given directory
+    removeDirFile "$meoTmpDirGithub/linux"
 
     #
     exit 0
@@ -2927,8 +2937,7 @@ else
     then
 
         echo "~"
-        echo -e "With the \e[36;1m$1\e[0m option, you have to give the package(s) whose info "
-        echo -e "must be displayed \U001F917 "
+        echo -e "With the \e[36;1m$1\e[0m option, you have to give the package(s) to show \U001F917 "
 
         exit 1
     fi
@@ -2940,19 +2949,109 @@ fi
 
 
 
+### Action based on the `info` option -> start tag[s2]
+
+if [[ $1 == "info" ]] && [[ $# -eq 2 ]]
+then
+    
+    # Declaration variables
+    flagPkgFound=""
+    counterInputPkg=0
+    nameOfInfoPkgsBranch="share-info-pkgs"
+
+
+
+    # Shift the `info` option
+    shift 1
+
+
+
+    # Action allowing to display package information
+    for givenPkg in $@
+    do
+        flagPkgFound=` isPackageAvailable "$givenPkg" $counterInputPkg "no" `
+
+        #
+        if [[ $flagPkgFound == "true" ]]
+        then
+            # Call the function
+            cloneSingleBranchGit "$nameOfInfoPkgsBranch" &
+
+            #
+            spinnerAnimation $!
+
+            #
+            getTheFileInfoPackage=` find "$meoTmpDirGithub/linux/share-info-pkgs/$givenPkg" -name "readme" -type f 2> /dev/null `
+
+            #
+            echo ""
+            echo "~"
+
+            #
+            if [[ -e "$getTheFileInfoPackage" ]]
+            then
+                cat "$getTheFileInfoPackage" 2> /dev/null
+            fi
+
+        else
+            echo ""
+            echo "~"
+            echo -e "Based on the current list available packages, that's to say since the last execution " 
+            echo -e "of the command \e[1;096msudo meo update\e[0m , The package \e[031;1m$givenPkg\e[0m you are looking for "
+            echo -e "was not found in the local database of the \e[1;032mmeo\e[0m program \U001F9D0  ."
+
+            exit 1
+        fi
+
+        #
+        counterInputPkg=$(( counterInputPkg + 1 ))
+
+    done
+
+
+
+    # Delete the given directory
+    removeDirFile "$meoTmpDirGithub/linux"
+
+    #
+    exit 0
+else
+
+    #
+    if [[ $1 == "info" ]] && [[ $# -gt 2 ]]
+    then
+
+        echo "~"
+        echo -e "With the \e[36;1m$1\e[0m option, you have to only give two parameters \U001F917 "
+
+        exit 1
+    fi
+fi
+
+### Action based on the `info` option -> end tag[s2]
+
+
+
+
+
 ### Print some files linked to the options `--doc`, `--help` , `--version` --> start tag[io]
 
 if [[ $1 == "--doc" ]] && [[ $# -eq 1 ]]
 then
-    cat /usr/lib/meo/documentation/meo-doc
+    #
+    cat /usr/lib/meo/documentation/meo-doc 2> /dev/null
+
     exit 0
 elif [[ $1 == "--help" ]] && [[ $# -eq 1 ]]
 then
-    cat /usr/lib/meo/documentation/meo-help
+    #
+    cat /usr/lib/meo/documentation/meo-help 2> /dev/null
+
     exit 0
 elif [[ $1 == "--version" ]] && [[ $# -eq 1 ]]
 then
-    cat /usr/lib/meo/documentation/meo-version-pure
+    cat /usr/lib/meo/documentation/meo-version-pure 2> /dev/null
+
     exit 0
 fi
 
@@ -2962,4 +3061,3 @@ echo -e "Invalid request \U001F9D0 ."
 exit 1
 
 ### Print some files linked to the options `--doc`, `--help` , `--version` --> end tag[io]
-
