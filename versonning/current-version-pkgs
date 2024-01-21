@@ -3,28 +3,28 @@
     {
         package: am-okay ,
         version: 3.1.0 ,
-        pkg-md5sum: 5bc7ec47dd435da437e92823014c98b4
+        pkg-md5sum: ce1276658ee65730a82e6de20670aa5b
     },
 
 
     {
         package: lumus ,
         version: 1.2.2 ,
-        pkg-md5sum: b158b0069b1bf39ed9790a4eae2dea86
+        pkg-md5sum: 2422fe7aa2fcc2198a51c2de70bfc617
     },
 
 
     {
         package: vimizer , 
         version: 1.0.4 ,
-        pkg-md5sum: 5b16983dd78de933bdbbb86c1935ab2c
+        pkg-md5sum: 6b1bc11ec670dc00c9b6d9c0ec7b1162
     },
 
     
     {
         package: meo ,
-        version: 1.1.7 ,
-        pkg-md5sum: 272c483a2d24fe103f9a92a367153327
+        version: 1.1.8 ,
+        pkg-md5sum: 116c55fe3d9eeae7d8ed6083a1998559
     }
 ]
 
