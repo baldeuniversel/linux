@@ -625,6 +625,7 @@ function isPackageInstalled
 * `list-available-packages` file
 * 
 * @param {string} $1 // The package to verify the existence
+* @param {int} $2 // The counter (for the iteration)
 *
 */
     '
@@ -633,11 +634,16 @@ function isPackageAvailable
     # Declaration variables
     local getPackage=""
     local getFirstParam="$1"
+    local getSecondParam="$2"
 
     
 
-    # Call the function
-    $( refreshAvailablePkgsFile )
+    #
+    if [[ $getSecondParam -lt 1 ]]
+    then
+        # Call the function
+        $( refreshAvailablePkgsFile )
+    fi
 
 
     #
@@ -1197,6 +1203,8 @@ then
     counterAlreadyInstalledPkg=0
     counterErrorInstall=0
 
+    counterInputPkg=0
+
     getCurrentBranchPkg="current-version-pkgs"
     getNameFileCurrentVersionPkg="current-version-pkgs"
     getPathDirCurrentVersionPkg="/tmp/.$USER/meo/current-version"
@@ -1231,7 +1239,7 @@ then
         for packageUP in $@
         do
             #
-            flagPackageFound=` isPackageAvailable $packageUP `
+            flagPackageFound=` isPackageAvailable $packageUP $counterInputPkg `
             flagPackageInstalledFound=` isPackageInstalled $packageUP  `
     
             #
@@ -1325,6 +1333,10 @@ then
                 #
                 counterFlagMng=$(( counterFlagMng + 1 ))
             fi
+
+            #
+            counterInputPkg=$(( counterInputPkg + 1 ))
+
         done
 
 
@@ -1719,7 +1731,12 @@ then
         fi
     fi
 
-    
+
+
+    # Save the current position of the cursor
+    tput sc
+
+    #
     # Call the function 
     refreshAvailablePkgsFile &
 
@@ -1857,7 +1874,7 @@ then
     done < $meoListInstalledPkgsPure
     
     # Get back the cursor in the current position
-    tput cup $(( $(tput lines) - 1 )) 0
+    tput rc
 
 
 
@@ -2076,6 +2093,10 @@ then
     fi
 
     
+
+    # Save the current position of the cursor
+    tput sc
+
     # Call the function 
     refreshAvailablePkgsFile &
 
@@ -2235,7 +2256,7 @@ then
     done
     
     # Get back the cursor in the current position
-    tput cup $(( $(tput lines) - 1 )) 0
+    tput rc
 
 
 
@@ -2548,22 +2569,21 @@ if [[ $1 == "download" ]] && [[ $# -gt 1 ]]
 then
 
     # Declaration variables
-    local flagPkgFound=""
-    local getDebPkg=""
-    local getCurrentPath=` pwd `
-    local counterPkgDownloaded=0
+    flagPkgFound=""
+    getDebPkg=""
+    getCurrentPath=` pwd `
+    counterPkgDownloaded=0
+    counterInputPkg=0
 
     declare -a listOfDownloadedPkg=()
 
 
     
-    # Call the function
-    clonePersonalGit &
+    # Save the current position of the cursor
+    tput sc 
 
-    # Call the function
-    spinnerAnimation $!
 
-    #
+    # Shift the `download` option
     shift 1
 
     
@@ -2572,18 +2592,33 @@ then
     for pkgToDownload in $@
     do
         #
-        flagPkgFound=` isPackageAvailable $pkgToDownload `
+        flagPkgFound=` isPackageAvailable $pkgToDownload $counterInputPkg ` 
 
+        #
         if [[ $flagPkgFound == "true" ]]
         then
             
             #
-            getDebPkg=$( find "$meoTmpDirGithub/linux" -name "$pkgToDownload*" -type f 2> /dev/null )
+            cloneSingleBranchGit "$pkgToDownload" &
+
+            # Call the function
+            spinnerAnimation $!
+
+            # Delete the displayed lines (just above)
+            tput cuu1
+            tput cuu1
+            tput cuu1
+            tput el
+            tput el
+            tput el
+
+            #
+            getDebPkg=` find "$meoTmpDirGithub/linux/package" -name "$pkgToDownload*.deb"  2> /dev/null `
 
             #
             if [[ -e "$getDebPkg"  ]]
             then
-                
+                #
                 cp -ra "$getDebPkg" "$getCurrentPath" 2> /dev/null
 
                 if [[ $? -eq 0 ]]
@@ -2591,28 +2626,41 @@ then
                     #
                     counterPkgDownloaded=$(( counterPkgDownloaded + 1 ))
 
-                    listOfDownloadedPkg+=$pkgToDownload
+                    listOfDownloadedPkg+="$pkgToDownload"
                 fi
             fi
         else
+            # Get back the cursor in the current position 
+            tput rc 
+
             echo ""
             echo "~"
             echo -e "The package \e[32;1m$pkgToDownload\e[0m does not exist in the \e[32;1mmeo\e[0m repository \U001F9D0 "
         fi
+
+        #
+        counterInputPkg=$(( counterInputPkg + 1 )) 
+
     done
     
+
+    
+    # Get back the cursor in the current position
+    tput rc
+
 
 
     #
     if [[ $counterPkgDownloaded -gt 0 ]]
     then
+        echo ""
         echo -e ""
         echo -e "~"
 
         #
         for namePkgDownloaded in ${listOfDownloadedPkg[@]}
         do
-            local getNamePkgDownloaded=` echo $namePkgDownloaded | tr -d "[[:space:]]" `
+            getNamePkgDownloaded=` echo $namePkgDownloaded | tr -d "[[:space:]]" `
 
             if [[ -n "$getNamePkgDownloaded" ]]
             then
@@ -2741,24 +2789,22 @@ if [[ $1 == "search"  ]] && [[ $# -gt 0 ]]
 then
     
     # Declaration variables
-    local flagPkgFound=""
+    flagPkgFound=""
     counterPkgFound=0
+    counterInputPkg=0
 
     declare -a listOfFoundPkg=()
 
-    # Call the function
-    refreshAvailablePkgsFile &
 
-    # Call the function
-    spinnerAnimation $!
 
     #
     shift 1
 
+
     #
     for pkgSearched in $@
     do
-        flagPkgFound=` isPackageAvailable $pkgSearched `
+        flagPkgFound=` isPackageAvailable $pkgSearched $counterInputPkg `
 
         #
         if [[ $flagPkgFound == "true" ]]
@@ -2774,6 +2820,10 @@ then
             echo "~"
             echo -e "The package \e[32;1m$pkgSearched\e[0m does not exist in the \e[32;1mmeo\e[0m repository \U001F9D0 "
         fi
+
+        #
+        counterInputPkg=$(( counterInputPkg + 1 ))
+
     done
 
     
