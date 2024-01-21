@@ -37,7 +37,8 @@
     * @param {string} install // This option allows installing packages
     *                            Ex : meo install am-okay
     *
-    * @param {string} update // This option allows listing the packages ready to upgrade
+    * @param {string} update // This option allows to list the packages ready to upgrade and it also allows to 
+    *                           update the list of available packages   
     *                           Ex : meo update
     *
     * @param {string} upgrade // This option allows upgrading the packages ready to upgrade
@@ -48,13 +49,13 @@
     * @param {string} remove // This option allows removing packages
     *                           Ex : meo remove am-okay
     *
-    * @param {string} download // This option allows download packages
+    * @param {string} download // This option allows to download packages
     *                             Ex : meo download am-okay
     *
-    * @param {string} list // This option allows listing packages of the git repository
+    * @param {string} list // This option allows to list packages of the git repository
     *                         Ex : meo list
     *                         Note: To have the updated list, you have first of all to execute the command 
-    *                               `meo self-update`
+    *                               `sudo meo update `
     *
     * @param {string} list-installed // This option allows listing the installed packages from the git repository
     *                                   Ex : meo list-installed
@@ -67,7 +68,8 @@
     *                         Ex : meo show am-okay
 
     * @param {string} info // This option allows to get information about a available package from the Github
-    *                         repository `https/github.com/baldeuniversel/linux`
+    *                         repository `https/github.com/baldeuniversel/linux` (since the last execution of 
+    *                                                                            ( the command `sudo meo update `)
     *                         Ex : meo info am-okay
     *
     * @param {string} --help // This option allows getting help on the `meo` program
