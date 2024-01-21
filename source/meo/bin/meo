@@ -117,7 +117,7 @@ fi
 
 # Exclude some sensitive actions 
 if ( [[ $USER != "root" ]] ) && ( [[ $1 != "list" ]] && [[ $1 != "list-installed" ]] && [[ $1 != "--version" ]] \
-     && [[ $1 != "show" ]] && [[ $1 != "info" ]] && [[ $1 != "--doc" ]] && [[ $1 != "--help" ]] )
+     && [[ $1 != "show" ]] && [[ $1 != "info" ]] && [[ $1 != "search" ]] && [[ $1 != "--doc" ]] && [[ $1 != "--help" ]] )
 then
     echo "~"
     echo -e "Only the root/admin has the right to execute this \e[32;1mmeo\e[0m action \U001F6A7 "
@@ -1650,7 +1650,7 @@ then
     if [[ $counterPkgNewRevision -eq 0 ]] && [[ $counterPkgNewVersion -eq 0 ]]
     then
         echo -e "~"
-        echo -e "All packages installed by \e[1;032mmeo\e[0m are up to date \U002705 "
+        echo -e "The job is clean, no packages to update by \e[1;032mmeo\e[0m \U002705 "
     fi
 
 
@@ -1716,6 +1716,15 @@ then
         echo -e "Something is wrong, a file is missing \U001F9D0. Please reinstall the \e[1;032mmeo\e[0m program "
 
         exit 1
+    fi
+
+    # If no packages are installed
+    if [[ ` cat "$meoListInstalledPkgsPure" | wc -l | cut -d " " -f 1 ` -lt 1 ]]
+    then
+        echo -e "~"
+        echo -e "At the time I run, no packages are installed by me \e[1;032mmeo\e[0m \U002705 "
+
+        exit 0
     fi
 
     # Create a temporary directory where the content of packages will be sent
@@ -2079,6 +2088,15 @@ then
         exit 1
     fi
 
+    # If no packages are installed
+    if [[ ` cat "$meoListInstalledPkgsPure" | wc -l | cut -d " " -f 1 ` -lt 1 ]]
+    then
+        echo -e "~"
+        echo -e "At the time I run, no packages are installed by me \e[1;032mmeo\e[0m \U002705 "
+
+        exit 0
+    fi
+
     # Create a temporary directory where the content of packages will be sent
     if [[ ! -e "$theTmpDirPkgs" ]]
     then
@@ -2094,7 +2112,6 @@ then
             exit 1
         fi
     fi
-
     
 
     # Save the current position of the cursor
@@ -2336,7 +2353,8 @@ then
     echo ""
     
     # Some checking
-    if [[ $counterPkgNewRevision -eq 0 ]] && [[ $counterPkgNewVersion -eq 0 ]] && [[ $counterProgramNotFound -eq 0 ]]
+    if [[ $counterPkgNewRevision -eq 0 ]] && [[ $counterPkgNewVersion -eq 0 ]] && [[ $counterProgramNotFound -eq 0 ]] \
+        &&  [[ $counterProgramAlreadyUpdated -eq 0 ]]
     then
         echo ""
         echo -e "~"
@@ -2475,7 +2493,9 @@ then
     counterPkgRemoved=0
 
     declare -a listOfRemovedPkg=()
-    
+   
+
+
     #
     shift 1
 
@@ -2813,7 +2833,7 @@ then
     for pkgSearched in $@
     do
         #
-        flagPkgFound=` isPackageAvailable "$pkgSearched" $counterInputPkg "yes" `
+        flagPkgFound=` isPackageAvailable "$pkgSearched" $counterInputPkg "no" `
         getVersionOfPkg=` getNewVersionPkg $pkgSearched `
         getHashPkg=` getNewHashPkg $pkgSearched `
 
@@ -2830,7 +2850,9 @@ then
         else
             echo ""
             echo "~"
-            echo -e "The package \e[031;1m$pkgSearched\e[0m does not exist in the \e[32;1mmeo\e[0m repository \U001F9D0 "
+            echo -e "Based on the current list available packages, that's to say since the last execution " 
+            echo -e "of the command \e[1;096msudo meo update\e[0m , The package \e[031;1m$pkgSearched\e[0m you are looking for "
+            echo -e "was not found in the local database of the \e[1;032mmeo\e[0m program \U001F9D0  ."
         fi
 
         #
@@ -3050,6 +3072,7 @@ then
     exit 0
 elif [[ $1 == "--version" ]] && [[ $# -eq 1 ]]
 then
+    #
     cat /usr/lib/meo/documentation/meo-version-pure 2> /dev/null
 
     exit 0
