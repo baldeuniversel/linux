@@ -2701,9 +2701,9 @@ then
     then
         echo ""
         echo "~"
-        echo -e "Here is the list of available packages since the last execution of the "
-        echo -e "command ~ \e[35;1msudo meo self-update\e[0m "
-        echo ""
+        echo -e "Here the list of \e[1;032mavailable\e[0m packages since the last execution of the "
+        echo -e "command ~ \e[35;1msudo meo update\e[0m "
+        echo -e "\U001F517"
 
         cat "$meoListAvailablePkgs" 2> /dev/null
 
@@ -2740,22 +2740,22 @@ if [[ $1 == "list-installed"  ]] && [[ $# -eq 1 ]]
 then
 
     #
-    if [[ -e "$meoListInstalledPkgs" ]] && [[ ` cat $meoListInstalledPkgs | wc -l ` -gt 1 ]]
+    if [[ -e "$meoListInstalledPkgsPure" ]] && [[ ` cat "$meoListInstalledPkgsPure" 2> /dev/null | wc -l | cut -d " " -f 1 ` -gt 1 ]]
     then
         echo ""
         echo "~"
-        echo -e "Here is the list of installed packages by the \e[35;1mmeo\e[0m program "
-        echo ""
+        echo -e "Here the list of installed packages by the \e[35;1mmeo\e[0m program "
+        echo -e "\U001F517"
 
-        cat "$meoListInstalledPkgs" | sed -e "/meo/d" 2> /dev/null
+        cat "$meoListInstalledPkgsPure" 2> /dev/null
 
         exit 0
 
-    elif [[ -e "$meoListInstalledPkgs" ]] && [[ ` cat $meoListInstalledPkgs | wc -l ` -eq 1 ]]
+    elif [[ -e "$meoListInstalledPkgsPure" ]] && [[ ` cat "$meoListInstalledPkgs" 2> /dev/null | wc -l | cut -d " " -f 1 ` -eq 0 ]]
     then
         echo ""
         echo "~"
-        echo -e "Since the last installation of the \e[32;1mmeo\e[0m program no packages \nhave been installed \U001F4BB "
+        echo -e "Currently , no packages installed \U001F4BB by \e[32;1mmeo\e[0m "
 
         exit 0
     else
@@ -2795,23 +2795,30 @@ then
 
     declare -a listOfFoundPkg=()
 
+    typeset -A tableSearchFoundPkg
 
 
-    #
+
+    # Shift the `search` option
     shift 1
+
 
 
     #
     for pkgSearched in $@
     do
+        #
         flagPkgFound=` isPackageAvailable $pkgSearched $counterInputPkg `
+        getVersionOfPkg=` getNewVersionPkg $pkgSearched `
+        getHashPkg=` getNewHashPkg $pkgSearched `
+
 
         #
         if [[ $flagPkgFound == "true" ]]
         then
 
             #
-            listOfFoundPkg+=$pkgSearched
+            tableSearchFoundPkg[$pkgSearched]="$pkgSearched : $getVersionOfPkg : $getHashPkg"
 
             #
             counterPkgFound=$(( counterPkgFound + 1 ))
@@ -2826,6 +2833,7 @@ then
 
     done
 
+
     
     #
     if [[ $counterPkgFound -gt 0 ]]
@@ -2834,13 +2842,15 @@ then
         echo -e "~"
 
         #
-        for namePkgSearched in ${listOfFoundPkg[@]}
+        for key value in ${(kv)tableSearchFoundPkg}
         do
-            local getNamePkgSearched=` echo $namePkgSearched | tr -d "[[:space:]]" `
+            getTheVersionPkg=` echo $value | awk -F " : " '{print $2}' | tr -d "[[:space:]]" `
+            getTheHashPkg=` echo $value | awk -F " : " '{print $3}' | tr -d "[[:space:]]" `
 
-            if [[ -n "$getNamePkgSearched" ]]
+
+            if [[ -n "$getTheVersionPkg" ]]
             then
-                echo -e "\e[32;1m$getNamePkgSearched\e[0m found \U002705 "
+                echo -e "\e[032;1m$key\e[0m v(\e[1;036m$getTheVersionPkg\e[0m) , hash(\e[1;095m$getTheHashPkg\e[0m) found \U002705 "
             fi    
         done
 
@@ -2877,13 +2887,15 @@ if [[ $1 == "show" ]] && [[ $# -gt 0 ]]
 then
     
     # Declaration variables
-    local flagPkgFound=""
+    flagPkgFound=""
 
-    #
+
+
+    # Shift the `show` option
     shift 1
 
 
-    
+
     # Action allowing to display package information
     for givenPkg in $@
     do
