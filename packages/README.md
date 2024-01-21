@@ -1,4 +1,4 @@
-# Info about the packages available on this repository
+# Info about packages available on this repository
 
 
 
