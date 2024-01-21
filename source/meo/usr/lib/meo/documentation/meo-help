@@ -1,48 +1,65 @@
 
-OPTIONS   
-    [36;1mself-[36;1mupdate[0m[0m // This option allows to verify if there is a new version of `[35;1mmeo[0m` program
-                   that is ready to [36;1mupgrade[0m, and it also allows to [36;1mupdate[0m the [36;1mlist[0m of
-                   packages available on the Github repository
-                   Ex : [35;1mmeo[0m [36;1mself-[36;1mupdate[0m[0m
+[1;37mOPTIONS[0m
+       [1;36mself-update[0m
+                         This option allows to verify if there is a new version of [1;35mmeo[0m program
+                         that is ready to [1;36mupgrade[0m, and it also allows to [1;36mupdate[0m the [1;36mlist[0m of
+                         packages available on the Github repository
+                         Ex : [1;35mmeo[0m [1;36mself-update[0m
 
-    [36;1minstall[0m // This option allows installing packages
-               Ex : [35;1mmeo[0m [36;1minstall[0m am-okay
+       [1;36minstall[0m
+                         This option allows installing packages
+                         Ex : [1;35mmeo[0m [1;36minstall[0m am-okay
 
-    [36;1mupdate[0m // This option allows listing the packages ready to [36;1mupgrade[0m
-              Ex : [35;1mmeo[0m [36;1mupdate[0m
+       [1;36mupdate[0m
+                         This option allows listing the packages ready to [1;36mupgrade[0m
+                         Ex : [1;35mmeo[0m [1;36mupdate[0m
 
-    [36;1mupgrade[0m // This option allows upgrading the packages ready to [36;1mupgrade[0m
-               Ex : [35;1mmeo[0m [36;1mupgrade[0m (to [36;1mupgrade[0m all the installed packages by `[35;1mmeo[0m` program)
-               Ex : [35;1mmeo[0m [36;1mupgrade[0m am-okay (to [36;1mupgrade[0m the target installed
-                                                      package by `[35;1mmeo[0m` program)
+       [1;36mupgrade[0m
+                         This option allows upgrading the packages ready to [1;36mupgrade[0m
+                         Ex : [1;35mmeo[0m [1;36mupgrade[0m (to [1;36mupgrade[0m all the installed packages by [1;35mmeo[0m program)
+                         Ex : [1;35mmeo[0m [1;36mupgrade[0m am-okay (to [1;36mupgrade[0m the target installed package by [1;35mmeo[0m program)
 
-    [36;1mremove[0m // This option allows removing packages
-              Ex : [35;1mmeo[0m [36;1mremove[0m am-okay
+       [1;36mremove[0m
+                         This option allows removing packages
+                         Ex : [1;35mmeo[0m [1;36mremove[0m am-okay
 
-    [36;1mdownload[0m // This option allows [36;1mdownloading[0m packages
-                Ex : [35;1mmeo[0m [36;1mdownload[0m am-okay
+       [1;36mdownload[0m
+                         This option allows to [1;36mdownload[0m packages
+                         Ex : [1;35mmeo[0m [1;36mdownload[0m am-okay
 
-    [36;1mlist[0m // This option allows listing packages of the git repository
-            Ex : [35;1mmeo[0m [36;1mlist[0m
-            Note: To have the updated [36;1mlist[0m, you have first of all to execute the command
-            `[35;1mmeo[0m [36;1mself-[36;1mupdate[0m[0m`
+       [1;36mlist[0m
+                         This option allows listing packages of the git repository
+                         Ex : [1;35mmeo[0m [1;36mlist[0m
+                         Note: To have the updated [1;36mlist[0m, you have first of all to execute the command
+                         [1;35mmeo[0m [1;36mself-update[0m
 
-    [36;1mlist-installed[0m // This option allows listing the installed packages from the git repository
-                      Ex : [35;1mmeo[0m [36;1mlist-installed[0m
+       [1;36mlist-installed[0m
+                         This option allows listing the installed packages from the git repository
+                         Ex : [1;35mmeo[0m [1;36mlist-installed[0m
 
-    [36;1msearch[0m // This option allows to [36;1msearch[0m packages from the Github repository
-              Ex : [35;1mmeo[0m [36;1msearch[0m am-okay
+       [1;36msearch[0m
+                         This option allows to [1;36msearch[0m packages from the git repository
+                         Ex : [1;35mmeo[0m [1;36msearch[0m am-okay
 
-    [36;1mshow[0m // This option allows to have information on the installed packages from the 
-    `control` files
-            Ex : [35;1mmeo[0m [36;1mshow[0m am-okay
+       [1;36mshow[0m
+                         This option allows to have information on the installed packages from the
+                         `control` files
+                         Ex : [1;35mmeo[0m [1;36mshow[0m am-okay
 
-    [36;1m--help[0m // This option allows getting help on the `[35;1mmeo[0m` program
-              Ex : [35;1mmeo[0m [36;1m--help[0m
+       [1;36minfo[0m
+                         This option allows to get information about a available package from the Github
+                         repository `[1;32mhttps://github.com/baldeuniversel/linux.git[0m` (since the last execution of the
+                                                                            ( command `[1;36msudo[0m [1;35mmeo[0m [1;36mupdate[0m` )
+                         Ex : [1;35mmeo[0m [1;36minfo[0m am-okay
 
-    [36;1m--doc[0m // This option allows getting a documentation on `[35;1mmeo[0m` program
-             Ex : [35;1mmeo[0m [36;1m--doc[0m
+       [1;36m--help[0m
+                         This option allows getting help on the `[1;35mmeo[0m` program
+                         Ex : [1;35mmeo[0m [1;36m--help[0m
 
-    [36;1m--version[0m // This option allows getting the version installed of the `[35;1mmeo[0m` program
-                 Ex : [35;1mmeo[0m [36;1m--version[0m
+       [1;36m--doc[0m
+                         This option allows getting a documentation on `[1;35mmeo[0m` program
+                         Ex : [1;35mmeo[0m [1;36m--doc[0m
 
+       [1;36m--version[0m
+                         This option allows getting the version installed of the `[1;35mmeo[0m` program
+                         Ex : [1;35mmeo[0m [1;36m--version[0m

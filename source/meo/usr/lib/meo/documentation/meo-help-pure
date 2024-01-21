@@ -1,33 +1,3 @@
-meo('1')                                                                                                                              meo('1')
-
-NAME
-       meo (version 1.1.8) .
-
-DESCRIPTION
-       meo is a program that allows to manage installed packages from the Github
-       repository `https://github.com/baldeuniversel/linux.git` (Use from the terminal) .
-
-OVERVIEW
-       @requires The meo program allows to an user to manage packages emanating from the Github repository
-       `https://github.com/baldeuniversel/linux.git` .
-       (First of all, this program is written for the Ve-Quantic members) .
-
-REQUIRES
-       @requires The only options supported are [ self-update, install, update, upgrade, remove
-                                                  download, list, list-installed, search, show,
-                                                  info, --help, --doc, --version ]
-           && the meo command has to have at least one option .  Ex: meo self-update
-           && with the options [ install, remove, search, show, download ] you have to give the package(s)
-           && with the options [ self-update, list, update, list-installed, --help, --doc, --version ]
-                                                                        there is not another parameter
-           && with the options [ upgrade ], you can either upgrade all the installed packages
-                                                  by meo or upgrade target installed packages
-                                       Ex : meo upgrade    (to upgrade all the installed packages by meo)
-                                       Ex : meo upgrade am-okay    (to upgrade the target installed package)
-           && you can not call meo program to install it itself . Ex : meo install meo
-
-SYNOPSIS
-       meo [ option | option <argument(e)> ]
 
 OPTIONS
        self-update
@@ -93,16 +63,3 @@ OPTIONS
        --version
                          This option allows getting the version installed of the `meo` program
                          Ex : meo --version
-
-ENSURE
-       @ensure Successfully execution if the preconditions are satisfied . That is to say, with the
-       above options and the appropriated sequences allowed for these options.
-
-NOTE
-       @note This program depends of some programs, these programs are required in the global meo
-       package .
-
-AUTHOR
-       Author : Baldé Amadou <baldeuniversel@protonmail.com>
-
-meo program                                                       2024-01-21                                                          meo('1')
