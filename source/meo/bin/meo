@@ -2445,8 +2445,8 @@ if [[ $1 == "remove"  ]] && [[ $# -gt 1 ]]
 then
     
     # Declaration variables
-    local flagPkgFound=""
-    local counterPkgRemoved=0
+    flagPkgFound=""
+    counterPkgRemoved=0
 
     declare -a listOfRemovedPkg=()
     
@@ -2460,7 +2460,7 @@ then
         flagPkgFound=` isPackageInstalled $givenPkgToRemove `
 
         #
-        if [[ $flagPkgFound == "true" ]] && [[ ! ` echo "$givenPkgToRemove" | grep -w -- "meo" ` ]]
+        if [[ $flagPkgFound == "true" ]] && [[ ! ` echo "$givenPkgToRemove" | grep -w -- "^meo$" ` ]]
         then
 
             #
@@ -2472,14 +2472,13 @@ then
                 listOfRemovedPkg+=$givenPkgToRemove
 
                 #
-                sed -i "/$givenPkgToRemove/d" "$meoListInstalledPkgs" 2> /dev/null
                 sed -i "/$givenPkgToRemove/d" "$meoListInstalledPkgsPure" 2> /dev/null
                     
                 #
                 counterPkgRemoved=$(( counterPkgRemoved + 1 ))
             fi
 
-        elif [[ $flagPkgFound == "true" ]] && [[ ` echo "$givenPkgToRemove" | grep -w -- "meo" ` ]] 
+        elif [[ $flagPkgFound == "true" ]] && [[ ` echo "$givenPkgToRemove" | grep -w -- "^meo$" ` ]] 
         then
             
             #
@@ -2503,6 +2502,7 @@ then
     if [[ $counterPkgRemoved -gt 0 ]]
     then
         echo ""
+        echo ""
         echo "~"
         
         #
@@ -2525,7 +2525,7 @@ then
     exit 0
 
 else
-    
+    # 
     if [[ $1 == "remove" ]] && [[ $# -lt 2 ]]
     then
 
