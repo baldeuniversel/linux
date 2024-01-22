@@ -3,7 +3,7 @@
 # postinst script for lumus
 #
 
-set -e
+set -uo pipefail
 
 # For setting the service linked to the script that gives the proper permissions to the user(admin) at each boot
 systemctl enable at-boot-lumus.service  &> /dev/null
