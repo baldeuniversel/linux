@@ -4,7 +4,7 @@
 # postrm script
 ####
 
-set -euo pipefail
+set -uo pipefail
 
 # Declaration variables
 meoListInstalledPkgsPure="/usr/lib/meo/library/info/list-installed-packages-pure"
