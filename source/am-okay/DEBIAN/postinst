@@ -10,9 +10,9 @@ set -euo pipefail
 
 ### Enable the service linked to the <<am-okay>> program, and do another actions -> start tag[0]
 
-sudo systemctl enable am-okay-boot.service  &> /dev/null
-sudo systemctl daemon-reload  &> /dev/null
-sudo systemctl start am-okay-boot.service  &> /dev/null
+systemctl enable am-okay-boot.service  &> /dev/null
+systemctl daemon-reload  &> /dev/null
+systemctl start am-okay-boot.service  &> /dev/null
 
 
 # Just to print the name of the author
