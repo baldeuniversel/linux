@@ -1407,6 +1407,9 @@ then
                 counterInstalledPkg=$(( counterInstalledPkg + 1 ))
             else
                 #
+                dpkg --remove "$getTheDebPkgToInstall" &> /dev/null
+
+                #
                 listOfErrorInstallingPkg+="$downloadedPkg"
 
                 #
@@ -1954,6 +1957,9 @@ then
                         break 
                     fi
                 done
+            else
+                #
+                dpkg --remove "$lineFile" &> /dev/null
             fi
 
         done < $fileOfPkgReadyToInstall
@@ -2344,6 +2350,9 @@ then
                         break 
                     fi
                 done
+            else
+                #
+                dpkg --install "$lineFile" &> /dev/null
             fi
 
         done < $fileOfPkgReadyToInstall
