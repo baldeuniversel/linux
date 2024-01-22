@@ -455,7 +455,7 @@ then
     
         if [[ $userAsk == "yes" ]] || [[ $userAsk == "y" ]]
         then
-            gnome-session-quit --no-prompt
+            gnome-session-quit --no-prompt 2> /dev/null
     
             if [[ $? -ne 0 ]]
             then
