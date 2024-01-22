@@ -2749,7 +2749,7 @@ if [[ $1 == "list-installed"  ]] && [[ $# -eq 1 ]]
 then
 
     #
-    if [[ -e "$meoListInstalledPkgsPure" ]] && [[ ` cat "$meoListInstalledPkgsPure" 2> /dev/null | wc -l | cut -d " " -f 1 ` -gt 1 ]]
+    if [[ -e "$meoListInstalledPkgsPure" ]] && [[ ` cat "$meoListInstalledPkgsPure" 2> /dev/null | wc -l | cut -d " " -f 1 ` -ge 1 ]]
     then
         echo ""
         echo "~"
@@ -2770,9 +2770,9 @@ then
     else
         echo ""
         echo "~"
-        echo "Something is wrong, please reinstall the \e[32;1mmeo\e[0m program \U001F6A8"
+        echo -e "Currently , no packages installed \U001F4BB by \e[32;1mmeo\e[0m "
 
-        exit 1
+        exit 0
     fi
 else
     #
