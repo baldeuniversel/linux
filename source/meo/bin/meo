@@ -1522,15 +1522,24 @@ then
     typeset -A tablePkgToRefreshVersion
     typeset -A tablePkgToRefreshRevision 
 
-    
+
+
+    # If the target file does not exist, no packages to update
+    if [[ ! ( -e "$meoListInstalledPkgsPure" ) ]]
+    then
+        echo -e "~"
+        echo -e "The job is clean, no packages to update by \e[1;032mmeo\e[0m \U002705 "
+
+        exit 0
+    fi
+
 
     # Call the function 
     refreshAvailablePkgsFile &
 
     # Call the function
     spinnerAnimation $!
-
-
+ 
     
     # Load the installed packages, their version(new or old) and the hash(new) in arrays
     while IFS= read -r lineFile
