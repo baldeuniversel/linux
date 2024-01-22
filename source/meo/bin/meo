@@ -709,11 +709,6 @@ function isNewVersionOfPkgAvailable
         else
             echo "true"
         fi
-    else 
-        echo "~"
-        echo "Something is wrong, a file is missing \U001F9D0, please reinstall the \e[32;1mmeo\e[0m program "
-
-        exit 1
     fi
 }
 
@@ -761,11 +756,6 @@ function isNewRevisionOfPkgAvailable
         else
             echo "true"
         fi
-    else 
-        echo "~"
-        echo "Something is wrong, a file is missing \U001F9D0, please reinstall the \e[32;1mmeo\e[0m program "
-
-        exit 1
     fi
 
 }
@@ -1530,20 +1520,10 @@ then
     counterPkgNewVersion=0
 
     typeset -A tablePkgToRefreshVersion
-    typeset -A tablePkgToRefreshRevision
+    typeset -A tablePkgToRefreshRevision 
 
     
 
-    # Check if the file containing the programs installed exists
-    if [[ ! ( -e "$meoListInstalledPkgsPure" ) ]]
-    then
-        echo "~"
-        echo -e "Something is wrong, a file is missing \U001F9D0. Please reinstall the \e[1;032mmeo\e[0m program "
-
-        exit 1
-    fi
-
-    
     # Call the function 
     refreshAvailablePkgsFile &
 
@@ -1710,21 +1690,13 @@ then
     typeset -A tablePkgToRefreshRevisionInstalled
 
 
+
     #
     trap "setterm --cursor on" SIGINT SIGTERM
     
 
-    # Check if the file containing the programs installed exists
-    if [[ ! ( -e "$meoListInstalledPkgsPure" ) ]]
-    then
-        echo "~"
-        echo -e "Something is wrong, a file is missing \U001F9D0. Please reinstall the \e[1;032mmeo\e[0m program "
-
-        exit 1
-    fi
-
     # If no packages are installed
-    if [[ ` cat "$meoListInstalledPkgsPure" | wc -l | cut -d " " -f 1 ` -lt 1 ]]
+    if [[ ` cat "$meoListInstalledPkgsPure" 2> /dev/null | wc -l | cut -d " " -f 1 ` -lt 1 ]]
     then
         echo -e "~"
         echo -e "At the time I run, no packages are installed by me \e[1;032mmeo\e[0m \U002705 "
@@ -2087,17 +2059,8 @@ then
     trap "setterm --cursor on" SIGINT SIGTERM
     
 
-    # Check if the file containing the programs installed exists
-    if [[ ! ( -e "$meoListInstalledPkgsPure" ) ]]
-    then
-        echo "~"
-        echo -e "Something is wrong, a file is missing \U001F9D0. Please reinstall the \e[1;032mmeo\e[0m program "
-
-        exit 1
-    fi
-
     # If no packages are installed
-    if [[ ` cat "$meoListInstalledPkgsPure" | wc -l | cut -d " " -f 1 ` -lt 1 ]]
+    if [[ ` cat "$meoListInstalledPkgsPure" 2> /dev/null | wc -l | cut -d " " -f 1 ` -lt 1 ]]
     then
         echo -e "~"
         echo -e "At the time I run, no packages are installed by me \e[1;032mmeo\e[0m \U002705 "
