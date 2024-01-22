@@ -5,7 +5,7 @@
 # Installer `lumus` dependencies
 ###
 
-set -euo pipefail
+set -uo pipefail
 
 
 
