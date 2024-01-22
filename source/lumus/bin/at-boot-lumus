@@ -34,8 +34,8 @@ then
     then
 
         # Allow all the users belonging to `sudo` to write in the target file
-    	sudo chmod 664 /sys/class/backlight/*/brightness
-        sudo chgrp sudo /sys/class/backlight/*/brightness 2> /dev/null
+    	chmod 664 /sys/class/backlight/*/brightness 2> /dev/null
+        chgrp sudo /sys/class/backlight/*/brightness 2> /dev/null
     
     fi
 fi

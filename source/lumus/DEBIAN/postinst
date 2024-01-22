@@ -6,9 +6,9 @@
 set -e
 
 # For setting the service linked to the script that gives the proper permissions to the user(admin) at each boot
-sudo systemctl enable at-boot-lumus.service  &> /dev/null
-sudo systemctl daemon-reload 2> /dev/null
-sudo systemctl start at-boot-lumus.service 2> /dev/null
+systemctl enable at-boot-lumus.service  &> /dev/null
+systemctl daemon-reload 2> /dev/null
+systemctl start at-boot-lumus.service 2> /dev/null
 
 
 
