@@ -14,7 +14,7 @@ Otherwise **meo** program is a package manager for all programs
 of this Github repository [`https://github.com/baldeuniversel/linux.git`](https://github.com/baldeuniversel/linux.git)
 at the level of the `main` branch. So, you could first install the
 **meo** program to manage (install, remove, update ...) the packages
-that are on this Github repository(in the main branch) .
+that are on this Github repository (in the main branch) .
 
 
 After installing the **meo** program, from your terminal execute this
@@ -29,7 +29,7 @@ dirs/files (Use from the terminal) .
 
 
 With this program you can tag files or directories as items to copy or move 
-via a console(terminal), and paste these items via a another console(terminal) .
+via a console (terminal), and paste these items via a another console (terminal) .
 
 
 After installing the **am-okay** program, you can execute (from the terminal) the 
