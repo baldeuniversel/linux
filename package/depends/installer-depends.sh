@@ -2,7 +2,7 @@
 
 
 ###
-# Installer `am-okay` dependencies
+# Installer `pdf-tool` dependencies
 ###
 
 set -uo pipefail
@@ -57,8 +57,8 @@ function installer
     ### Action to install dependencies -> start tag[i0]
 
     # Declaration variables
-    declare -a tabDep=("bash" "coreutils" "systemd" "software-properties-common" "curl" "bc" \
-        "gzip" "awk" "gawk" "zsh" "util-linux")
+    declare -a tabDep=("bash" "coreutils" "texlive" "software-properties-common" "bc" \
+        "awk" "gawk" "zsh" "util-linux" "pdftk" "ghostscript" "texlive-latex-extra" "poppler-utils")
  
 
     # Installing dependencies
