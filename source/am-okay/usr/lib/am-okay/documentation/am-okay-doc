@@ -1,0 +1,150 @@
+[35;1mam-okay[0m('1')                                                                                                                     [35;1mam-okay[0m('1')
+
+[32;1mNAME[0m
+       [35;1mam-okay[0m (version 3.1.1) .
+
+[32;1mDESCRIPTION[0m
+       [35;1mam-okay[0m is a program that allows dynamically to copy and cut files or
+       directories .
+       You can initialize an action in a terminal and finalize this action in another terminal with the same user .
+
+[32;1mOVERVIEW[0m
+       @requires This program allows to execute some actions (see the precondition below)
+       that can be very useful (First of all, this program is written for the
+       Ve-Quantic members) .
+
+[32;1mREQUIRES[0m
+       @requires The only options supported are [ [36;1m--copy[0m, [36;1m--cut[0m, [36;1m--paste-copy[0m, [36;1m--paste-cut[0m, [36;1m--array[0m,
+                                                  [36;1m--index[0m, [36;1m--put[0m, [36;1m--stat-copy[0m, [36;1m--stat-cut[0m, [36;1m--stat[0m,
+                                                  [36;1m--reset[0m, [36;1m--out[0m, [36;1m--move[0m,[36;1m--doc[0m, [36;1m--help[0m ]
+       && the command [35;1mam-okay[0m has to have at least one option then (if that's your goal) the target
+       directory/directories or file/files.
+           Example : [35;1mam-okay[0m [36;1m--copy[0m <myTargetDir> (for sure without the hyphens)
+       && with the option <[36;1m--index[0m> there is a limit at the level of the indexes
+       and the indexes have to be a positive integer (min 0 and max 3)
+       && the [ <[36;1m--index[0m>,  <[36;1m--put[0m> and <[36;1m--stat[0m> ] options are linked to
+       the <[36;1m--array[0m> option
+       && <[36;1m--stat-copy[0m> is linked to the <[36;1m--copy[0m> option
+       && <[36;1m--stat-cut[0m> is linked to the <[36;1m--cut[0m> option
+       && the <[36;1m--reset[0m> option has to follow by the request value
+       && <[36;1m--out[0m> option is linked to the [ [36;1m--copy[0m, [36;1m--move[0m ] options
+       && the files or directories do not have the character `?` at the level of their name.
+
+[32;1mSYNOPSIS[0m
+       [35;1mam-okay[0m [option] [ target-dirs | target-files
+                       | [ { options } target-files | target-dirs ]
+                       | [ target-files | target-dirs {option} target-dir ] ]
+
+[32;1mOPTIONS[0m
+       [36;1m--copy[0m        type(string) // This option allows to copy the file/files or
+                     directory/directories (that are its targets), you can use the joker <*> to indicate
+                     everything that is in the current directory .
+                          Ex : [35;1mam-okay[0m [36;1m--copy[0m <your-target-dir-or-file> <..>
+
+       [36;1m--cut[0m         type(string) // This option allows to cut the file/files or
+                     directory/directories (that are its targets), you can use the joker <*> to indicate
+                     everything that is in the current directory .
+                          Ex : [35;1mam-okay[0m [36;1m--cut[0m <your-target-dir-or-file> <..>
+
+       [36;1m--paste-copy[0m  type(string) // This option allows to paste a copy action .
+                          Ex : [35;1mam-okay[0m [36;1m--paste-copy[0m <your-target-directory>
+                     You can use the dot <.> to indicate the current directory. This option ( [36;1m--paste-copy[0m ) is
+                     linked to the <[36;1m--copy[0m> option .
+                     Use case :
+                         Action 1 ->  Ex : [35;1mam-okay[0m [36;1m--copy[0m <my-file>
+                         Action 2 ->  Ex : [35;1mam-okay[0m [36;1m--paste-copy[0m <my-target-dir>
+
+       [36;1m--paste-cut[0m   type(string) // This option allows to paste a cut action .
+                             Ex : [35;1mam-okay[0m [36;1m--paste-cut[0m <your-target-directory>
+                     You can use the dot <.> to indicate the current directory. This option ( [36;1m--paste-cut[0m ) is
+                     linked to the <[36;1m--cut[0m> option .
+                     Use case :
+                         Action 1 ->  Ex : [35;1mam-okay[0m [36;1m--cut[0m <my-file>
+                         Action 2 ->  Ex : [35;1mam-okay[0m [36;1m--paste-cut[0m <my-target-dir>
+
+       [36;1m--array[0m       type(String> // This option allows to copy or cut files or directories in a
+                     separate way ( via indexes ) .
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0 [36;1m--copy[0m <file-1> <dir-1> <dir-2> <..>
+                     For pasting according to the previous action you have to do :
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0 [36;1m--put[0m <your-target-dir>
+
+       [36;1m--index[0m       type(String> // This option allows to target the index of the array .
+                     Use case :
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0 [36;1m--copy[0m <file-1> <dir-1> <dir-2> <..>
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 1 [36;1m--put[0m <your-target-dir>
+                         Note :
+                             1.0 You can not do this ->  Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0-1 [36;1m--copy[0m <your-dir> <..>
+                             1.1 You can do this     ->  Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0-1 [36;1m--put[0m <your-dir>
+                             1.2 In the previous action ( 1.1 ) the <[36;1m--put[0m> option will manage all actions with the
+                                 <[36;1m--array[0m> option that associated with the <[36;1m--index[0m>, <[36;1m--copy[0m>
+                                 and <[36;1m--cut[0m> options .
+
+       [36;1m--put[0m         type(string) // This option allows to put directory/directories or file/files that have
+                     been targeted by the <[36;1m--array[0m> option associated with the <[36;1m--copy[0m>
+                     and <[36;1m--cut[0m> options .
+                     Use case :
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0 [36;1m--put[0m <your_dir>
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0-3 [36;1m--put[0m <your_dir>  // The indexes between `0` and `3`.
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0,3 [36;1m--put[0m <your_dir>  // The index `0` and `3`.
+
+       [36;1m--stat-copy[0m   type(string) // To see the status of an action done with the <[36;1m--copy[0m> option as first
+                     parameter .
+                          Ex : [35;1mam-okay[0m [36;1m--stat-copy[0m
+
+       [36;1m--stat-cut[0m    type(string) // To see the status of an action done with the <[36;1m--cut[0m> option as first
+                     parameter .
+                          Ex : [35;1mam-okay[0m [36;1m--stat-cut[0m
+
+       [36;1m--stat[0m        type(string) // To see the status of an action done with the <[36;1m--array[0m> option as first
+                     parameter and along with the <[36;1m--copy[0m> and <[36;1m--cut[0m> options or between them .
+                     Use case :
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0 [36;1m--stat[0m
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0-2 [36;1m--stat[0m  // The indexes between `0` and `2`.
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0,2 [36;1m--stat[0m  // The index `0` and `2`.
+
+       [36;1m--move[0m        type(string) // An option allows to move files/directories directly
+
+       [36;1m--out[0m          type(string) // This option is linked to the [ [36;1m--move[0m, [36;1m--copy[0m ] options
+                          Ex : [35;1mam-okay[0m [36;1m--copy[0m <your_dirs/files> [36;1m--out[0m <your_target_dir>
+                          Ex : [35;1mam-okay[0m [36;1m--move[0m <your_dirs/files> [36;1m--out[0m <your_target_dir>
+
+       [36;1m--reset[0m       type(string) // To reset your desired action(s), there will be a prompt for the
+                     possible choices ( note : you have to encode expressly the `request` word ) .
+                          Ex : [35;1mam-okay[0m [36;1m--reset[0m request
+
+       [36;1m--doc[0m         type(string) // To see the documentation of the program [35;1mam-okay[0m
+                          Ex : [35;1mam-okay[0m [36;1m--doc[0m
+
+       [36;1m--help[0m        type(sting) // To get help
+                          Ex : [35;1mam-okay[0m [36;1m--help[0m
+
+[32;1mENSURE[0m
+       @ensure Successfully execution if the precondition is satisfied. That is to say, with
+       the above options and the appropriated sequences linked to these options .
+
+[32;1mNOTE[0m
+       @note This program depends of some programs, these programs are required in the global
+       package of [35;1mam-okay[0m .
+       Once you have pasted files or directories with the <[36;1m--paste-copy[0m> option, you can paste
+       again the same files/dirs with the same option <[36;1m--paste-copy[0m>. For sure an action done
+       by <[36;1m--copy[0m> option requires the <[36;1m--paste-copy[0m> option for pasting, and an action
+       done by <[36;1m--cut[0m> option requires <[36;1m--paste-cut[0m> option for pasting. The two
+       [ [36;1m--copy[0m, [36;1m--cut[0m ] options have different hash codes .
+
+       The files or directories do not have the character `?` at the level of their name .
+
+       When you execute the command [35;1mam-okay[0m, the command in question works with the profile
+       it was run with. Running it with different profiles will result in different scenarios, because
+       for the program each user is different. So when you realize an action, make sure to conserve
+       the same profile to paste .
+       A progress bar will be displayed to indicate the move and copy status when you execute the
+       command [35;1mam-okay[0m with the <[36;1m--paste-copy[0m>, <[36;1m--paste-cut[0m>, <[36;1m--put[0m>,
+       <[36;1m--move[0m>, <[36;1m--out[0m> options .
+
+[32;1mAUTHOR[0m
+       Author    : Baldé Amadou <baldeuniversel@protonmail.com>
+
+[32;1mCONTRIBUTOR[0m
+       Contributor    : Diallo Ismaila <diallois@protonmail.com>
+
+[35;1mam-okay[0m program                                                   2024-01-21                                                     [35;1mam-okay[0m('1')

@@ -1,0 +1,84 @@
+
+[32;1mOPTIONS[0m
+       [36;1m--copy[0m        type(string) // This option allows to copy the file/files or
+                     directory/directories (that are its targets), you can use the joker <*> to indicate
+                     everything that is in the current directory .
+                          Ex : [35;1mam-okay[0m [36;1m--copy[0m <your-target-dir-or-file> <..>
+
+       [36;1m--cut[0m         type(string) // This option allows to cut the file/files or
+                     directory/directories (that are its targets), you can use the joker <*> to indicate
+                     everything that is in the current directory .
+                          Ex : [35;1mam-okay[0m [36;1m--cut[0m <your-target-dir-or-file> <..>
+
+       [36;1m--paste-copy[0m  type(string) // This option allows to paste a copy action .
+                          Ex : [35;1mam-okay[0m [36;1m--paste-copy[0m <your-target-directory>
+                     You can use the dot <.> to indicate the current directory. This option ( [36;1m--paste-copy[0m ) is
+                     linked to the <[36;1m--copy[0m> option .
+                     Use case :
+                         Action 1 ->  Ex : [35;1mam-okay[0m [36;1m--copy[0m <my-file>
+                         Action 2 ->  Ex : [35;1mam-okay[0m [36;1m--paste-copy[0m <my-target-dir>
+
+       [36;1m--paste-cut[0m   type(string) // This option allows to paste a cut action .
+                             Ex : [35;1mam-okay[0m [36;1m--paste-cut[0m <your-target-directory>
+                     You can use the dot <.> to indicate the current directory. This option ( [36;1m--paste-cut[0m ) is
+                     linked to the <[36;1m--cut[0m> option .
+                     Use case :
+                         Action 1 ->  Ex : [35;1mam-okay[0m [36;1m--cut[0m <my-file>
+                         Action 2 ->  Ex : [35;1mam-okay[0m [36;1m--paste-cut[0m <my-target-dir>
+
+       [36;1m--array[0m       type(String> // This option allows to copy or cut files or directories in a
+                     separate way ( via indexes ) .
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0 [36;1m--copy[0m <file-1> <dir-1> <dir-2> <..>
+                     For pasting according to the previous action you have to do :
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0 [36;1m--put[0m <your-target-dir>
+
+       [36;1m--index[0m       type(String> // This option allows to target the index of the array .
+                     Use case :
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0 [36;1m--copy[0m <file-1> <dir-1> <dir-2> <..>
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 1 [36;1m--put[0m <your-target-dir>
+                         Note :
+                             1.0 You can not do this ->  Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0-1 [36;1m--copy[0m <your-dir> <..>
+                             1.1 You can do this     ->  Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0-1 [36;1m--put[0m <your-dir>
+                             1.2 In the previous action ( 1.1 ) the <[36;1m--put[0m> option will manage all actions with the
+                                 <[36;1m--array[0m> option that associated with the <[36;1m--index[0m>, <[36;1m--copy[0m>
+                                 and <[36;1m--cut[0m> options .
+
+       [36;1m--put[0m         type(string) // This option allows to put directory/directories or file/files that have
+                     been targeted by the <[36;1m--array[0m> option associated with the <[36;1m--copy[0m>
+                     and <[36;1m--cut[0m> options .
+                     Use case :
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0 [36;1m--put[0m <your_dir>
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0-3 [36;1m--put[0m <your_dir>  // The indexes between `0` and `3`.
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0,3 [36;1m--put[0m <your_dir>  // The index `0` and `3`.
+
+       [36;1m--stat-copy[0m   type(string) // To see the status of an action done with the <[36;1m--copy[0m> option as first
+                     parameter .
+                          Ex : [35;1mam-okay[0m [36;1m--stat-copy[0m
+
+       [36;1m--stat-cut[0m    type(string) // To see the status of an action done with the <[36;1m--cut[0m> option as first
+                     parameter .
+                          Ex : [35;1mam-okay[0m [36;1m--stat-cut[0m
+
+       [36;1m--stat[0m        type(string) // To see the status of an action done with the <[36;1m--array[0m> option as first
+                     parameter and along with the <[36;1m--copy[0m> and <[36;1m--cut[0m> options or between them .
+                     Use case :
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0 [36;1m--stat[0m
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0-2 [36;1m--stat[0m  // The indexes between `0` and `2`.
+                          Ex : [35;1mam-okay[0m [36;1m--array[0m [36;1m--index[0m 0,2 [36;1m--stat[0m  // The index `0` and `2`.
+
+       [36;1m--move[0m        type(string) // An option allows to move files/directories directly
+
+       [36;1m--out[0m          type(string) // This option is linked to the [ [36;1m--move[0m, [36;1m--copy[0m ] options
+                          Ex : [35;1mam-okay[0m [36;1m--copy[0m <your_dirs/files> [36;1m--out[0m <your_target_dir>
+                          Ex : [35;1mam-okay[0m [36;1m--move[0m <your_dirs/files> [36;1m--out[0m <your_target_dir>
+
+       [36;1m--reset[0m       type(string) // To reset your desired action(s), there will be a prompt for the
+                     possible choices ( note : you have to encode expressly the `request` word ) .
+                          Ex : [35;1mam-okay[0m [36;1m--reset[0m request
+
+       [36;1m--doc[0m         type(string) // To see the documentation of the program [35;1mam-okay[0m
+                          Ex : [35;1mam-okay[0m [36;1m--doc[0m
+
+       [36;1m--help[0m        type(sting) // To get help
+                          Ex : [35;1mam-okay[0m [36;1m--help[0m
+
