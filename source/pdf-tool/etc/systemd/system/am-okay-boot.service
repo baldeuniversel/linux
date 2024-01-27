@@ -1,9 +1,0 @@
-[Unit]
-Description=am-okay-boot
-
-[Service]
-Environment=USER=$USER
-ExecStart=/usr/lib/am-okay/library/am-okay-reset-actions.sh
-
-[Install]
-WantedBy=default.target
