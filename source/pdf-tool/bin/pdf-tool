@@ -100,3 +100,102 @@ do
         exit 1
     fi
 done
+
+
+
+
+
+### Declaration variables -> start tag[d0]
+
+tmpWorkingDir="/tmp/.$USER/pdf-tool"
+
+### Declaration variables -> end tag[d0]
+
+
+
+
+
+:   '
+/**
+* @overview The function `isPDFFile` allows to know if a given file if a pdf file or not
+*
+*
+* @param {string} $1 // The pdf file
+*
+*
+* @return {string} // A `true` string value will be returned if the file is a pdf, otherwise
+*                     a `false` string value that will be returned
+*/
+    '
+function isPDFFile
+{
+    # Declaration variables
+    local getFile="$1"
+
+
+
+    # Return `true` if the file is a `pdf`, otherwise return `false`
+    if [[ ` pdfinfo "$getFile" ` ]]
+    then
+        #
+        echo "true"
+    else
+        #
+        echo "false"
+    fi
+}
+
+
+
+
+
+:   '
+/**
+* @overview The function `getVersionPDFFile` allows to get the version of a pdf file
+*
+*
+* @param {string} $1 // The pdf file
+*
+*
+* @return {string} // A version of the pdf file will be returned
+*/
+    '
+function getVersionPDFFile
+{
+    # Declaration variables
+    local getTheFile=$1
+
+
+
+    # The version of the pdf file will be returned if the file exists
+    if [[ -e "$getTheFile" ]]
+    then
+        #
+        echo ""
+    fi
+}
+
+
+
+
+
+
+
+### Creation some necessary directories -> start tag[c0] 
+
+#
+if [[ ! ( -e "$tmpWorkingDir" ) ]]
+then
+    #
+    mkdir -p "$tmpWorkingDir" 2> /dev/null
+
+    if [[ $? -ne 0 ]]
+    then
+        echo "~"
+        echo -e "Something is wrong, make sure your are the right to write in [/tmp] 🧐"
+
+        exit 0
+    fi
+fi
+
+### Creation some necessary directories -> end tag[c0] 
