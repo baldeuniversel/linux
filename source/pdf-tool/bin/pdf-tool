@@ -163,20 +163,50 @@ function isPDFFile
 function getVersionPDFFile
 {
     # Declaration variables
-    local getTheFile=$1
+    local getFile=$1
+    local getVersion=""
 
 
 
     # The version of the pdf file will be returned if the file exists
-    if [[ -e "$getTheFile" ]]
+    if [[ -e "$getFile" ]]
     then
         #
-        echo ""
+        getVersion=` pdfinfo "$getFile" | grep -w -- "^PDF version" | awk -F ':' '{print $2}' | awk '{$1=$1}; 1' `
+
+        echo "$getVersion"
     fi
 }
 
 
 
+
+
+### Action `extract` -> start tag[e0]
+
+if [[ "$1" == "--extract" ]]
+then
+    
+    # Declaration variables
+    flagIsPDF=""
+    getVersionPDF=""
+
+    
+    
+    # Save the `IFS` environment 
+    saveIFS=$IFS
+
+    #
+    #
+    #
+    for input in "$@"
+    do
+
+    done
+
+fi
+
+### Action `extract` -> end tag[e0]
 
 
 
