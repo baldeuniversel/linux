@@ -216,32 +216,74 @@ function getNbPagePDFFile
 
 :   '
 /**
-* @overview The function `getArgsOption` allows to get the argument for a given option
+* @overview The function `getArgsOption` allows to get arguments (to get the input parameters 
+* without hyphens, the target option has to be included)
 *
 *
-* @param {string} $1 // The string containing the input parameters
-* @param {string} $2 // The option for which the arguments will be returned
+* @param {string} $1 // The string containing the input arguments (the target option included)
 *
 *
-* @return {string} // The number of pages of the pdf file will be returned
+* @return {string} // The arguments linked to the option will be returned ( "args1" : "args2" )
 */
     '
-function getNbPagePDFFile
+function getArgsOption
 {
     # Declaration variables
-    local getFile=$1
-    local getNb=""
+    local getArgsWithOption="$1"
+
+    local getArgsOfOption=""
+    local getArgsOnly=""
+
+    declare -a tabArgs=()
 
 
 
-    # The version of the pdf file will be returned if the file exists
-    if [[ -e "$getFile" ]]
-    then
-        #
-        getNb=` pdfinfo "$getFile" | grep -w -- "^Pages" | awk -F ":" '{print $2}' | awk '{$1=$1}; 1' ` 
+    # Remove the given option 
+    getArgsOnly=` echo "$getArgsWithOption" | awk -F " " '{$1=""; sub(/^[ \t]+/, ""); print}' | \
+        awk '{gsub(/""+/, ":"); print}' | awk -F ':' '{ for (i=1; i<=NF; i++) { if (i%2 == 0) \
+        { gsub(/"+/, "", $i); printf "\"%s\"", $i; } else { printf "%s", $i; } } }' | awk '{ gsub(/ [^a-zA-Z]/, "|\""); print }' `
+    
+    # Save the `IFS` environment variable 
+    saveIFS="$IFS"
 
-        echo "$getNb"
-    fi
+    # Change the `IFS` environmental variable
+    IFS="|" 
+    
+    # Load the content of the string `$getArgsOnly` in an array
+    read -r -a tabArgs <<< $getArgsOnly
+
+    
+    # Get the arguments linked to the given option (shift the given option 
+    for argsInputOption in "${tabArgs[@]}"
+    do
+        # If the string/argument does not start by a hyphen "-"
+        if [[ ${argsInputOption:1:1} != "-" ]]
+        then
+            #
+            if [[ "${#tabArgs[@]}" -gt 1 ]]
+            then
+                #
+                getArgsOfOption+="$argsInputOption : "
+            else
+                #
+                getArgsOfOption+="$argsInputOption"
+            fi
+        else
+            # Save the arguments for the input 
+            getArgsOfOption=` echo "$getArgsOfOption" | awk '{ $NF=""; sub(/$/, "") }; 1' `
+
+            #
+            break
+        fi
+    done
+
+
+    # Restore the `IFS` environmental variable
+    IFS="$saveIFS"
+
+
+    # Return the arguments linked to the given option ` "args1" : "args2" ` 
+    echo "$getArgsOfOption"
 }
 
 
@@ -267,7 +309,7 @@ then
 
    
 
-    # Save the `IFS` environment 
+    # Save the `IFS` environmental variable
     saveIFS=$IFS
 
     # Change the `IFS`
@@ -283,30 +325,33 @@ then
         # Check if the current parameter is `--input`
         if [[ "$inputParam" == "--input" ]]
         then
-            # Shift until after `--input` option 
-            shift  $counterIterParam
 
-            # Get and check the values linked to the `--input` option 
-            for argsInputOption in "${@:$counterIterParam}"
-            do
-                # If the string/argument does not start by a hyphen "-"
-                if [[ ${argsInputOption:0:1} != "-" ]]
-                then
-                    #
-                    argsOption+="$argsInputOption :"
-                else
-                    # Save the arguments for the input 
-                    tabInputOptionArgs["--input"]=` echo "$argsOption" | awk '{ $NF=""; sub(/$/, "") }; 1' | awk '{ gsub(/[ ]*/, "") }; 1' `
+            # Get the next arguments
+            getNextArgs=` printf '"%s" ' "${@:$counterIterParam}" `
 
-                    #
-                    break
-                fi
-            done
+            
+            # Call of function, then ...
+            tabInputOptionArgs["--input"]=` getArgsOption  "$getNextArgs" "$inputParam" `
+            
+            #
+            if [[ ` echo "${tabInputOptionArgs[@]}" | awk -F " : " '{ print NF }' ` -gt 1  ]]
+            then
+                echo "~"
+                echo -e "For the action \e[1;36m--extract\e[0m , the option \e[1;035m--input\e[0m has to have one argument 🧐"
+
+                exit 1
+            fi
         fi
 
         # Increment the counter 
         counterIterParam=$(( counterIterParam + 1 ))
+
     done
+
+
+    # Restore the `IFS` environmental variable  
+    IFS=$saveIFS
+
 
 fi
 
