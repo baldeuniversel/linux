@@ -181,6 +181,73 @@ function getVersionPDFFile
 
 
 
+:   '
+/**
+* @overview The function `getNbPagePDFFile` allows to get the number of pages of a pdf file
+*
+*
+* @param {string} $1 // The pdf file
+*
+*
+* @return {int} // The number of pages of the pdf file will be returned
+*/
+    '
+function getNbPagePDFFile
+{
+    # Declaration variables
+    local getFile=$1
+    local getNb=""
+
+
+
+    # The version of the pdf file will be returned if the file exists
+    if [[ -e "$getFile" ]]
+    then
+        #
+        getNb=` pdfinfo "$getFile" | grep -w -- "^Pages" | awk -F ":" '{print $2}' | awk '{$1=$1}; 1' ` 
+
+        echo "$getNb"
+    fi
+}
+
+
+
+
+
+:   '
+/**
+* @overview The function `getArgsOption` allows to get the argument for a given option
+*
+*
+* @param {string} $1 // The string containing the input parameters
+* @param {string} $2 // The option for which the arguments will be returned
+*
+*
+* @return {string} // The number of pages of the pdf file will be returned
+*/
+    '
+function getNbPagePDFFile
+{
+    # Declaration variables
+    local getFile=$1
+    local getNb=""
+
+
+
+    # The version of the pdf file will be returned if the file exists
+    if [[ -e "$getFile" ]]
+    then
+        #
+        getNb=` pdfinfo "$getFile" | grep -w -- "^Pages" | awk -F ":" '{print $2}' | awk '{$1=$1}; 1' ` 
+
+        echo "$getNb"
+    fi
+}
+
+
+
+
+
 
 ### Action `extract` -> start tag[e0]
 
@@ -190,18 +257,55 @@ then
     # Declaration variables
     flagIsPDF=""
     getVersionPDF=""
+    counterIterParam=1 # Shift the action `--extract`
+    argsOption=""
 
-    
-    
+    declare -A tabInputOptionArgs=()
+    declare -A tabFromOptionArgs=()
+    declare -A tabToOptionArgs=()
+    declare -A tabOutputOptionArgs=()
+
+   
+
     # Save the `IFS` environment 
     saveIFS=$IFS
 
-    #
-    #
-    #
-    for input in "$@"
-    do
+    # Change the `IFS`
+    IFS=$'\n'
+    
+    # Shift `--extract` action
+    shift 1
 
+
+    # 
+    for inputParam in "$@"
+    do
+        # Check if the current parameter is `--input`
+        if [[ "$inputParam" == "--input" ]]
+        then
+            # Shift until after `--input` option 
+            shift  $counterIterParam
+
+            # Get and check the values linked to the `--input` option 
+            for argsInputOption in "${@:$counterIterParam}"
+            do
+                # If the string/argument does not start by a hyphen "-"
+                if [[ ${argsInputOption:0:1} != "-" ]]
+                then
+                    #
+                    argsOption+="$argsInputOption :"
+                else
+                    # Save the arguments for the input 
+                    tabInputOptionArgs["--input"]=` echo "$argsOption" | awk '{ $NF=""; sub(/$/, "") }; 1' | awk '{ gsub(/[ ]*/, "") }; 1' `
+
+                    #
+                    break
+                fi
+            done
+        fi
+
+        # Increment the counter 
+        counterIterParam=$(( counterIterParam + 1 ))
     done
 
 fi
