@@ -240,7 +240,7 @@ function getArgsOption
 
     # Remove the given option 
     getArgsOnly=` echo "$getArgsWithOption" | awk -F " " '{$1=""; sub(/^[ \t]+/, ""); print}' | \
-        awk '{gsub(/""+/, ":"); print}' | awk -F ':' '{ for (i=1; i<=NF; i++) { if (i%2 == 0) \
+        awk '{ gsub(/""+/, ":"); print }' | awk -F ':' '{ for (i=1; i<=NF; i++) { if (i%2 == 0) \
         { gsub(/"+/, "", $i); printf "\"%s\"", $i; } else { printf "%s", $i; } } }' | awk '{ gsub(/ [^a-zA-Z]/, "|\""); print }' `
     
     # Save the `IFS` environment variable 
@@ -341,6 +341,8 @@ then
 
                 exit 1
             fi
+
+            echo "${tabInputOptionArgs[*]}"
         fi
 
         # Increment the counter 
