@@ -135,7 +135,7 @@ function isPDFFile
 
 
     # Return `true` if the file is a `pdf`, otherwise return `false`
-    if [[ ` pdfinfo "$getFile" ` ]]
+    if [[ ` pdfinfo "$getFile"  2> /dev/null ` ]]
     then
         #
         echo "true"
@@ -230,9 +230,9 @@ function getArgsOption
 {
     # Declaration variables
     local getArgsWithOption="$1"
-
     local getArgsOfOption=""
     local getArgsOnly=""
+    local counterArgs=1
 
     declare -a tabArgs=()
 
@@ -260,7 +260,7 @@ function getArgsOption
         if [[ ${argsInputOption:1:1} != "-" ]]
         then
             #
-            if [[ "${#tabArgs[@]}" -gt 1 ]]
+            if [[ "${#tabArgs[@]}" -gt 1 ]] && [[ "${#tabArgs[@]}" -ne $counterArgs ]]
             then
                 #
                 getArgsOfOption+="$argsInputOption : "
@@ -275,6 +275,9 @@ function getArgsOption
             #
             break
         fi
+
+        # Increment the counter
+        counterArgs=$(( counterArgs + 1 ))
     done
 
 
@@ -298,9 +301,13 @@ then
     
     # Declaration variables
     flagIsPDF=""
-    getVersionPDF=""
-    counterIterParam=1 # Shift the action `--extract`
     argsOption=""
+    getVersionOfPDFFile=""
+    getThePDFFile=""
+    getNbPageOfPDFFile=0
+    getTheFromOptionValue=0
+    getTheToOptionValue=0
+    counterIterParam=1 # Shift the action `--extract`
 
     declare -A tabInputOptionArgs=()
     declare -A tabFromOptionArgs=()
@@ -322,28 +329,188 @@ then
     # 
     for inputParam in "$@"
     do
-        # Check if the current parameter is `--input`
-        if [[ "$inputParam" == "--input" ]]
+        # Check if the current parameter is `--input`, then ...
+        if [[ "$inputParam" == "--input" ]] || [[ "$inputParam" == "-i" ]]
         then
 
             # Get the next arguments
             getNextArgs=` printf '"%s" ' "${@:$counterIterParam}" `
 
-            
             # Call of function, then ...
             tabInputOptionArgs["--input"]=` getArgsOption  "$getNextArgs" "$inputParam" `
+
             
-            #
+            # For the `--input` option with the `--extract` action, only one argument is required
             if [[ ` echo "${tabInputOptionArgs[@]}" | awk -F " : " '{ print NF }' ` -gt 1  ]]
             then
                 echo "~"
-                echo -e "For the action \e[1;36m--extract\e[0m , the option \e[1;035m--input\e[0m has to have one argument 🧐"
+                echo -e "For the \e[1;36m--extract\e[0m action , the \e[1;035m--input\e[0m option has to have one argument 🧐 "
+
+                exit 1
+            fi
+            #
+            if [[  ` echo "${tabInputOptionArgs[@]}" | awk -F " : " '{ print NF }' ` -lt 1 ]]
+            then
+                echo "~"
+                echo -e "For the \e[1;36m--extract\e[0m action , the \e[1;035m--input\e[0m option has to have one argument 🧐 "
+
+                exit 1
+            fi
+            
+
+            # Get the input 
+            getPDFFile=` echo "${tabInputOptionArgs[@]}" | awk '{gsub(/"+/, ""); print }' |  awk '{gsub(/^ | $/, ""); print}' `
+            
+            # Check if the given input exists
+            if [[ -e "$getPDFFile" ]] && [[ ! ( -d "$getPDFFile" ) ]]
+            then
+                # Call the functions 
+                flagIsPDF=` isPDFFile "$getPDFFile" `
+                
+                # Check if the file is a pdf file, then ...
+                if [[ "$flagIsPDF" == "true" ]]
+                then
+                    # Call the functions
+                    getNbPageOfPDFFile=` getNbPagePDFFile $getPDFFile `
+                    getVersionOfPDFFile=` getVersionPDFFile $getPDFFile `
+
+                    #
+                    getThePDFFile="$getPDFFile"
+
+                elif [[ "$flagIsPDF" == "false" ]]
+                then
+                    echo "~"
+                    echo -e "This \e[1;031m$getPDFFile\e[0m file does not a pdf file 🧐 "
+
+                    exit 1
+                fi
+
+            elif [[ -d "$getPDFFile" ]] && [[ -e "$getPDFFile" ]]
+            then
+                #
+                echo "~"
+                echo -e "The argument for the \e[1;035m--option\e[0m has to be a pdf file 🧐 "
+
+                exit 1
+
+            elif [[ ! ( -e "$getPDFFile" ) ]]
+            then
+                #
+                echo "~"
+                echo -e "The given pdf file \e[1;031m$getPDFFile\e[0m does not exist 🧐 "
+
+                exit 1
+            else
+                #
+                echo "~"
+                echo -e "Either the encoded file \e[1;031m$getPDFFile\e[0m does not exist or the way the"
+                echo -e "file name is written is not supported 📛 "
+
+                exit 1
+            fi
+        
+        # Check if the current parameter is `--from`, then ...
+        elif [[ "$inputParam" == "--from" ]] ||  [[ "$inputParam" == "-f" ]]
+        then
+            # Get the next arguments
+            getNextArgs=` printf '"%s" ' "${@:$counterIterParam}" `
+
+            # Call of function, then ...
+            tabFromOptionArgs["--from"]=` getArgsOption  "$getNextArgs" "$inputParam" `
+
+            # For the `--from` option with the `--extract` action, only one argument is required
+            if [[ ` echo "${tabFromOptionArgs[@]}" | awk -F " : " '{ print NF }' ` -gt 1  ]]
+            then
+                echo "~"
+                echo -e "For the \e[1;36m--extract\e[0m action , the \e[1;035m--from\e[0m option has to have one argument 🧐 "
+
+                exit 1
+            fi
+            #
+            if [[ ` echo "${tabFromOptionArgs[@]}" | awk -F " : " '{ print NF }' ` -lt 1  ]]
+            then
+                echo "~"
+                echo -e "For the \e[1;36m--extract\e[0m action , the \e[1;035m--from\e[0m option has to have one argument 🧐 "
 
                 exit 1
             fi
 
-            echo "${tabInputOptionArgs[*]}"
+            # Get the argument for the `--from` option 
+            getArgForFromOption=` echo "${tabFromOptionArgs[@]}" | awk '{gsub(/"+/, ""); print }' |  awk '{gsub(/^ | $/, ""); print}' `
+
+            # Check if `getArgForFromOption` is an integer, then ...
+            if [[ $getArgForFromOption =~ (^[0-9]+$) ]]
+            then
+                #
+                if [[ $getArgForFromOption -lt 1 ]]
+                then
+                    echo "~"
+                    echo -e "The value of the \e[1;035m--from\e[0m option has to be strictly positive 🤗 "
+
+                    exit 1
+                else
+                    # Get the value for the `--from` option 
+                    getTheFromOptionValue=$getArgForFromOption
+                fi
+            else
+                echo "~"
+                echo -e "The \e[1;031m$getArgForFromOption\e[0m argument does not valid for the \e[1;035m--from\e[0m option ⚠️  "
+
+                exit 1
+            fi
+
+        # Check if the current parameter is `--to`, then ...
+        elif [[ "$inputParam" == "--to" ]] ||  [[ "$inputParam" == "-t" ]]
+        then
+            # Get the next arguments
+            getNextArgs=` printf '"%s" ' "${@:$counterIterParam}" `
+
+            # Call of function, then ...
+            tabToOptionArgs["--to"]=` getArgsOption  "$getNextArgs" "$inputParam" `
+
+            # For the `--to` option with the `--extract` action, only one argument is required
+            if [[ ` echo "${tabToOptionArgs[@]}" | awk -F " : " '{ print NF }' ` -gt 1  ]]
+            then
+                echo "~"
+                echo -e "For the \e[1;36m--extract\e[0m action , the \e[1;035m--to\e[0m option has to have one argument 🧐 "
+
+                exit 1
+            fi
+            #
+            if [[ ` echo "${tabToOptionArgs[@]}" | awk -F " : " '{ print NF }' ` -lt 1  ]]
+            then
+                echo "~"
+                echo -e "For the \e[1;36m--extract\e[0m action , the \e[1;035m--to\e[0m option has to have one argument 🧐 "
+
+                exit 1
+            fi
+
+            # Get the argument for the `--to` option 
+            getArgForToOption=` echo "${tabToOptionArgs[@]}" | awk '{gsub(/"+/, ""); print }' |  awk '{gsub(/^ | $/, ""); print}' `
+
+            # Check if `getArgForToOption` is an integer, then ...
+            if [[ $getArgForToOption =~ (^[0-9]+$) ]]
+            then
+                #
+                if [[ $getArgForToOption -lt 1 ]]
+                then
+                    echo "~"
+                    echo -e "The value of the \e[1;035m--to\e[0m option has to be strictly positive 🤗 "
+
+                    exit 1
+                else
+                    # Get the value for the `--to` option 
+                    getTheToOptionValue=$getArgForToOption
+                fi
+            else
+                echo "~"
+                echo -e "The \e[1;031m$getArgForToOption\e[0m argument does not valid for the \e[1;035m--to\e[0m option ⚠️  "
+
+                exit 1
+            fi
+
         fi
+
 
         # Increment the counter 
         counterIterParam=$(( counterIterParam + 1 ))
