@@ -801,7 +801,14 @@ then
 
 
     # Extract operating 
-    if [[ $getTheToOptionValue -lt $getTheFromOptionValue ]]
+    if [[ $getTheToOptionValue -gt $getNbPageOfPDFFile ]] || [[ $getTheFromOptionValue -gt $getNbPageOfPDFFile ]]
+    then
+        echo "~"
+        echo -e "\e[1;031mOut of bound\e[0m , the input pdf file is only $getNbPageOfPDFFile pages 📛 🚧 "
+
+        exit 1
+
+    elif [[ $getTheToOptionValue -lt $getTheFromOptionValue ]]
     then
         echo "~"
         echo -e "The value of the \e[1;036m--to\e[0m option has to be greater than or equal "
