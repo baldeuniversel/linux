@@ -315,7 +315,8 @@ then
     declare -A tabFromOptionArgs=()
     declare -A tabToOptionArgs=()
     declare -A tabOutputOptionArgs=()
-
+    
+    declare -a tabRequiredOptions=( "--input" "--from" "--to" "--output" )
     declare -a tabEncodedOptions=()
 
    
@@ -418,7 +419,7 @@ then
             counterRequiredOption=$(( counterRequiredOption + 1 ))
 
             # Append the current option 
-            tabEncodedOptions+="$inputParam "
+            tabEncodedOptions+="--input "
         
         # Check if the current parameter is `--from`, then ...
         elif [[ "$inputParam" == "--from" ]] ||  [[ "$inputParam" == "-f" ]]
@@ -475,7 +476,7 @@ then
             counterRequiredOption=$(( counterRequiredOption + 1 ))
 
             # Append the current option 
-            tabEncodedOptions+="$inputParam "
+            tabEncodedOptions+="--from "
 
         # Check if the current parameter is `--to`, then ...
         elif [[ "$inputParam" == "--to" ]] ||  [[ "$inputParam" == "-t" ]]
@@ -532,7 +533,7 @@ then
             counterRequiredOption=$(( counterRequiredOption + 1 ))
 
             # Append the current option 
-            tabEncodedOptions+="$inputParam "
+            tabEncodedOptions+="--to "
 
         # Check if the current parameter is `--output`, then ...
         elif [[ "$inputParam" == "--output" ]] ||  [[ "$inputParam" == "-o" ]]
@@ -597,7 +598,7 @@ then
             counterRequiredOption=$(( counterRequiredOption + 1 ))
 
             # Append the current option 
-            tabEncodedOptions+="$inputParam "
+            tabEncodedOptions+="--output "
 
         elif ( [[ "$inputParam" != "--input" ]] || [[ "$inputParam" != "-i" ]] ) \
             && ( [[ "$inputParam" != "--from" ]] || [[ "$inputParam" != "-f" ]] ) \
@@ -629,48 +630,40 @@ then
     # Check to see if the required options was used 
     if [[ $counterRequiredOption -ne 4 ]]
     then
-        # Declaration variables
+        #
         stringMissingOptions=""
 
-
-        #
-        for inputRequiredOptions in ` echo "--input -i --from -f --to -t --output -o" `
-        do 
-            #
+        # From the table required options ...
+        for requiredOption in ${tabRequiredOptions[@]}
+        do
+            # A variable allowing to se if the current required option exists among 
+            # the input options parameters (encoded by the user)
             flagOptionFound="false"
 
-            for encodedOption in ${tabEncodedOptions[@]}
-            do 
-                if [[ "$inputRequiredOptions" == "$encodedOption" ]]
+            # From the table encoded options
+            for encodedOptions in ${tabEncodedOptions[@]}
+            do
+                # Check the matching 
+                if [[ "$requiredOption" == "$encodedOptions" ]]
                 then
                     #
                     flagOptionFound="true"
                 fi
             done
 
-            #
+            # Verify if there is a match ...
             if [[ "$flagOptionFound" == "false" ]]
             then
-                #
-                getOptionWithoutHyphen=` echo "$inputRequiredOptions" | awk '{ gsub(/-+/, ""); print }' `
-                pattern="^$getOptionWithoutHyphen"
-               
-                #
-                if [[ ! ` echo "$stringMissingOptions" | sed "s/ /\n/g" | \
-                    grep "$pattern" ` ]]
-                then
-                    #
-                    stringMissingOptions+="$inputRequiredOptions "
-                    echo "yes"
-                else
-                    echo "$getOptionWithoutHyphen"
-                fi
+                # Append this missing option (the current required option)
+                stringMissingOptions+="$requiredOption "
             fi
-
         done
 
         #
-        echo $stringMissingOptions
+        echo "~"
+        echo -e "Missing  \e[1;033m$stringMissingOptions\e[0m option(s) 🧐 "
+
+        exit 1
     fi
     
     #
