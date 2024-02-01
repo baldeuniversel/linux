@@ -307,12 +307,16 @@ then
     getNbPageOfPDFFile=0
     getTheFromOptionValue=0
     getTheToOptionValue=0
+    getTheOutputNameFile=""
     counterIterParam=1 # Shift the action `--extract`
+    counterRequiredOption=0
 
     declare -A tabInputOptionArgs=()
     declare -A tabFromOptionArgs=()
     declare -A tabToOptionArgs=()
     declare -A tabOutputOptionArgs=()
+
+    declare -a tabEncodedOptions=()
 
    
 
@@ -408,6 +412,13 @@ then
 
                 exit 1
             fi
+
+
+            # Increment the counter
+            counterRequiredOption=$(( counterRequiredOption + 1 ))
+
+            # Append the current option 
+            tabEncodedOptions+="$inputParam "
         
         # Check if the current parameter is `--from`, then ...
         elif [[ "$inputParam" == "--from" ]] ||  [[ "$inputParam" == "-f" ]]
@@ -459,6 +470,13 @@ then
                 exit 1
             fi
 
+
+            # Increment the counter
+            counterRequiredOption=$(( counterRequiredOption + 1 ))
+
+            # Append the current option 
+            tabEncodedOptions+="$inputParam "
+
         # Check if the current parameter is `--to`, then ...
         elif [[ "$inputParam" == "--to" ]] ||  [[ "$inputParam" == "-t" ]]
         then
@@ -509,6 +527,92 @@ then
                 exit 1
             fi
 
+
+            # Increment the counter
+            counterRequiredOption=$(( counterRequiredOption + 1 ))
+
+            # Append the current option 
+            tabEncodedOptions+="$inputParam "
+
+        # Check if the current parameter is `--output`, then ...
+        elif [[ "$inputParam" == "--output" ]] ||  [[ "$inputParam" == "-o" ]]
+        then
+            # Get the next arguments
+            getNextArgs=` printf '"%s" ' "${@:$counterIterParam}" `
+
+            # Call of function, then ...
+            tabOutputOptionArgs["--output"]=` getArgsOption  "$getNextArgs" "$inputParam" `
+
+            # For the `--output` option with the `--extract` action, only one argument is required
+            if [[ ` echo "${tabOutputOptionArgs[@]}" | awk -F " : " '{ print NF }' ` -gt 1  ]]
+            then
+                echo "~"
+                echo -e "For the \e[1;36m--extract\e[0m action , the \e[1;035m--output\e[0m option has to have one argument 🧐 "
+
+                exit 1
+            fi
+            #
+            if [[ ` echo "${tabOutputOptionArgs[@]}" | awk -F " : " '{ print NF }' ` -lt 1  ]]
+            then
+                echo "~"
+                echo -e "For the \e[1;36m--extract\e[0m action , the \e[1;035m--output\e[0m option has to have one argument 🧐 "
+
+                exit 1
+            fi
+
+            # Get the argument for the `--output` option 
+            getArgForOutputOption=` echo "${tabOutputOptionArgs[@]}" | awk '{gsub(/"+/, ""); print }' |  awk '{gsub(/^ | $/, ""); print}' `
+            
+
+            # Check if `getArgForOutputOption` contains spaces, then ...
+            if [[ $getArgForOutputOption =~ [[:space:]] ]]
+            then
+                #
+                echo "~"
+                echo -e "The given output name \e[1;031m$getArgForOutputOption\e[0m , has not to contain spaces 🤠 "
+
+                exit 1
+            
+            # Check to see if the given name exists in the wrapper directory
+            elif [[ -e "$getArgForOutputOption" ]]
+            then
+                echo "~"
+                echo -e "The \e[1;031m$getArgForOutputOption\e[0m name already exists in the wrapper directory 🔰 "
+
+                exit 1
+            else
+                # If the end of the name is `.pdf`, then ...
+                if [[ ` echo "$getArgForOutputOption" | grep -- ".pdf$" ` ]]
+                then
+                    #
+                    getTheOutputNameFile="$getArgForOutputOption"
+                else
+                    #
+                    getTheOutputNameFile="$getArgForOutputOption.pdf"
+                fi
+            fi
+
+
+            # Increment the counter
+            counterRequiredOption=$(( counterRequiredOption + 1 ))
+
+            # Append the current option 
+            tabEncodedOptions+="$inputParam "
+
+        elif ( [[ "$inputParam" != "--input" ]] || [[ "$inputParam" != "-i" ]] ) \
+            && ( [[ "$inputParam" != "--from" ]] || [[ "$inputParam" != "-f" ]] ) \
+            && ( [[ "$inputParam" != "--to" ]] || [[ "$inputParam" != "-t" ]] ) \
+            && ( [[ "$inputParam" != "--output" ]] || [[ "$inputParam" != "-o" ]] )
+        then
+            
+            #
+            if [[ ` echo "$inputParam" | grep -- "^-" ` ]]
+            then
+                echo "~"
+                echo -e "Unknown \e[1;031m$inputParam\e[0m option for the \e[1;36m--extract\e[0m action 🧐 "
+            
+                exit 1
+            fi
         fi
 
 
@@ -520,8 +624,57 @@ then
 
     # Restore the `IFS` environmental variable  
     IFS=$saveIFS
+    
+
+    # Check to see if the required options was used 
+    if [[ $counterRequiredOption -ne 4 ]]
+    then
+        # Declaration variables
+        stringMissingOptions=""
 
 
+        #
+        for inputRequiredOptions in ` echo "--input -i --from -f --to -t --output -o" `
+        do 
+            #
+            flagOptionFound="false"
+
+            for encodedOption in ${tabEncodedOptions[@]}
+            do 
+                if [[ "$inputRequiredOptions" == "$encodedOption" ]]
+                then
+                    #
+                    flagOptionFound="true"
+                fi
+            done
+
+            #
+            if [[ "$flagOptionFound" == "false" ]]
+            then
+                #
+                getOptionWithoutHyphen=` echo "$inputRequiredOptions" | awk '{ gsub(/-+/, ""); print }' `
+                pattern="^$getOptionWithoutHyphen"
+               
+                #
+                if [[ ! ` echo "$stringMissingOptions" | sed "s/ /\n/g" | \
+                    grep "$pattern" ` ]]
+                then
+                    #
+                    stringMissingOptions+="$inputRequiredOptions "
+                    echo "yes"
+                else
+                    echo "$getOptionWithoutHyphen"
+                fi
+            fi
+
+        done
+
+        #
+        echo $stringMissingOptions
+    fi
+    
+    #
+    exit 0
 fi
 
 ### Action `extract` -> end tag[e0]
