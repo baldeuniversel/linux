@@ -829,8 +829,8 @@ then
             if [[ ` cat "$tmpWorkingDir/extract-action" | wc -l` -gt 0 ]]
             then
                 echo "~"
-                echo -e "Error ❌ during extraction, make sure you have the right to write in the target directory "
-                echo -e "where the pdf file will be sent"
+                echo -e "\e[1;031mError\e[0m ❌ during extraction, make sure you have the right to write in the target directory "
+                echo -e "where the pdf file will be sent 🧐 "
 
                 exit 1
             else
