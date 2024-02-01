@@ -293,6 +293,130 @@ function getArgsOption
 
 
 
+:   '
+/**
+* @overview The `spinnerAnimation` function allows to make animations while a process is in progress
+*
+* @param {int} $1 // The pid of the process
+*/
+    '
+function spinnerAnimation
+{
+
+    # Declaration variables
+    local pidCmd=$1
+    local delay=0.3
+    local getRandValue=` shuf -i 1-5 -n 1 `
+
+    local spinString=""
+    local spinStringA="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+    local spinStringB="◰◳◲◱◰◳◲◱"
+    local spinStringC="☼☀☁☂☃☄☽☾"
+    local spinStringD="◴◷◶◵◴◷◶◵"
+    local spinStringE="♚♛♜♝♞♟"
+
+
+    local infotext="\e[36;1mwait...\e[0m \U00270B \U001F449 ⏳ "
+    local firstChar=""
+
+
+
+    ### Choice the spin string -> start tag[c0]
+
+    if [[ $getRandValue -eq 1 ]]
+    then
+        #
+        spinString=$spinStringA
+
+    elif [[ $getRandValue -eq 2 ]]
+    then
+        #
+        spinString=$spinStringB
+
+    elif [[ $getRandValue -eq 3 ]]
+    then
+        #
+        spinString=$spinStringC
+
+    elif [[ $getRandValue -eq 4 ]]
+    then
+        #
+        spinString=$spinStringD
+
+    elif [[ $getRandValue -eq 5 ]]
+    then
+        #
+        spinString=$spinStringE
+    fi
+
+    ### Choice the spin string -> start tag[c0]
+
+
+
+    #
+    trap "setterm --cursor on" SIGINT
+
+    #
+    setterm --cursor off
+
+    echo "~"
+
+
+
+    # Animation
+    while [[ ` ps -p "$pidCmd" | grep -- "$pidCmd" ` ]]
+    do
+
+      firstChar=${spinString#?}
+
+      echo -en "$infotext $spinString"
+
+      spinString=$firstChar${spinString%"$firstChar"}
+
+      sleep $delay
+
+      echo -ne "\r"
+
+    done
+
+    #
+    echo -ne "\e[36;1mwait...\e[0m \U00270B \U001F449 ⌛ $spinString \r"
+
+    #
+    echo ""
+    echo ""
+
+    #
+    setterm --cursor on
+
+}
+
+
+
+
+
+### Creation some necessary directories -> start tag[c0] 
+
+#
+if [[ ! ( -e "$tmpWorkingDir" ) ]]
+then
+    #
+    mkdir -p "$tmpWorkingDir" 2> /dev/null
+
+    if [[ $? -ne 0 ]]
+    then
+        echo "~"
+        echo -e "Something is wrong, make sure your are the right to write in [/tmp] 🧐"
+
+        exit 0
+    fi
+fi
+
+### Creation some necessary directories -> end tag[c0]
+
+
+
+
 
 ### Action `extract` -> start tag[e0]
 
@@ -593,6 +717,15 @@ then
                 fi
             fi
 
+            # Check if the given name output file exists, then ...
+            if [[ -e "$getTheOutputNameFile" ]]
+            then
+                echo "~"
+                echo -e "The \e[1;031m$getTheOutputNameFile\e[0m name already exists in the wrapper directory 🔰 "
+
+                exit 1
+            fi
+
 
             # Increment the counter
             counterRequiredOption=$(( counterRequiredOption + 1 ))
@@ -665,31 +798,44 @@ then
 
         exit 1
     fi
+
+
+    # Extract operating 
+    if [[ $getTheToOptionValue -lt $getTheFromOptionValue ]]
+    then
+        echo "~"
+        echo -e "The value of the \e[1;036m--to\e[0m option has to be greater than or equal "
+        echo -e "to that of the \e[1;036m--from\e[0m option 🧐 "
+
+        exit 1
+    else
+        # Extract
+        pdftk A=$getThePDFFile cat A$getTheFromOptionValue-$getTheToOptionValue output $getTheOutputNameFile \
+            2> "$tmpWorkingDir/extract-action" &
+        
+        # Call the function
+        spinnerAnimation $!
+
+        #
+        if [[ -e "$tmpWorkingDir/extract-action" ]]
+        then
+            if [[ ` cat "$tmpWorkingDir/extract-action" | wc -l` -gt 0 ]]
+            then
+                echo "~"
+                echo -e "Error ❌ during extraction, make sure you have the right to write in the target directory "
+                echo -e "where the pdf file will be sent"
+
+                exit 1
+            else
+                echo "~"
+                echo -e "Successfully extraction ✅ "
+            fi
+        fi
+
+    fi
     
     #
     exit 0
 fi
 
-### Action `extract` -> end tag[e0]
-
-
-
-
-### Creation some necessary directories -> start tag[c0] 
-
-#
-if [[ ! ( -e "$tmpWorkingDir" ) ]]
-then
-    #
-    mkdir -p "$tmpWorkingDir" 2> /dev/null
-
-    if [[ $? -ne 0 ]]
-    then
-        echo "~"
-        echo -e "Something is wrong, make sure your are the right to write in [/tmp] 🧐"
-
-        exit 0
-    fi
-fi
-
-### Creation some necessary directories -> end tag[c0] 
+### Action `extract` -> end tag[e0] 
