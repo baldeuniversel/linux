@@ -1699,9 +1699,9 @@ then
 
     # Get input pdf files
     stringPDFFiles=` echo ${tabInputOptionArgs[@]} | awk '{gsub(/ : /, " "); print }' | awk '{gsub(/["]*/, ""); print }' `
-
+    
     # Concatenating
-    pdftk "$stringPDFFiles" output $getTheOutputNameFile 1> /dev/null 2> "$tmpWorkingDir/concat-action" &
+    pdftk $stringPDFFiles output "$getTheOutputNameFile" 1> /dev/null 2> "$tmpWorkingDir/concat-action" &
 
 
     # Call the function
