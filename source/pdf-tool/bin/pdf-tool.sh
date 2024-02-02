@@ -295,6 +295,49 @@ function getArgsOption
 
 :   '
 /**
+* @overview the `isOptionRepeat` allows to know if an option is already encoded (before)
+*
+* @param {string} $1 // The string containing all the already encoded options
+* @param {string} $2 // The current option to check among all the encoded options
+*
+* @return {string} // The `true` string will be returned if the option is already encoded,
+*                     otherwise a `false` string will be returned
+*/
+    '
+function isOptionRepeat
+{
+    # Declaration variables
+    local getTheOptions="$1"
+    local getTheCurOption="$2"
+    local getTheCurOptWithoutHyphen=""
+    local getTheOptionsWithoutHyphen=""
+    local getTheFirstCharCurOption=""
+
+    # Get the current option without hyphen
+    getTheCurOptWithoutHyphen=` echo "$getTheCurOption" | awk '{ gsub(/[-]*/, ""); print }' `
+    getTheFirstCharCurOption=${getTheCurOptWithoutHyphen:0:1}
+    
+    getTheOptionsWithoutHyphen=` echo "$getTheOptions" | awk '{ gsub(/[-]*/, ""); print }' `
+                
+    # Processing ...
+    if [[ ` echo "$getTheOptionsWithoutHyphen" | \
+        awk -v pattern="$getTheFirstCharCurOption" '{ for(i=1; i <=NF; i++) { if (index($i, pattern) == 1) { print $i } } }' ` ]]
+    then
+        #
+        echo "true"
+    else
+        #
+        echo "false"
+         
+    fi
+}
+
+
+
+
+
+:   '
+/**
 * @overview The `spinnerAnimation` function allows to make animations while a process is in progress
 *
 * @param {int} $1 // The pid of the process
@@ -477,6 +520,27 @@ then
         if [[ "$inputParam" == "--input" ]] || [[ "$inputParam" == "-i" ]]
         then
 
+            # Process to verify if the current option has already been taken, then ...
+            if [[ $counterRequiredOption -gt 0 ]]
+            then
+                # Get the content of the array in string mode
+                getInStringModeOptions=` echo ${tabEncodedOptions[@]} `
+
+                # Call the function
+                flagOptionSpotted=` isOptionRepeat "$getInStringModeOptions" "$inputParam" `
+                
+                # Checking ...
+                if [[ "$flagOptionSpotted" == "true" ]]
+                then
+                    #
+                    echo "~"
+                    echo -e "Action not performed due to repetition of \e[1;035m$inputParam\e[0m option 📛 🔰 "
+
+                    exit 1
+                fi
+            fi
+
+
             # Get the next arguments
             getNextArgs=` printf '"%s" ' "${@:$counterIterParam}" `
 
@@ -563,6 +627,28 @@ then
         # Check if the current parameter is `--from`, then ...
         elif [[ "$inputParam" == "--from" ]] ||  [[ "$inputParam" == "-f" ]]
         then
+            
+            # Process to verify if the current option has already been taken, then ...
+            if [[ $counterRequiredOption -gt 0 ]]
+            then
+                # Get the content of the array in string mode
+                getInStringModeOptions=` echo ${tabEncodedOptions[@]} `
+
+                # Call the function
+                flagOptionSpotted=` isOptionRepeat "$getInStringModeOptions" "$inputParam" `
+                
+                # Checking ...
+                if [[ "$flagOptionSpotted" == "true" ]]
+                then
+                    #
+                    echo "~"
+                    echo -e "Action not performed due to repetition of \e[1;035m$inputParam\e[0m option 📛 🔰 "
+
+                    exit 1
+                fi
+            fi
+
+
             # Get the next arguments
             getNextArgs=` printf '"%s" ' "${@:$counterIterParam}" `
 
@@ -620,6 +706,28 @@ then
         # Check if the current parameter is `--to`, then ...
         elif [[ "$inputParam" == "--to" ]] ||  [[ "$inputParam" == "-t" ]]
         then
+
+            # Process to verify if the current option has already been taken, then ...
+            if [[ $counterRequiredOption -gt 0 ]]
+            then
+                # Get the content of the array in string mode
+                getInStringModeOptions=` echo ${tabEncodedOptions[@]} `
+
+                # Call the function
+                flagOptionSpotted=` isOptionRepeat "$getInStringModeOptions" "$inputParam" `
+                
+                # Checking ...
+                if [[ "$flagOptionSpotted" == "true" ]]
+                then
+                    #
+                    echo "~"
+                    echo -e "Action not performed due to repetition of \e[1;035m$inputParam\e[0m option 📛 🔰 "
+
+                    exit 1
+                fi
+            fi
+
+
             # Get the next arguments
             getNextArgs=` printf '"%s" ' "${@:$counterIterParam}" `
 
@@ -677,6 +785,28 @@ then
         # Check if the current parameter is `--output`, then ...
         elif [[ "$inputParam" == "--output" ]] ||  [[ "$inputParam" == "-o" ]]
         then
+
+            # Process to verify if the current option has already been taken, then ...
+            if [[ $counterRequiredOption -gt 0 ]]
+            then
+                # Get the content of the array in string mode
+                getInStringModeOptions=` echo "${tabEncodedOptions[@]}" `
+
+                # Call the function
+                flagOptionSpotted=` isOptionRepeat "$getInStringModeOptions" "$inputParam" `
+
+                # Checking ...
+                if [[ "$flagOptionSpotted" == "true" ]]
+                then
+                    #
+                    echo "~"
+                    echo -e "Action not performed due to repetition of \e[1;035m$inputParam\e[0m option 📛 🔰 "
+
+                    exit 1
+                fi
+            fi
+
+
             # Get the next arguments
             getNextArgs=` printf '"%s" ' "${@:$counterIterParam}" `
 
@@ -908,6 +1038,27 @@ then
         if [[ "$inputParam" == "--input" ]] || [[ "$inputParam" == "-i" ]]
         then
 
+            # Process to verify if the current option has already been taken, then ...
+            if [[ $counterRequiredOption -gt 0 ]]
+            then
+                # Get the content of the array in string mode
+                getInStringModeOptions=` echo ${tabEncodedOptions[@]} `
+
+                # Call the function
+                flagOptionSpotted=` isOptionRepeat "$getInStringModeOptions" "$inputParam" `
+                
+                # Checking ...
+                if [[ "$flagOptionSpotted" == "true" ]]
+                then
+                    #
+                    echo "~"
+                    echo -e "Action not performed due to repetition of \e[1;035m$inputParam\e[0m option 📛 🔰 "
+
+                    exit 1
+                fi
+            fi
+
+
             # Get the next arguments
             getNextArgs=` printf '"%s" ' "${@:$counterIterParam}" `
 
@@ -994,6 +1145,28 @@ then
         # Check if the current parameter is `--output`, then ...
         elif [[ "$inputParam" == "--output" ]] ||  [[ "$inputParam" == "-o" ]]
         then
+
+            # Process to verify if the current option has already been taken, then ...
+            if [[ $counterRequiredOption -gt 0 ]]
+            then
+                # Get the content of the array in string mode
+                getInStringModeOptions=` echo ${tabEncodedOptions[@]} `
+
+                # Call the function
+                flagOptionSpotted=` isOptionRepeat "$getInStringModeOptions" "$inputParam" `
+                
+                # Checking ...
+                if [[ "$flagOptionSpotted" == "true" ]]
+                then
+                    #
+                    echo "~"
+                    echo -e "Action not performed due to repetition of \e[1;035m$inputParam\e[0m option 📛 🔰 "
+
+                    exit 1
+                fi
+            fi
+
+
             # Get the next arguments
             getNextArgs=` printf '"%s" ' "${@:$counterIterParam}" `
 
@@ -1147,6 +1320,10 @@ then
     
     # Call the function
     spinnerAnimation $!
+    
+    tput cuu1
+    tput cuu1 
+    tput cuu1
 
     # Replace the text `replaceMe` by the "$tmpWorkingDir/$getTheOutputNameFile" in the text file 
     sed -i "s|replaceMe|"$tmpWorkingDir/$getTheOutputNameFile"|" "$tmpWorkingDir/template-number-foot-page.tex" 
