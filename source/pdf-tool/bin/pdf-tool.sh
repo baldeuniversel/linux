@@ -1137,8 +1137,9 @@ then
         rm -r "$tmpWorkingDir/$getThePDFFile" 2> /dev/null
     fi
 
-    #
-    cp ./usr/lib/pdf-tool/library/tex/ "$tmpWorkingDir"
+    # Copy the template file towards ...
+    cp "../usr/lib/pdf-tool/library/tex/template-number-foot-page.tex" "$tmpWorkingDir"
+    
 
     # Use the version `1.5` for the input pdf file
     gs -dCompatibilityLevel=1.5 -dNOPAUSE -dBATCH -sDEVICE=pdfwrite \
@@ -1148,33 +1149,49 @@ then
     spinnerAnimation $!
 
     # Replace the text `replaceMe` by the "$tmpWorkingDir/$getTheOutputNameFile" in the text file 
-    sed -i "s|replaceMe|"$tmpWorkingDir/$getTheOutputNameFile"|" "$tmpWorkingDir/numbered-foot-pages.tex" 
+    sed -i "s|replaceMe|"$tmpWorkingDir/$getTheOutputNameFile"|" "$tmpWorkingDir/template-number-foot-page.tex" 
    
     
+    # Numbering
     pdflatex -halt-on-error -output-directory "$tmpWorkingDir" \
-        "$tmpWorkingDir/numbered-foot-pages.tex"  2> /dev/null
+        "$tmpWorkingDir/template-number-foot-page.tex"  2> "$tmpWorkingDir/number-action" 1> /dev/null &
 
-    exit 0
-
+    # Call the function 
+    spinnerAnimation $!
+    
     #
-    if [[ -e "$tmpWorkingDir/extract-action" ]]
+    if [[  ` cat "$tmpWorkingDir/number-action" 2> /dev/null | wc -l ` -eq 0  ]]
     then
-        if [[ ` cat "$tmpWorkingDir/extract-action" | wc -l` -gt 0 ]]
+        rm -r "$tmpWorkingDir/$getTheOutputNameFile" 2> /dev/null
+        
+        mv "$tmpWorkingDir/template-number-foot-page.pdf" "$getTheOutputNameFile" 2> /dev/null
+
+        #
+        if [[ $? -eq 0 ]]
         then
             echo "~"
-            echo -e "\e[1;031mError\e[0m ❌ during extraction, make sure you have the right to write in the target directory "
+            echo -e "Successfully extraction ✅ "
+
+            exit 0
+        else
+            echo "~"
+            echo -e "\e[1;031mError\e[0m ❌ during numbering, make sure you have the right to write in the target directory "
             echo -e "where the pdf file will be sent 🧐 "
 
             exit 1
-        else
-            echo "~"
-            echo -e "Successfully extraction ✅ "
-        fi
+        fi 
+    else
+        echo "~"
+        echo -e "\e[1;031mError\e[0m ❌ during numbering, make sure you have the right to write in the target directory "
+        echo -e "where the pdf file will be sent 🧐 "
+
+        exit 1
     fi
 
 
     ### Number operating  -> start tag[o1]
-    
+   
+
     #
     exit 0
 fi
