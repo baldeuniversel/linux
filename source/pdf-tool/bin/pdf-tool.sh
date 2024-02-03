@@ -68,7 +68,7 @@ set -uo pipefail # To exit the script if there is an error
 listOfParams=("--extract" "--input" "-i" "--from" "-f" \
     "--output" "-o" "--doc" "--help")
 
-listOfParamsAction=("--extract" "--number" "--concat" "--compress" "--rotate" "--doc" "--help")
+listOfParamsAction=("--extract" "--number" "--concat" "--compress" "--rotate" "--include" "--doc" "--help")
 
 counterOption=0
 
@@ -92,7 +92,7 @@ do
     fi
 
     #
-    if [[ $counterOption -eq 7  ]]
+    if [[ $counterOption -eq 8 ]]
     then
         echo "~"
         echo -e "Unknown `tput setaf 3; tput bold`$1` tput sgr0 ` option \U001F9D0 ."
@@ -2713,3 +2713,575 @@ fi
 
 
 ### Action `rotate` -> end tag[r0]
+
+
+
+
+
+###
+
+if [[ "$1" == "--include"  ]]
+then
+    
+    # Declaration variables
+    flagIsPDF=""
+    argsOption=""
+    getVersionOfPDFFile=""
+    getThePDFFile=""
+    getNbPageOfPDFFile=0
+    getTheNbPageOfPDFFileDest=0
+    getTheAfterPgOptionValue=0
+    getTheSrcOptionValue=""
+    getTheDestOptionValue=""
+    getTheOutputNameFile=""
+    counterIterParam=1 # Shift the action `--include`
+    counterRequiredOption=0
+
+    declare -A tabSourceOptionArgs=()
+    declare -A tabDestinationOptionArgs=()
+    declare -A tabOutputOptionArgs=()
+    declare -A tabAfterPgOptionArgs=()
+
+    declare -a tabRequiredOptions=( "--source" "--destination" "--output" "--after-page" )
+    declare -a tabEncodedOptions=()
+
+   
+
+    # Save the `IFS` environmental variable
+    saveIFS=$IFS
+
+    # Change the `IFS`
+    IFS=$'\n'
+    
+    # Shift `--include` action
+    shift 1
+
+
+    # 
+    for inputParam in "$@"
+    do
+        # Check if the current parameter is `--source`, then ...
+        if [[ "$inputParam" == "--source" ]] || [[ "$inputParam" == "-s" ]]
+        then
+
+            # Process to verify if the current option has already been taken, then ...
+            if [[ $counterRequiredOption -gt 0 ]]
+            then
+                # Get the content of the array in string mode
+                getInStringModeOptions=` echo ${tabEncodedOptions[@]} `
+
+                # Call the function
+                flagOptionSpotted=` isOptionRepeat "$getInStringModeOptions" "$inputParam" `
+                
+                # Checking ...
+                if [[ "$flagOptionSpotted" == "true" ]]
+                then
+                    #
+                    echo "~"
+                    echo -e "Action not performed due to repetition of \e[1;035m$inputParam\e[0m option 📛 🔰 "
+
+                    exit 1
+                fi
+            fi
+
+
+            # Get the next arguments
+            getNextArgs=` printf '"%s" ' "${@:$counterIterParam}" `
+
+            # Call of function, then ...
+            tabSourceOptionArgs["--source"]=` getArgsOption  "$getNextArgs" "$inputParam" `
+
+            
+            # For the `--source` option with the `--include` action, only one argument is required
+            if [[ ` echo "${tabSourceOptionArgs[@]}" | awk -F " : " '{ print NF }' ` -gt 1  ]]
+            then
+                echo "~"
+                echo -e "For the \e[1;36m--include\e[0m action , the \e[1;035m--source\e[0m option has to have one argument 🧐 "
+
+                exit 1
+            fi
+            #
+            if [[  ` echo "${tabSourceOptionArgs[@]}" | awk -F " : " '{ print NF }' ` -lt 1 ]]
+            then
+                echo "~"
+                echo -e "For the \e[1;36m--include\e[0m action , the \e[1;035m--source\e[0m option has to have one argument 🧐 "
+
+                exit 1
+            fi
+            
+
+            # Get the source 
+            getPDFFile=` echo "${tabSourceOptionArgs[@]}" | awk '{gsub(/"+/, ""); print }' |  awk '{gsub(/^ | $/, ""); print}' `
+            
+            # Check if the given source exists
+            if [[ -e "$getPDFFile" ]] && [[ ! ( -d "$getPDFFile" ) ]]
+            then
+                # Call the functions 
+                flagIsPDF=` isPDFFile "$getPDFFile" `
+                
+                # Check if the file is a pdf file, then ...
+                if [[ "$flagIsPDF" == "true" ]]
+                then
+                    # Call the functions
+                    #getNbPageOfPDFFile=` getNbPagePDFFile $getPDFFile `
+                    #getVersionOfPDFFile=` getVersionPDFFile $getPDFFile `
+
+                    #
+                    getThePDFFile="$getPDFFile"
+                    getTheSrcOptionValue="$getPDFFile"
+
+                elif [[ "$flagIsPDF" == "false" ]]
+                then
+                    echo "~"
+                    echo -e "This \e[1;031m$getPDFFile\e[0m file does not a pdf file 🧐 "
+
+                    exit 1
+                fi
+
+            elif [[ -d "$getPDFFile" ]] && [[ -e "$getPDFFile" ]]
+            then
+                #
+                echo "~"
+                echo -e "The argument for the \e[1;035m--option\e[0m has to be a pdf file 🧐 "
+
+                exit 1
+
+            elif [[ ! ( -e "$getPDFFile" ) ]]
+            then
+                #
+                echo "~"
+                echo -e "The given pdf file \e[1;031m$getPDFFile\e[0m does not exist 🧐 "
+
+                exit 1
+            else
+                #
+                echo "~"
+                echo -e "Either the encoded file \e[1;031m$getPDFFile\e[0m does not exist or the way the"
+                echo -e "file name is written is not supported 📛 "
+
+                exit 1
+            fi
+
+
+            # Increment the counter
+            counterRequiredOption=$(( counterRequiredOption + 1 ))
+
+            # Append the current option 
+            tabEncodedOptions+="--source "
+
+
+        # Check if the current parameter is `--destination`, then ...
+        elif [[ "$inputParam" == "--destination" ]] || [[ "$inputParam" == "-d" ]]
+        then
+
+            # Process to verify if the current option has already been taken, then ...
+            if [[ $counterRequiredOption -gt 0 ]]
+            then
+                # Get the content of the array in string mode
+                getInStringModeOptions=` echo ${tabEncodedOptions[@]} `
+
+                # Call the function
+                flagOptionSpotted=` isOptionRepeat "$getInStringModeOptions" "$inputParam" `
+                
+                # Checking ...
+                if [[ "$flagOptionSpotted" == "true" ]]
+                then
+                    #
+                    echo "~"
+                    echo -e "Action not performed due to repetition of \e[1;035m$inputParam\e[0m option 📛 🔰 "
+
+                    exit 1
+                fi
+            fi
+
+
+            # Get the next arguments
+            getNextArgs=` printf '"%s" ' "${@:$counterIterParam}" `
+
+            # Call of function, then ...
+            tabDestinationOptionArgs["--destination"]=` getArgsOption  "$getNextArgs" "$inputParam" `
+
+            
+            # For the `--destination` option with the `--include` action, only one argument is required
+            if [[ ` echo "${tabDestinationOptionArgs[@]}" | awk -F " : " '{ print NF }' ` -gt 1  ]]
+            then
+                echo "~"
+                echo -e "For the \e[1;36m--include\e[0m action , the \e[1;035m--destination\e[0m option has to have one argument 🧐 "
+
+                exit 1
+            fi
+            #
+            if [[  ` echo "${tabDestinationOptionArgs[@]}" | awk -F " : " '{ print NF }' ` -lt 1 ]]
+            then
+                echo "~"
+                echo -e "For the \e[1;36m--include\e[0m action , the \e[1;035m--destination\e[0m option has to have one argument 🧐 "
+
+                exit 1
+            fi
+            
+
+            # Get the destination 
+            getPDFFile=` echo "${tabDestinationOptionArgs[@]}" | awk '{gsub(/"+/, ""); print }' |  awk '{gsub(/^ | $/, ""); print}' `
+            
+            # Check if the given destination exists
+            if [[ -e "$getPDFFile" ]] && [[ ! ( -d "$getPDFFile" ) ]]
+            then
+                # Call the functions 
+                flagIsPDF=` isPDFFile "$getPDFFile" `
+                
+                # Check if the file is a pdf file, then ...
+                if [[ "$flagIsPDF" == "true" ]]
+                then
+                    # Call the functions
+                    getTheNbPageOfPDFFileDest=` getNbPagePDFFile $getPDFFile `
+
+                    #getNbPageOfPDFFile=` getNbPagePDFFile $getPDFFile `
+                    #getVersionOfPDFFile=` getVersionPDFFile $getPDFFile `
+
+                    #
+                    getThePDFFile="$getPDFFile"
+                    getTheDestOptionValue="$getPDFFile"
+
+                elif [[ "$flagIsPDF" == "false" ]]
+                then
+                    echo "~"
+                    echo -e "This \e[1;031m$getPDFFile\e[0m file does not a pdf file 🧐 "
+
+                    exit 1
+                fi
+
+            elif [[ -d "$getPDFFile" ]] && [[ -e "$getPDFFile" ]]
+            then
+                #
+                echo "~"
+                echo -e "The argument for the \e[1;035m--option\e[0m has to be a pdf file 🧐 "
+
+                exit 1
+
+            elif [[ ! ( -e "$getPDFFile" ) ]]
+            then
+                #
+                echo "~"
+                echo -e "The given pdf file \e[1;031m$getPDFFile\e[0m does not exist 🧐 "
+
+                exit 1
+            else
+                #
+                echo "~"
+                echo -e "Either the encoded file \e[1;031m$getPDFFile\e[0m does not exist or the way the"
+                echo -e "file name is written is not supported 📛 "
+
+                exit 1
+            fi
+
+
+            # Increment the counter
+            counterRequiredOption=$(( counterRequiredOption + 1 ))
+
+            # Append the current option 
+            tabEncodedOptions+="--destination "
+        
+        
+        # Check if the current parameter is `--after-page`, then ...
+        elif [[ "$inputParam" == "--after-page" ]] ||  [[ "$inputParam" == "-a" ]]
+        then
+
+            # Process to verify if the current option has already been taken, then ...
+            if [[ $counterRequiredOption -gt 0 ]]
+            then
+                # Get the content of the array in string mode
+                getInStringModeOptions=` echo ${tabEncodedOptions[@]} `
+
+                # Call the function
+                flagOptionSpotted=` isOptionRepeat "$getInStringModeOptions" "$inputParam" `
+                
+                # Checking ...
+                if [[ "$flagOptionSpotted" == "true" ]]
+                then
+                    #
+                    echo "~"
+                    echo -e "Action not performed due to repetition of \e[1;035m$inputParam\e[0m option 📛 🔰 "
+
+                    exit 1
+                fi
+            fi
+
+
+            # Get the next arguments
+            getNextArgs=` printf '"%s" ' "${@:$counterIterParam}" `
+
+            # Call of function, then ...
+            tabAfterPgOptionArgs["--after-page"]=` getArgsOption  "$getNextArgs" "$inputParam" `
+
+            # For the `--after-page` option with the `--include` action, only one argument is required
+            if [[ ` echo "${tabAfterPgOptionArgs[@]}" | awk -F " : " '{ print NF }' ` -gt 1  ]]
+            then
+                echo "~"
+                echo -e "For the \e[1;36m--include\e[0m action , the \e[1;035m--after-page\e[0m option has to have one argument 🧐 "
+
+                exit 1
+            fi
+            #
+            if [[ ` echo "${tabAfterPgOptionArgs[@]}" | awk -F " : " '{ print NF }' ` -lt 1  ]]
+            then
+                echo "~"
+                echo -e "For the \e[1;36m--include\e[0m action , the \e[1;035m--after-page\e[0m option has to have one argument 🧐 "
+
+                exit 1
+            fi
+
+            # Get the argument for the `--after-page` option 
+            getArgForAfterPgOption=` echo "${tabAfterPgOptionArgs[@]}" | awk '{gsub(/"+/, ""); print }' |  awk '{gsub(/^ | $/, ""); print}' `
+            
+            # Check if `getArgForAfterPgOption` is an integer, then ...
+            if [[ $getArgForAfterPgOption =~ (^[0-9]+$) ]]
+            then
+                #
+                if [[ $getArgForAfterPgOption -lt 1 ]]
+                then
+                    echo "~"
+                    echo -e "The value of the \e[1;035m--after-page\e[0m option has to be strictly positive 🤗 "
+
+                    exit 1
+                else
+                    # Get the value for the `--after-page` option 
+                    getTheAfterPgOptionValue=$getArgForAfterPgOption
+                fi
+            else
+                echo "~"
+                echo -e "The \e[1;031m$getArgForAfterPgOption\e[0m argument does not valid for the \e[1;035m--after-page\e[0m option ⚠️  "
+                
+                echo ""
+                echo -e "The value of the \e[1;035m--after-page\e[0m option has to be an integer 🤗 "
+
+                exit 1
+            fi
+
+
+            # Increment the counter
+            counterRequiredOption=$(( counterRequiredOption + 1 ))
+
+            # Append the current option 
+            tabEncodedOptions+="--after-page "
+    
+        # Check if the current parameter is `--output`, then ...
+        elif [[ "$inputParam" == "--output" ]] ||  [[ "$inputParam" == "-o" ]]
+        then
+
+            # Process to verify if the current option has already been taken, then ...
+            if [[ $counterRequiredOption -gt 0 ]]
+            then
+                # Get the content of the array in string mode
+                getInStringModeOptions=` echo ${tabEncodedOptions[@]} `
+
+                # Call the function
+                flagOptionSpotted=` isOptionRepeat "$getInStringModeOptions" "$inputParam" `
+                
+                # Checking ...
+                if [[ "$flagOptionSpotted" == "true" ]]
+                then
+                    #
+                    echo "~"
+                    echo -e "Action not performed due to repetition of \e[1;035m$inputParam\e[0m option 📛 🔰 "
+
+                    exit 1
+                fi
+            fi
+
+
+            # Get the next arguments
+            getNextArgs=` printf '"%s" ' "${@:$counterIterParam}" `
+
+            # Call of function, then ...
+            tabOutputOptionArgs["--output"]=` getArgsOption  "$getNextArgs" "$inputParam" `
+
+            # For the `--output` option with the `--include` action, only one argument is required
+            if [[ ` echo "${tabOutputOptionArgs[@]}" | awk -F " : " '{ print NF }' ` -gt 1  ]]
+            then
+                echo "~"
+                echo -e "For the \e[1;36m--include\e[0m action , the \e[1;035m--output\e[0m option has to have one argument 🧐 "
+
+                exit 1
+            fi
+            #
+            if [[ ` echo "${tabOutputOptionArgs[@]}" | awk -F " : " '{ print NF }' ` -lt 1  ]]
+            then
+                echo "~"
+                echo -e "For the \e[1;36m--include\e[0m action , the \e[1;035m--output\e[0m option has to have one argument 🧐 "
+
+                exit 1
+            fi
+
+            # Get the argument for the `--output` option 
+            getArgForOutputOption=` echo "${tabOutputOptionArgs[@]}" | awk '{gsub(/"+/, ""); print }' |  awk '{gsub(/^ | $/, ""); print}' `
+            
+
+            # Check if `getArgForOutputOption` contains spaces, then ...
+            if [[ $getArgForOutputOption =~ [[:space:]] ]]
+            then
+                #
+                echo "~"
+                echo -e "The given output name \e[1;031m$getArgForOutputOption\e[0m , has not to contain spaces 🤠 "
+
+                exit 1
+            
+            # Check to see if the given name exists in the wrapper directory
+            elif [[ -e "$getArgForOutputOption" ]]
+            then
+                echo "~"
+                echo -e "The \e[1;031m$getArgForOutputOption\e[0m name already exists in the wrapper directory 🔰 "
+
+                exit 1
+            else
+                # If the end of the name is `.pdf`, then ...
+                if [[ ` echo "$getArgForOutputOption" | grep -- ".pdf$" ` ]]
+                then
+                    #
+                    getTheOutputNameFile="$getArgForOutputOption"
+                else
+                    #
+                    getTheOutputNameFile="$getArgForOutputOption.pdf"
+                fi
+            fi
+
+            # Check if the given name output file exists, then ...
+            if [[ -e "$getTheOutputNameFile" ]]
+            then
+                echo "~"
+                echo -e "The \e[1;031m$getTheOutputNameFile\e[0m name already exists in the wrapper directory 🔰 "
+
+                exit 1
+            fi
+
+
+            # Increment the counter
+            counterRequiredOption=$(( counterRequiredOption + 1 ))
+
+            # Append the current option 
+            tabEncodedOptions+="--output "
+
+        elif ( [[ "$inputParam" != "--source" ]] || [[ "$inputParam" != "-s" ]] ) \
+            && ( [[ "$inputParam" != "--destination" ]] || [[ "$inputParam" != "-d" ]] ) \
+            && ( [[ "$inputParam" != "--output" ]] || [[ "$inputParam" != "-o" ]] ) \
+            && ( [[ "$inputParam" != "--after-page" ]] || [[ "$inputParam" != "-a" ]] )
+        then
+            
+            #
+            if [[ ` echo "$inputParam" | grep -- "^-" ` ]]
+            then
+                echo "~"
+                echo -e "Unknown \e[1;031m$inputParam\e[0m option for the \e[1;36m--include\e[0m action 🧐 "
+            
+                exit 1
+            fi
+        fi
+
+
+        # Increment the counter 
+        counterIterParam=$(( counterIterParam + 1 ))
+    done
+
+
+    # Restore the `IFS` environmental variable  
+    IFS=$saveIFS
+    
+
+    # Check to see if the required options was used 
+    if [[ $counterRequiredOption -ne 4 ]]
+    then
+        #
+        stringMissingOptions=""
+
+        # From the table required options ...
+        for requiredOption in ${tabRequiredOptions[@]}
+        do
+            # A variable allowing to se if the current required option exists among 
+            # the source options parameters (encoded by the user)
+            flagOptionFound="false"
+
+            # From the table encoded options
+            for encodedOptions in ${tabEncodedOptions[@]}
+            do
+                # Check the matching 
+                if [[ "$requiredOption" == "$encodedOptions" ]]
+                then
+                    #
+                    flagOptionFound="true"
+                fi
+            done
+
+            # Verify if there is a match ...
+            if [[ "$flagOptionFound" == "false" ]]
+            then
+                # Append this missing option (the current required option)
+                stringMissingOptions+="$requiredOption "
+            fi
+        done
+
+        #
+        echo "~"
+        echo -e "Missing  \e[1;033m$stringMissingOptions\e[0m option(s) 🧐 "
+
+        exit 1
+    fi
+
+    
+    ### Include operating  -> start tag[o1]
+
+    if [[ -e "$tmpWorkingDir/$getThePDFFile" ]]
+    then
+        #
+        rm -r "$tmpWorkingDir/$getThePDFFile" 2> /dev/null
+    fi
+
+
+    # Check if the given value referring to the destination pdf file does not exceed the number of pages that the latter  
+    if [[ $getTheAfterPgOptionValue -gt $getTheNbPageOfPDFFileDest ]]
+    then
+        #
+        echo "~"
+        echo -e "\e[1;091mOups !\e[0m The encoded value referring to the destination pdf file is greater than "
+        echo -e "the number of pages that the latter has 🧐 "
+
+        exit 1
+    fi
+
+    # Including
+    remainingPg=` echo "$getTheNbPageOfPDFFileDest-$getTheAfterPgOptionValue" | bc `
+
+    pdftk A=$getTheDestOptionValue B=$getTheSrcOptionValue  \
+        cat A1-$getTheAfterPgOptionValue B A$remainingPg-end \
+        output $getTheOutputNameFile 1> /dev/null 2> "$tmpWorkingDir/include-action" & 
+
+    
+    # Call the function
+    spinnerAnimation $!
+    
+    #
+    if [[  ` cat "$tmpWorkingDir/include-action" 2> /dev/null | wc -l ` -eq 0  ]]
+    then
+        #
+        echo "~"
+        echo -e "Successfully including ✅ "
+
+        # Call the function
+        removeTmpWorkingDir
+
+        exit 0
+    else
+        echo "~"
+        echo -e "\e[1;031mError\e[0m ❌ during including, make sure you have the right to write in the target directory "
+        echo -e "where the pdf file will be sent 🧐 "
+
+        # Call the function
+        removeTmpWorkingDir
+
+        exit 1
+    fi
+
+
+    ### Include operating  -> end tag[o1]
+
+    #
+    exit 0
+fi
