@@ -107,7 +107,9 @@ done
 
 ### Declaration variables -> start tag[d0]
 
-tmpWorkingDir="/tmp/.$USER/pdf-tool"
+getCurrentPid="$$"
+
+tmpWorkingDir="/tmp/.$USER/pdf-tool/$getCurrentPid"
 
 ### Declaration variables -> end tag[d0]
 
@@ -432,6 +434,25 @@ function spinnerAnimation
     #
     setterm --cursor on
 
+}
+
+
+
+
+
+:   '
+/**
+* @overview the `removeTmpWorkingDir` allows to remove the tmp working directory
+*/
+    '
+function removeTmpWorkingDir
+{
+    #
+    if [[ -e "$tmpWorkingDir" ]]
+    then
+        #
+        rm -rf "$tmpWorkingDir" 2> /dev/null
+    fi
 }
 
 
@@ -985,6 +1006,10 @@ then
         fi
 
     fi
+
+
+    # Call the function
+    removeTmpWorkingDir
     
     #
     exit 0
@@ -1367,7 +1392,10 @@ then
 
 
     ### Number operating  -> end tag[o1]
-   
+  
+
+    # Call the function
+    removeTmpWorkingDir
 
     #
     exit 0
@@ -1727,6 +1755,9 @@ then
 
     ### Concatenating operating  -> end tag[o1]
    
+
+    # Call the function
+    removeTmpWorkingDir
 
     #
     exit 0
