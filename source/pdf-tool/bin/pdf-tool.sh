@@ -972,6 +972,9 @@ then
         echo "~"
         echo -e "\e[1;031mOut of bound\e[0m , the input pdf file is only $getNbPageOfPDFFile pages 📛 🚧 "
 
+        # Call the function
+        removeTmpWorkingDir
+
         exit 1
 
     elif [[ $getTheToOptionValue -lt $getTheFromOptionValue ]]
@@ -979,6 +982,9 @@ then
         echo "~"
         echo -e "The value of the \e[1;036m--to\e[0m option has to be greater than or equal "
         echo -e "to that of the \e[1;036m--from\e[0m option 🧐 "
+
+        # Call the function
+        removeTmpWorkingDir
 
         exit 1
     else
@@ -998,21 +1004,22 @@ then
                 echo -e "\e[1;031mError\e[0m ❌ during extraction, make sure you have the right to write in the target directory "
                 echo -e "where the pdf file will be sent 🧐 "
 
+                # Call the function
+                removeTmpWorkingDir
+
                 exit 1
             else
                 echo "~"
                 echo -e "Successfully extraction ✅ "
+
+                # Call the function
+                removeTmpWorkingDir
+
+                exit 0
             fi
         fi
 
     fi
-
-
-    # Call the function
-    removeTmpWorkingDir
-    
-    #
-    exit 0
 fi
 
 ### Action `extract` -> end tag[e0] 
@@ -1374,11 +1381,17 @@ then
             echo "~"
             echo -e "Successfully extraction ✅ "
 
+            # Call the function
+            removeTmpWorkingDir
+
             exit 0
         else
             echo "~"
             echo -e "\e[1;031mError\e[0m ❌ during numbering, make sure you have the right to write in the target directory "
             echo -e "where the pdf file will be sent 🧐 "
+            
+            # Call the function
+            removeTmpWorkingDir
 
             exit 1
         fi 
@@ -1387,18 +1400,14 @@ then
         echo -e "\e[1;031mError\e[0m ❌ during numbering, make sure you have the right to write in the target directory "
         echo -e "where the pdf file will be sent 🧐 "
 
+        # Call the function
+        removeTmpWorkingDir
+
         exit 1
     fi
 
 
     ### Number operating  -> end tag[o1]
-  
-
-    # Call the function
-    removeTmpWorkingDir
-
-    #
-    exit 0
 fi
 
 ### Action `number` -> end tag[n0] 
@@ -1740,7 +1749,10 @@ then
     if [[  ` cat "$tmpWorkingDir/concat-action" 2> /dev/null | wc -l ` -eq 0  ]]
     then
         echo "~"
-        echo -e "Successfully extraction ✅ "
+        echo -e "Successfully extraction ✅ " 
+
+        # Call the function
+        removeTmpWorkingDir
 
         exit 0
     else
@@ -1748,20 +1760,15 @@ then
         echo -e "\e[1;031mError\e[0m ❌ during concatenating, make sure you have the right to write in the target"
         echo -e "directory where the concatenated pdf file will be sent , be sure also that "
         echo -e "your input pdf files do not contain spaces 🧐 "
+        
+        # Call the function
+        removeTmpWorkingDir
 
         exit 1
     fi
 
 
-    ### Concatenating operating  -> end tag[o1]
-   
-
-    # Call the function
-    removeTmpWorkingDir
-
-    #
-    exit 0
-    
+    ### Concatenating operating  -> end tag[o1] 
 fi
 
 ### Action `concat` -> end tag[c0]
