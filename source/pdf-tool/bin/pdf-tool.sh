@@ -92,6 +92,8 @@ counterOption=0
 
 
 
+
+
 # Return an error when the number of parameters is lower than one 
 if [[ $# -lt 1 ]]
 then
@@ -118,6 +120,94 @@ do
         exit 1
     fi
 done
+
+
+
+
+
+### Info -> start tag[wo] 
+
+# For the `--doc` action 
+if [[ $1 == "--doc" ]]
+then
+    if [[ $# -ne 1 ]]
+    then
+        echo "~"
+        echo -e "When the \e[1;036m$1\e[0m action is invoked, there isn't another one 🚧 "
+        
+        exit 1
+    else
+        if [[ -e "../usr/lib/pdf-tool/documentation/pdf-tool-doc" ]]
+        then
+            cat "../usr/lib/pdf-tool/documentation/pdf-tool-doc" 2> /dev/null
+
+            exit 0
+        else
+            echo ""
+            echo -e "A dependency file is missing, please reinstall the \e[1;036mpdf-tool\e[0m ⚠️  "
+
+            exit 1
+        fi
+    fi
+
+    exit 0
+fi
+
+# For the `--help` action 
+if [[ $1 == "--help" ]]
+then
+    if [[ $# -ne 1 ]]
+    then
+        echo "~"
+        echo -e "When the \e[1;036m$1\e[0m action is invoked, there isn't another one 🚧 "
+        
+        exit 1
+    else
+        if [[ -e "../usr/lib/pdf-tool/documentation/pdf-tool-help" ]]
+        then
+            cat "../usr/lib/pdf-tool/documentation/pdf-tool-help" 2> /dev/null
+
+            exit 0
+        else
+            echo ""
+            echo -e "A dependency file is missing, please reinstall the \e[1;036mpdf-tool\e[0m ⚠️  "
+
+            exit 1
+        fi
+    fi
+
+    exit 0
+fi
+
+# For the `--version` action 
+if [[ $1 == "--version" ]]
+then
+    if [[ $# -ne 1 ]]
+    then
+        echo "~"
+        echo -e "When the \e[1;036m$1\e[0m action is invoked, there isn't another one 🚧 "
+        
+        exit 1
+    else
+        if [[ -e "../usr/lib/pdf-tool/documentation/pdf-tool-version-pure" ]]
+        then
+            cat "../usr/lib/pdf-tool/documentation/pdf-tool-version-pure" | \
+                awk '{ gsub(/./, "\033[1;036m&\033[0m"); print }' 2> /dev/null
+
+            exit 0
+        else
+            echo ""
+            echo -e "A dependency file is missing, please reinstall the \e[1;036mpdf-tool\e[0m ⚠️  "
+
+            exit 1
+        fi
+    fi
+
+    exit 0
+fi
+
+
+### Info -> end tag[wo]
 
 
 
@@ -1368,7 +1458,7 @@ then
     fi
 
     # Copy the template file towards ...
-    cp "/usr/lib/pdf-tool/library/tex/template-number-foot-page.tex" "$tmpWorkingDir"
+    cp "../usr/lib/pdf-tool/library/tex/template-number-foot-page.tex" "$tmpWorkingDir"
     
 
     # Use the version `1.5` for the input pdf file
