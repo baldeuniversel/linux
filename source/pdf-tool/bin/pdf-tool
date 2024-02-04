@@ -84,8 +84,12 @@ listOfOptions=("--input" "-i" "--from" "-f" \
     "--output" "-o" "--source" "-s" "--destination" "-d" \
     "--after-page" "-a" "--level" "-l" "--cardinal" "-c")
 
+<<<<<<< HEAD:source/pdf-tool/bin/pdf-tool
 listOfParamsAction=("--extract" "--number" "--concat" "--compress" "--rotate" \
     "--include" "--exclude" "--doc" "--help" "--version")
+=======
+listOfParamsAction=("--extract" "--number" "--concat" "--compress" "--rotate" "--include" "--exclude" "--doc" "--help")
+>>>>>>> 2e5e26fd01d02ca35b4b8061c72d670822fa0611:source/pdf-tool/bin/pdf-tool.sh
 
 counterOption=0
 
@@ -109,7 +113,11 @@ do
     fi
 
     #
+<<<<<<< HEAD:source/pdf-tool/bin/pdf-tool
     if [[ $counterOption -eq 10 ]]
+=======
+    if [[ $counterOption -eq 9 ]]
+>>>>>>> 2e5e26fd01d02ca35b4b8061c72d670822fa0611:source/pdf-tool/bin/pdf-tool.sh
     then
         echo "~"
         echo -e "Unknown `tput setaf 3; tput bold`$1` tput sgr0 ` option \U001F9D0 ."
@@ -3271,7 +3279,11 @@ then
     then
         #
         echo "~"
+<<<<<<< HEAD:source/pdf-tool/bin/pdf-tool
         echo -e "\e[1;093mOups !\e[0m The encoded value referring to the destination pdf file is equal to "
+=======
+        echo -e "\e[1;091mOups !\e[0m The encoded value referring to the destination pdf file is equal to "
+>>>>>>> 2e5e26fd01d02ca35b4b8061c72d670822fa0611:source/pdf-tool/bin/pdf-tool.sh
         echo -e "the number of pages that the latter has 🧐 "
         echo ""
         echo -e "Do a \e[1;032mconcatenation\e[0m instead "
