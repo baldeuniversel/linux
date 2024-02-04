@@ -8,7 +8,8 @@
 *
 * @requires The only actions supported are [ --extract , --number , --concat , --compress , 
 *                                            --rotate , --include , --exclude , --doc , 
-*                                            --help , --version ]
+*                                            --stamp , --burst , --crypt , --decrypt , --help ,
+*                                            --version ]
 *
 * && the only options supported are [ --input || -i , --from || -f , --output || -o ,  
 *                                     --source || -s , --destination || -d , 
