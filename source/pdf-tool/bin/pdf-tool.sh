@@ -192,7 +192,7 @@ then
         if [[ -e "../usr/lib/pdf-tool/documentation/pdf-tool-version-pure" ]]
         then
             cat "../usr/lib/pdf-tool/documentation/pdf-tool-version-pure" | \
-                awk '{ gsub(/./, "\033[1;036m&\033[0m"); print }' 2> /dev/null
+                awk '{ gsub(/.+/, "\033[1;036m&\033[0m"); print }' 2> /dev/null
 
             exit 0
         else
