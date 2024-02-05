@@ -14,7 +14,8 @@ Otherwise **meo** program is a package manager for all programs
 of this Github repository [`https://github.com/baldeuniversel/linux.git`](https://github.com/baldeuniversel/linux.git)
 at the level of the `main` branch. So, you could first install the
 **meo** program to manage (install, remove, update ...) the packages
-that are on this Github repository (in the main branch) .
+that are on this Github repository (in the main branch) . 
+**Hash-package** : `md5sum(65e243e7ac47bd08430a8c94aed00d63)`
 
 
 After installing the **meo** program, from your terminal execute this
@@ -30,6 +31,7 @@ The **pdf-tool** program allows to manipulate pdf files .
 With this program you can do actions like `compress, rotate, number, stamp, 
 concatenate, extract, include, exclude, encrypt, decrypt, burst ...` on 
 **pdf files** (use from the terminal) .
+**Hash-package** : `md5sum(342cfcd0f499c903a78efa23b62ef35d)`
 
 After installing the **pdf-tool** program, you can execute (from the terminal) the 
 command **pdf-tool --help** or **pdf-tool --doc** or **man pdf-tool** to get more 
@@ -45,6 +47,7 @@ dirs/files (Use from the terminal) .
 
 With this program you can tag files or directories as items to copy or move 
 via a console (terminal), and paste these items via a another console (terminal) .
+**Hash-package** : `md5sum(48508dbdb64af4acd0afb2b7d6291f86)`
 
 
 After installing the **am-okay** program, you can execute (from the terminal) the 
@@ -58,6 +61,7 @@ files or directories in arrays and paste them wherever you want in your Linux sy
 
 The **lumus** program allows to manage the luminosity of the Linux system 
 (Use from the terminal) .
+**Hash-package** : `md5sum(5fdf5bf1e45b700481bf8a20b7c75980)`
 
 To see how to use **lumus** program, execute this command from a 
 terminal (of course after installing the program) **lumus --help** or **man lumus** .
@@ -68,6 +72,7 @@ terminal (of course after installing the program) **lumus --help** or **man lumu
 
 The **vimizer** program allows to install, change the shell and configure 
 the `vim` and `zsh` program on your Linux system (Use from the terminal) .
+**Hash-package** : `md5sum(a4d8a286615c2e14908e1f97d4f18e64)`
 
 After installing the **vimizer** program, you can execute (from the terminal) 
 the command **vimizer --help** or **man vimizer** to get more information about the 
