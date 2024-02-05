@@ -1,5 +1,19 @@
 [
+
+    {
+        package: meo ,
+        version: 1.1.8 ,
+        pkg-md5sum: 65e243e7ac47bd08430a8c94aed00d63
+    },
+
+
+    {
+        package: pdf-tool ,
+        version: 1.0.1 ,
+        pkg-md5sum: 342cfcd0f499c903a78efa23b62ef35d  
+    },
   
+
     {
         package: am-okay ,
         version: 3.1.1 ,
@@ -18,13 +32,7 @@
         package: vimizer , 
         version: 1.0.4 ,
         pkg-md5sum: a4d8a286615c2e14908e1f97d4f18e64
-    },
-
-    
-    {
-        package: meo ,
-        version: 1.1.8 ,
-        pkg-md5sum: 65e243e7ac47bd08430a8c94aed00d63
     }
+
 ]
 
