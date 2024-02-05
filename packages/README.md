@@ -22,6 +22,21 @@ command **meo --help** or **meo --doc** to see how to use the **meo** program .
 
 <br />
 
+## pdf-tool
+ 
+The **pdf-tool** program allows to manipulate pdf files .
+
+
+With this program you can do actions like `compress, rotate, number, stamp, 
+concatenate, extract, include, exclude, encrypt, decrypt, burst ...` on 
+**pdf files** (use from the terminal) .
+
+After installing the **pdf-tool** program, you can execute (from the terminal) the 
+command **pdf-tool --help** or **pdf-tool --doc** or **man pdf-tool** to get more 
+information on how to use the **pdf-tool** program .
+
+<br />
+
 ## am-okay
 
 The **am-okay** program allows dynamically to copy, cut, and paste 
