@@ -7,4 +7,4 @@ Maintainer: Baldé <baldeuniversel@protonmail.com>
 Depends: bash, coreutils, texlive, software-properties-common, bc, awk, gawk, zsh,
          util-linux, pdftk, ghostscript, texlive-latex-extra, poppler-utils
 Description: The <<pdf-tool>> program allows to manipulate pdf files (extracting, concatenating, 
-             numbering ...) .
+             numbering , encryption, decryption, stamping, rotation, bursting, including, excluding ...) .
