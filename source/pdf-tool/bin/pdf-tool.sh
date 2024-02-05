@@ -244,9 +244,9 @@ then
         
         exit 1
     else
-        if [[ -e "../usr/lib/pdf-tool/documentation/pdf-tool-doc" ]]
+        if [[ -e "/usr/lib/pdf-tool/documentation/pdf-tool-doc" ]]
         then
-            cat "../usr/lib/pdf-tool/documentation/pdf-tool-doc" 2> /dev/null
+            cat "/usr/lib/pdf-tool/documentation/pdf-tool-doc" 2> /dev/null
 
             exit 0
         else
@@ -270,9 +270,9 @@ then
         
         exit 1
     else
-        if [[ -e "../usr/lib/pdf-tool/documentation/pdf-tool-help" ]]
+        if [[ -e "/usr/lib/pdf-tool/documentation/pdf-tool-help" ]]
         then
-            cat "../usr/lib/pdf-tool/documentation/pdf-tool-help" 2> /dev/null
+            cat "/usr/lib/pdf-tool/documentation/pdf-tool-help" 2> /dev/null
 
             exit 0
         else
@@ -296,9 +296,9 @@ then
         
         exit 1
     else
-        if [[ -e "../usr/lib/pdf-tool/documentation/pdf-tool-version-pure" ]]
+        if [[ -e "/usr/lib/pdf-tool/documentation/pdf-tool-version-pure" ]]
         then
-            cat "../usr/lib/pdf-tool/documentation/pdf-tool-version-pure" | \
+            cat "/usr/lib/pdf-tool/documentation/pdf-tool-version-pure" | \
                 awk '{ gsub(/.+/, "\033[1;036m&\033[0m"); print }' 2> /dev/null
 
             exit 0
@@ -1576,7 +1576,7 @@ then
     fi
 
     # Copy the template file towards ...
-    cp "../usr/lib/pdf-tool/library/tex/template-number-foot-page.tex" "$tmpWorkingDir"
+    cp "/usr/lib/pdf-tool/library/tex/template-number-foot-page.tex" "$tmpWorkingDir"
     
 
     # Use the version `1.5` for the input pdf file
@@ -4171,7 +4171,7 @@ then
     getTheOutputNameFile=""
     counterIterParam=1 # Shift the action `--stamp`
     counterRequiredOption=0
-    getDirFiligrane="../usr/lib/pdf-tool/library/stamp/filigrane"
+    getDirFiligrane="/usr/lib/pdf-tool/library/stamp/filigrane"
 
     declare -A tabInputOptionArgs=()
     declare -A tabOutputOptionArgs=()
