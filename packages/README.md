@@ -15,7 +15,7 @@ of this Github repository [`https://github.com/baldeuniversel/linux.git`](https:
 at the level of the `main` branch. So, you could first install the
 **meo** program to manage (install, remove, update ...) the packages
 that are on this Github repository (in the main branch) . 
-**Hash-package** : **md5sum(65e243e7ac47bd08430a8c94aed00d63)**
+**Hash-package** : **md5sum(d86f38dcb03aa379b72133e5c9a90f04)**
 
 
 After installing the **meo** program, from your terminal execute this
