@@ -31,7 +31,9 @@ The **pdf-tool** program allows to manipulate pdf files .
 With this program you can do actions like `compress, rotate, number, stamp, 
 concatenate, extract, include, exclude, encrypt, decrypt, burst ...` on 
 **pdf files** (use from the terminal) .
-**Hash-package** : **md5sum(342cfcd0f499c903a78efa23b62ef35d)**
+**Hash-package** : **md5sum(14848d3b449a53d435088c52888e8813)**
+
+Once the program is installed, you can use the alias **pdftool** instead of **pdf-tool**
 
 After installing the **pdf-tool** program, you can execute (from the terminal) the 
 command **pdf-tool --help** or **pdf-tool --doc** or **man pdf-tool** to get more 
