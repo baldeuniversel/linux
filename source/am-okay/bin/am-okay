@@ -184,6 +184,7 @@ done
 #
 if [[ $1 != "--stat-copy" ]] && [[ $1 != "--stat-cut"  ]] \
     && [[ $1 != "--doc" ]] && [[ $1 != "--help" ]] && [[ $1 != "--version" ]] \
+    && [[ $1 != "--paste-copy" ]] && [[ $1 != "--paste-cut" ]] \
     && [[ $# -lt 2 ]] 
 then
     echo "~"
@@ -238,11 +239,21 @@ arrayIndex3CopyCutActionFileOnly="$arrayRootDir/array-3/copy-cut-action-only"
 globalCounterReject="false"
 globalCounterOkay="false"
 
-fileCodeCommandReturn="/tmp/.$USER/am-okay/code-of-return"
-fileCodeCommandErrorMv="/tmp/.$USER/am-okay/error-move"
-fileCodeCommandErrorCp="/tmp/.$USER/am-okay/error-cp"
-filePidCommandMv="/tmp/.$USER/am-okay/pid-mv"
-filePidCommandCp="/tmp/.$USER/am-okay/pid-cp"
+getThisPid="$$"
+fileCodeCommandReturn="/tmp/.$USER/am-okay/$getThisPid/code-of-return"
+fileCodeCommandErrorMv="/tmp/.$USER/am-okay/$getThisPid/error-move"
+fileCodeCommandErrorCp="/tmp/.$USER/am-okay/$getThisPid/error-cp"
+
+fileClassicPidCommandMv="$rootDirCopyCutFiles/classic-pid-mv" 
+fileClassicPidCommandCp="$rootDirCopyCutFiles/classic-pid-cp"
+
+fileArrayInitCommandMvCp="$arrayIndexInitDir/array-init-pid-mv-cp" 
+fileArrayOneCommandMvCp="$arrayIndex1Dir/array-one-pid-mv-cp" 
+fileArrayTwoCommandMvCp="$arrayIndex2Dir/array-two-pid-mv-cp"
+fileArrayThreeCommandMvCp="$arrayIndex3Dir/array-three-pid-mv-cp"
+
+
+
 
 
 # Launch a script by an autostart event -> Remove the historical of the actions done by `am-okay` command
@@ -263,15 +274,6 @@ then
     echo -e "Categories=System" >> "$HOME/.config/autostart/am-okay.desktop" 2> /dev/null
     
     echo -e "X-GNOME-Autostart-enabled=true" >> "$HOME/.config/autostart/am-okay.desktop" 2> /dev/null 
-fi
-
-
-
-# Remove the `am-okay` temporary directory according the user
-if [[ -e "/tmp/.$USER/am-okay" ]]
-then           
-    #
-    rm -fr "/tmp/.$USER/am-okay"
 fi
 
 
@@ -299,20 +301,20 @@ function alertNonEffectiveAction
             if [[ $getNumberOfLine -gt 0 ]]
             then
                 echo "~"
-                echo -en "Something wrong \U001F9D0, please make sure you have a permission to \nexecute the \e[36;1mam-okay\e[0m program "
-                echo -en "or you have write permission on the \ntarget directory or the source dir does not include "
-                echo -en "in the target dir ."
+                echo -e "Something wrong \U001F9D0, please make sure you have the right to execute the \e[36;1mam-okay\e[0m "
+                echo -e "program or you have write access on the target directory, it's also " 
+                echo -e "possible that the source dir is included in the target dir ."
 
                 #
                 setterm --cursor on
 
 
                 #
-                if [[ -e "/tmp/.$USER/am-okay"  ]]
+                if [[ -e "/tmp/.$USER/am-okay/$getThisPid" ]]
                 then
                     
                     #
-                    rm -fr "/tmp/.$USER/am-okay"
+                    rm -fr "/tmp/.$USER/am-okay/$getThisPid"
                 fi
 
                 exit 1 
@@ -464,39 +466,137 @@ function copyCutAction
     # Set the proper value to the global variables according the actions requested
     if ( [[ $actionRequested == "--copy" ]] || [[ $actionRequested == "--cut" ]] ) && [[ $indexValue == "none" ]]
     then
-
+        #
         if [[ $actionRequested == "--copy" ]]
         then
             #
-            statusCopyCutActionFile=$copyActionFile
-            onlyCopyCutActionFile=$copyActionFileOnly
-        elif [[ $actionRequested == "--cut" ]]
+            if [[ $indexValue == "none" ]]
+            then
+                # Check to see if there is a `paste` action in progress linked to the current action `--copy` , 
+                # if there is the case , return a warning (error)
+                if [[ -e "$rootDirCopyCutFiles/classic-pid-cp" ]] 
+                then
+                    #
+                    if [[  ` cat  "$rootDirCopyCutFiles/classic-pid-cp" | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
+                    then
+                        echo "~"
+                        echo -e "There is a paste action in progress which is linked to the \e[1;036mcopy\e[0m "
+                        echo -e "action (the register itself) 🧐"
+
+                        exit 1
+                    fi
+                fi 
+
+                #
+                statusCopyCutActionFile=$copyActionFile
+                onlyCopyCutActionFile=$copyActionFileOnly
+            fi
+        elif [[ $actionRequested == "--cut" ]] 
         then
             #
-            statusCopyCutActionFile=$cutActionFile
-            onlyCopyCutActionFile=$cutActionFileOnly
+            if [[ $indexValue == "none" ]]
+            then
+                # Check to see if there is a `paste` action in progress linked to the current action `--cut` , 
+                # if there is the case , return a warning (error)
+                if [[ -e "$rootDirCopyCutFiles/classic-pid-mv" ]] 
+                then
+                    #
+                    if [[  ` cat  "$rootDirCopyCutFiles/classic-pid-mv" | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
+                    then
+                        echo "~"
+                        echo -e "There is a paste action in progress which is linked to the \e[1;036mcut\e[0m "
+                        echo -e "action (the register itself) 🧐"
+
+                        exit 1
+                    fi
+                fi 
+
+                #
+                statusCopyCutActionFile=$cutActionFile
+                onlyCopyCutActionFile=$cutActionFileOnly
+            fi
         fi
 
     elif [[ $actionRequested == "--array" ]] && [[ $indexValue -eq 0 ]]
     then
+        # Check to see if there is a `paste` action in progress linked to the current action `--put` 
+        # for the array index 0 , if there is the case , return a warning (error)
+        if [[ -e "$arrayIndexInitDir/array-init-pid-mv-cp" ]] 
+        then
+            #
+            if [[  ` cat  "$arrayIndexInitDir/array-init-pid-mv-cp" | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
+            then
+                echo "~"
+                echo -e "\e[1;035mIndex 0\e[0m is busy, There is a put action in progress which is "
+                echo -e "linked to the register (index 0 itself) 🧐"
+
+                exit 1
+            fi
+        fi 
+
         #
         statusCopyCutActionFile=$arrayIndexInitCopyCutActionFile
         onlyCopyCutActionFile=$arrayIndexInitCopyCutActionFileOnly
 
     elif [[ $actionRequested == "--array" ]] && [[ $indexValue -eq 1 ]]
     then
+        # Check to see if there is a `paste` action in progress linked to the current action `--put` 
+        # for the array index one (1) , if there is the case , return a warning (error)
+        if [[ -e "$arrayIndex1Dir/array-one-pid-mv-cp" ]] 
+        then
+            #
+            if [[  ` cat  "$arrayIndex1Dir/array-one-pid-mv-cp" | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
+            then
+                echo "~"
+                echo -e "\e[1;035mIndex 1\e[0m is busy, There is a put action in progress which is "
+                echo -e "linked to the register (index 1 itself) 🧐"
+
+                exit 1
+            fi
+        fi 
+
         #
         statusCopyCutActionFile=$arrayIndex1CopyCutActionFile
         onlyCopyCutActionFile=$arrayIndex1CopyCutActionFileOnly
 
     elif [[ $actionRequested == "--array" ]] && [[ $indexValue -eq 2 ]]
     then
+        # Check to see if there is a `paste` action in progress linked to the current action `--put` 
+        # for the array index two (2) , if there is the case , return a warning (error)
+        if [[ -e "$arrayIndex2Dir/array-two-pid-mv-cp" ]] 
+        then
+            #
+            if [[  ` cat  "$arrayIndex2Dir/array-two-pid-mv-cp" | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
+            then
+                echo "~"
+                echo -e "\e[1;035mIndex 2\e[0m is busy, There is a put action in progress which is "
+                echo -e "linked to the register (index 2 itself) 🧐"
+
+                exit 1
+            fi
+        fi 
+
         #
         statusCopyCutActionFile=$arrayIndex2CopyCutActionFile
         onlyCopyCutActionFile=$arrayIndex2CopyCutActionFileOnly
 
     elif [[ $actionRequested == "--array" ]] && [[ $indexValue -eq 3 ]]
     then
+        # Check to see if there is a `paste` action in progress linked to the current action `--put` 
+        # for the array index two (3) , if there is the case , return a warning (error)
+        if [[ -e "$arrayIndex3Dir/array-three-pid-mv-cp" ]] 
+        then
+            #
+            if [[  ` cat  "$arrayIndex2Dir/array-three-pid-mv-cp" | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
+            then
+                echo "~"
+                echo -e "\e[1;035mIndex 3\e[0m is busy, There is a put action in progress which is "
+                echo -e "linked to the register (index 3 itself) 🧐"
+
+                exit 1
+            fi
+        fi 
+
         #
         statusCopyCutActionFile=$arrayIndex3CopyCutActionFile
         onlyCopyCutActionFile=$arrayIndex3CopyCutActionFileOnly
@@ -730,7 +830,7 @@ function pasteAction
     fi
 
     # If the target directory is the current directory -> do `pwd` else if get the given directory or raise an exception
-    if [[ "$targetDir" == "." ]]
+    if [[ "$targetDir" == "." ]] || [[ "$targetDir" == "" ]]
     then
         targetDir=` pwd `
     elif [[ -e "$targetDir"  ]] && [[ -d "$targetDir" ]]
@@ -767,9 +867,35 @@ function pasteAction
                 then
                     # Copy the files/directories towards the given directory
                     cp -ra "$readLine" "$targetDir" 2> $fileCodeCommandErrorCp &
-                    
+
+
                     # Store the pid of the last command
-                    echo "$!" > $filePidCommandCp
+                    if [[ $indexUP == "none" ]] && [[ $arrayPut == "none" ]]
+                    then
+                        #
+                        echo "$!" > $fileClassicPidCommandCp
+
+                    elif [[ $indexUP == 0 ]] && [[ $arrayPut == "--put" ]]
+                    then
+                        #
+                        echo "$!" > $fileArrayInitCommandMvCp
+
+                    elif [[ $indexUP == 1 ]] && [[ $arrayPut == "--put" ]]
+                    then
+                        #
+                        echo "$!" > $fileArrayOneCommandMvCp
+
+                    elif [[ $indexUP == 2 ]] && [[ $arrayPut == "--put" ]]
+                    then
+                        #
+                        echo "$!" > $fileArrayTwoCommandMvCp
+
+                    elif [[ $indexUP == 3 ]] && [[ $arrayPut == "--put" ]]
+                    then
+                        #
+                        echo "$!" > $fileArrayThreeCommandMvCp
+                    fi
+
 
                     #
                     sleep 0.0005
@@ -800,14 +926,71 @@ function pasteAction
                         #
                         truncate -s 0 $fileCodeCommandReturn
                     fi
-
-                    # Display the status of the transfer
-                    /usr/lib/am-okay/library/progress-bar-copy.sh "$readLine" "$targetDir/$getEndFileDir"
+                    
 
                     #
-                    globalCounterOkay="true"
-                    truncate -s 0 $fileCodeCommandReturn 2> /dev/null
-                    truncate -s 0 $filePidCommandCp 2> /dev/null
+                    if [[ $indexUP == "none" ]] && [[ $arrayPut == "none" ]]
+                    then
+                        # Display the status of the transfer
+                        /usr/lib/am-okay/library/progress-bar-copy.sh "$readLine" "$targetDir/$getEndFileDir"
+                    #    
+                    elif [[ $indexUP == 0 ]] &&  [[ $arrayPut == "--put" ]]
+                    then
+                        # Display the status of the transfer
+                        /usr/lib/am-okay/library/progress-bar-array-copy.sh "$readLine" "$targetDir/$getEndFileDir" 0
+                    #
+                    elif [[ $indexUP == 1 ]] &&  [[ $arrayPut == "--put" ]]
+                    then
+                        # Display the status of the transfer
+                        /usr/lib/am-okay/library/progress-bar-array-copy.sh "$readLine" "$targetDir/$getEndFileDir" 1
+                    #
+                    elif [[ $indexUP == 2 ]] &&  [[ $arrayPut == "--put" ]]
+                    then
+                        # Display the status of the transfer
+                        /usr/lib/am-okay/library/progress-bar-array-copy.sh "$readLine" "$targetDir/$getEndFileDir" 2
+                    #
+                    elif [[ $indexUP == 3 ]] &&  [[ $arrayPut == "--put" ]]
+                    then
+                        # Display the status of the transfer
+                        /usr/lib/am-okay/library/progress-bar-array-copy.sh "$readLine" "$targetDir/$getEndFileDir" 3
+                    fi
+                    
+
+                    #
+                    if [[ ! ( $? -eq 0 ) ]]
+                    then
+                        #
+                        globalCounterOkay="true"
+                        truncate -s 0 $fileCodeCommandReturn 2> /dev/null
+
+                        #
+                        if [[ -e "$fileClassicPidCommandCp" ]]
+                        then
+                            rm -rf $fileClassicPidCommandCp 2> /dev/null
+                        fi
+
+                        #
+                        echo -e "\n"
+                        echo "~"
+                        echo -e "The process was interrupted 🔌"
+                        
+                        #
+                        setterm --cursor on
+
+                        #
+                        exit 1
+                    else
+                        #
+                        globalCounterOkay="true"
+                        truncate -s 0 $fileCodeCommandReturn 2> /dev/null
+
+                        #
+                        if [[ -e "$fileClassicPidCommandCp" ]]
+                        then
+                            rm -rf $fileClassicPidCommandCp 2> /dev/null
+                        fi
+                    fi 
+
                 else
                     # Replace the current line of the files by empty line
                     sed -i "s|.*`echo $readLine `.*||" $onlyCopyCutActionFile
@@ -842,6 +1025,9 @@ function pasteAction
         elif [[ $actionRequested == "--paste-cut"  ]] || ( [[ $actionRequested == "--array" ]] \
             && [[ $arrayPut == "--put" ]] && [[ ` echo "$getHeaderCopyCut" | grep "Cut" ` ]] )
         then
+            #
+            echo ""
+
             while IFS= read -r readLine
             do
                 # Get the end file/target from the path ...
@@ -864,18 +1050,47 @@ function pasteAction
                     # Move the files/directories towards the given directory
                     if [[ ! ( "$readLine" == "$targetDir" ) ]]
                     then
+                        #
                         mv --backup=numbered "$readLine" "$targetDir" 2> $fileCodeCommandErrorMv &
-                        
+
+
                         # Store the pid of the last command
-                        echo "$!" > $filePidCommandMv
+                        if [[ $indexUP == "none" ]] && [[ $arrayPut == "none" ]]
+                        then
+                            #
+                            echo "$!" > $fileClassicPidCommandMv
+    
+                        elif [[ $indexUP == 0 ]] && [[ $arrayPut == "--put" ]]
+                        then
+                            #
+                            echo "$!" > $fileArrayInitCommandMvCp
+    
+                        elif [[ $indexUP == 1 ]] && [[ $arrayPut == "--put" ]]
+                        then
+                            #
+                            echo "$!" > $fileArrayOneCommandMvCp
+    
+                        elif [[ $indexUP == 2 ]] && [[ $arrayPut == "--put" ]]
+                        then
+                            #
+                            echo "$!" > $fileArrayTwoCommandMvCp
+    
+                        elif [[ $indexUP == 3 ]] && [[ $arrayPut == "--put" ]]
+                        then
+                            #
+                            echo "$!" > $fileArrayThreeCommandMvCp
+                        fi
+
 
                         #
                         sleep 0.0005
-
+                        
+                        #
                         if [[ -s "$fileCodeCommandErrorMv" ]]
                         then
                             echo "~"
                             echo -e "Action rejected for the file/dir [ $readLine ] -> same parent target ⚠️  "
+                            echo ""
                             
                             #
                             truncate -s 0 "$fileCodeCommandErrorMv" 2> /dev/null
@@ -883,14 +1098,73 @@ function pasteAction
                             #
                             continue
                         else
-                            # Display the status of the transfer
-                            /usr/lib/am-okay/library/progress-bar-cut.sh "$readLine" "$targetDir/$getEndFileDir"
+                            
+                            #
+                            if [[ $indexUP == "none" ]] && [[ $arrayPut == "none" ]]
+                            then
+                                # Display the status of the transfer
+                                /usr/lib/am-okay/library/progress-bar-cut.sh "$readLine" "$targetDir/$getEndFileDir"
+                            #    
+                            elif [[ $indexUP == 0 ]] &&  [[ $arrayPut == "--put" ]]
+                            then
+                                # Display the status of the transfer
+                                /usr/lib/am-okay/library/progress-bar-array-cut.sh "$readLine" "$targetDir/$getEndFileDir" 0
+                            #
+                            elif [[ $indexUP == 1 ]] &&  [[ $arrayPut == "--put" ]]
+                            then
+                                # Display the status of the transfer
+                                /usr/lib/am-okay/library/progress-bar-array-cut.sh "$readLine" "$targetDir/$getEndFileDir" 1
+                            #
+                            elif [[ $indexUP == 2 ]] &&  [[ $arrayPut == "--put" ]]
+                            then
+                                # Display the status of the transfer
+                                /usr/lib/am-okay/library/progress-bar-array-cut.sh "$readLine" "$targetDir/$getEndFileDir" 2
+                            #
+                            elif [[ $indexUP == 3 ]] &&  [[ $arrayPut == "--put" ]]
+                            then
+                                # Display the status of the transfer
+                                /usr/lib/am-okay/library/progress-bar-array-cut.sh "$readLine" "$targetDir/$getEndFileDir" 3
+                            fi
 
-                            truncate -s 0 $filePidCommandMv 2> /dev/null
+
+                            #
+                            if [[ ! ( $? -eq 0 ) ]]
+                            then
+                                #
+                                truncate -s 0 $fileCodeCommandReturn 2> /dev/null
+
+                                #
+                                if [[ -e "$fileClassicPidCommandMv" ]]
+                                then
+                                    rm -rf "$fileClassicPidCommandMv" 2> /dev/null
+                                fi
+        
+                                #
+                                echo -e "\n"
+                                echo "~"
+                                echo -e "The process was interrupted 🔌"
+                                
+                                #
+                                setterm --cursor on
+        
+                                #
+                                exit 1
+                            else
+                                #
+                                truncate -s 0 $fileCodeCommandReturn 2> /dev/null
+
+                                #
+                                if [[ -e "$fileClassicPidCommandMv" ]]
+                                then
+                                    rm -rf "$fileClassicPidCommandMv" 2> /dev/null
+                                fi
+                            fi 
+                            
                         fi  
                     else
                         echo "~"
                         echo -e "Action rejected for the file/dir [ $readLine ] -> same parent target ⚠️  "
+                        echo ""
                         
                         #
                         continue
@@ -1005,12 +1279,11 @@ function pasteActionIn
     #
     if [[ $1 == "--copy"  ]]
     then
-        
         # Copy the files/directories towards the given directory
         cp -ra "$getProperSrc" "$getTheTargetDir" 2> $fileCodeCommandErrorCp &
                     
         # Store the pid of the last command
-        echo "$!" > $filePidCommandCp
+        echo "$!" > $fileClassicPidCommandCp
 
         #
         sleep 0.0005
@@ -1033,18 +1306,46 @@ function pasteActionIn
         # Display the status of the transfer
         /usr/lib/am-okay/library/progress-bar-copy.sh "$getProperSrc" "$getTheTargetDir/$getLastElemInSrc"
 
-        #
-        truncate -s 0 $fileCodeCommandReturn 2> /dev/null
-        truncate -s 0 $filePidCommandCp 2> /dev/null
+        # Check to see if the process above was executed correctly
+        if [[ ! ( $? -eq 0 ) ]]
+        then
+            #
+            truncate -s 0 $fileCodeCommandReturn 2> /dev/null
 
+            #
+            if [[ -e "$fileClassicPidCommandCp" ]]
+            then
+                rm -rf $fileClassicPidCommandCp 2> /dev/null
+            fi
+
+            #
+            echo -e "\n"
+            echo "~"
+            echo -e "The process was interrupted 🔌"
+            
+            #
+            setterm --cursor on
+
+            #
+            exit 1
+        else
+            #
+            truncate -s 0 $fileCodeCommandReturn 2> /dev/null
+
+            #
+            if [[ -e "$fileClassicPidCommandCp" ]]
+            then
+                rm -rf $fileClassicPidCommandCp 2> /dev/null
+            fi
+        fi 
+    #
     elif [[ $1 == "--cut" ]]
     then
-
         # Copy the files/directories towards the given directory
         mv --backup=numbered "$getProperSrc" "$getTheTargetDir" 2> $fileCodeCommandErrorMv &
                     
         # Store the pid of the last command
-        echo "$!" > $filePidCommandMv
+        echo "$!" > $fileClassicPidCommandMv
 
         #
         sleep 0.0005
@@ -1066,11 +1367,39 @@ function pasteActionIn
 
         # Display the status of the transfer
         /usr/lib/am-okay/library/progress-bar-cut.sh "$getProperSrc" "$getTheTargetDir/$getLastElemInSrc"
+         
+        # Check to see if the process above was executed correctly
+        if [[ ! ( $? -eq 0 ) ]]
+        then
+            #
+            truncate -s 0 $fileCodeCommandReturn 2> /dev/null
 
-        #
-        truncate -s 0 $fileCodeCommandReturn 2> /dev/null
-        truncate -s 0 $filePidCommandMv 2> /dev/null
+            #
+            if [[ -e "$fileClassicPidCommandMv" ]]
+            then
+                rm -rf "$fileClassicPidCommandMv" 2> /dev/null
+            fi
 
+            #
+            echo -e "\n"
+            echo "~"
+            echo -e "The process was interrupted 🔌"
+            
+            #
+            setterm --cursor on
+
+            #
+            exit 1
+        else
+            #
+            truncate -s 0 $fileCodeCommandReturn 2> /dev/null
+
+            #
+            if [[ -e "$fileClassicPidCommandMv" ]]
+            then
+                rm -rf "$fileClassicPidCommandMv" 2> /dev/null
+            fi
+        fi 
     fi
 
     #
@@ -1088,11 +1417,14 @@ function pasteActionIn
 ### Creation some necessaries files/dirs -> start tag[e0]
 
 # Creation dirs where the error code will be sent
-if [[ ! ( -e "/tmp/.$USER/am-okay" ) ]]
+if [[ ! ( -e "/tmp/.$USER/am-okay/$getThisPid" ) ]]
 then
-    mkdir -p "/tmp/.$USER/am-okay" 2> /dev/null
-    chmod 700 "/tmp/.$USER/am-okay" 2> /dev/null
+    mkdir -p "/tmp/.$USER/am-okay/$getThisPid" 2> /dev/null
+    chmod 700 "/tmp/.$USER/am-okay/$getThisPid" 2> /dev/null
 fi
+
+#
+trap 'rm -r "/tmp/.$USER/am-okay/$getThisPid" 2> /dev/null' SIGINT SIGTERM EXIT 
 
 # Creation the root directory for the `am-okay` actions
 if [[ ! ( -e "$rootDirForActions" ) ]]
@@ -1196,7 +1528,8 @@ fi
 
 ### Treatment the `copy` and `move` actions (directly) -> start tag[i7]
 
-if ( [[ $1 == "--copy"  ]] || [[ $1 == "--move" ]] ) && ( [[ ` echo  "$@" | grep -w -- "--out" ` ]] )
+if ( [[ $1 == "--copy"  ]] || [[ $1 == "--move" ]] || [[ $1 == "--cut" ]] ) \
+    && ( [[ ` echo  "$@" | grep -w -- "--out" ` ]] )
 then
 
     # Declaration/Assignation variables
@@ -1206,6 +1539,19 @@ then
     getLastParam=${!getNbOfParam}
     counterInOption=0
     tabFileDir=()
+
+
+
+    # Check to see if the first parameter is not equal to `--move` or `--copy` , then
+    if [[ $1 != "--copy" ]] &&  [[ $1 != "--move" ]]
+    then
+        #
+        echo "~"
+        echo -e "Invalid request \U001F9D0"
+
+        exit 1
+    fi
+
 
     #
     if [[ "${!getBeforeLastParamPos}" == "--out" ]] && ( [[ -e "${!getNbOfParam}" ]] && [[ -d "${!getNbOfParam}" ]] )
@@ -1320,7 +1666,7 @@ then
             if [[ "$dirFile" != "$getLastParam" ]]
             then
                 # Call the function `pasteActionIn`
-                pasteActionIn "--copy" "$dirFile" "$getLastParam"
+                pasteActionIn "--copy" "$dirFile" "$getLastParam" 2> /dev/null 
             fi
 
         done
@@ -1333,6 +1679,7 @@ then
 
     elif [[ $getTheFirstParam == "--move"  ]]
     then
+        echo ""
 
         # Backup the `input field separator` , then ...
         saveIFS=$IFS
@@ -1347,7 +1694,7 @@ then
             if [[ "$dirFile" != "$getLastParam" ]]
             then
                 # Call the function `pasteActionIn`
-                pasteActionIn "--cut" "$dirFile" "$getLastParam"
+                pasteActionIn "--cut" "$dirFile" "$getLastParam" 2> /dev/null 
             fi
 
         done
@@ -1357,6 +1704,12 @@ then
 
         #
         exit 0
+    else
+        #
+        echo "~"
+        echo -e "Invalid request \U001F9D0"
+
+        exit 1
     fi
 
     exit 0
@@ -1792,21 +2145,39 @@ then
 fi
 
 # Paste action for the `--copy`, `--paste`, `--array` options as first parameter
-if ( [[ $1 == "--paste-copy" ]] || [[ $1 == "--paste-cut" ]] ) && [[ $# -eq 2 ]]
+if ( [[ $1 == "--paste-copy" ]] || [[ $1 == "--paste-cut" ]] ) && [[ $# -le 2 ]]
 then
     # Declaration variables
-    targetDir="$2"
+    targetDir=""
+
+
+    # If the number of parameter equal to 1, the target dir is the current working directory , then ...
+    if [[ $# -eq 1 ]]
+    then
+        #
+        targetDir=` pwd `
+
+    # Take the second parameter
+    elif [[ $# -eq 2 ]]
+    then
+        targetDir="$2"
+    fi
+
     
     if [[ $1 == "--paste-copy" ]]
     then
         # Call the function `pasteAction`
-        pasteAction "--paste-copy" "$targetDir" "none" "none"
+        pasteAction "--paste-copy" "$targetDir" "none" "none" 2> /dev/null
+
+        #
         exit 0
 
     elif [[ $1 == "--paste-cut" ]]
     then
         # Call the function `pasteAction`
-        pasteAction "--paste-cut" "$targetDir" "none" "none"
+        pasteAction "--paste-cut" "$targetDir" "none" "none" 2> /dev/null
+
+        #
         exit 0
     fi    
 elif ( [[ $1 == "--array" ]] && [[ $4 == "--put" ]] && [[ $2 == "--index" ]] ) && \
@@ -1814,9 +2185,14 @@ elif ( [[ $1 == "--array" ]] && [[ $4 == "--put" ]] && [[ $2 == "--index" ]] ) &
     [[ ` echo "$3" | grep -E "^[0-3]{1,1},[0-3]{1,1}$" ` ]] || \
     [[ ` echo "$3" | grep -E "^[0-3]{1,1}$" ` ]] )
 then
+
+    # Declaration variables
+    targetDir=""
+
     
+
     #
-    if [[ $# -lt 5 ]]
+    if [[ $# -lt 4 ]]
     then
         echo "~"
         echo -e "Invalid request \U001F9D0 ."
@@ -1824,44 +2200,52 @@ then
         exit 1
     fi
 
+    # If the number of parameter equal to 4, the target dir is the current working directory , then ...
+    if [[ $# -eq 4 ]]
+    then
+        #
+        targetDir=` pwd `
+
+    # Take the second parameter
+    elif [[ $# -eq 5 ]]
+    then
+        targetDir="$5"
+    fi
+
+    
+    #
     if [[ $2 == "--index" ]]
     then
         if [[ $3 -eq 0 ]] && [[ ` echo "$3" | grep -vE "[,-]" ` ]]
         then
-            # Declaration variables
-            targetDir="$5"
-
             # Call the function `pasteAction`
-            pasteAction "--array" "$targetDir" 0 "--put"
+            pasteAction "--array" "$targetDir" 0 "--put" 2> /dev/null
+
+            #
             exit 0
         elif [[ $3 -eq 1 ]] && [[ ` echo "$3" | grep -vE "[,-]" ` ]]
         then
-            # Declaration variables
-            targetDir="$5"
-
             # Call the function `pasteAction`
-            pasteAction "--array" "$targetDir" 1 "--put"
+            pasteAction "--array" "$targetDir" 1 "--put" 2> /dev/null
+
+            #
             exit 0
         elif [[ $3 -eq 2 ]] && [[ ` echo "$3" | grep -vE "[,-]" ` ]]
         then
-            # Declaration variables
-            targetDir="$5"
-
             # Call the function `pasteAction`
-            pasteAction "--array" "$targetDir" 2 "--put"
+            pasteAction "--array" "$targetDir" 2 "--put" 2> /dev/null 
+
+            #
             exit 0
         elif [[ $3 -eq 3 ]] && [[ ` echo "$3" | grep -vE "[,-]" ` ]]
         then
-            # Declaration variables
-            targetDir="$5"
-
             # Call the function `pasteAction`
-            pasteAction "--array" "$targetDir" 3 "--put"
+            pasteAction "--array" "$targetDir" 3 "--put" 2> /dev/null
+
+            #
             exit 0
         elif [[ ` echo "$3" | grep -E "^[0-3]{1,1}[-][0-3]{1,1}$" ` ]] && [[ ` echo "$3" | grep -vE "[,]" ` ]]
         then
-            # Declaration variables
-            targetDir="$5"
             getResultArray=()
 
             # Call the function `maxMin`
@@ -1875,15 +2259,14 @@ then
             for indexUP in ` seq $minValueIndex $maxValueIndex `
             do
                 # Call the function `pasteAction`
-                pasteAction "--array" "$targetDir" $indexUP "--put" 
+                pasteAction "--array" "$targetDir" $indexUP "--put" 2> /dev/null
+
             done
 
             #
             exit 0
         elif [[ ` echo "$3" | grep -E "^[0-3]{1,1}[,][0-3]{1,1}$" ` ]]
         then
-            # Declaration variables
-            targetDir="$5"
             getResultArray=()
 
             # Call the function `maxMin`
@@ -1899,10 +2282,10 @@ then
                 if [[ $indexUP -eq 1 ]]
                 then
                     # Call the function `pasteAction`
-                    pasteAction "--array" "$targetDir" $minValueIndex "--put" 
+                    pasteAction "--array" "$targetDir" $minValueIndex "--put" 2> /dev/null 
                 else
                     # Call the function `pasteAction`
-                    pasteAction "--array" "$targetDir" $maxValueIndex "--put" 
+                    pasteAction "--array" "$targetDir" $maxValueIndex "--put" 2> /dev/null
                 fi 
             done
 
