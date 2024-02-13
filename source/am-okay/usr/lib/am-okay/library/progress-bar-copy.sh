@@ -18,7 +18,7 @@
 #####
 
 
-set -euo pipefail
+set -uo pipefail
 
 
 # Declaration variables
@@ -29,10 +29,15 @@ a_size_source=0
 a_percent_stat=0
 a_new_percent=0
 a_old_percent=0
+flagSIGTERM="FALSE"
 a_terminate_process="TRUE"
 declare -a a_character_bar_front_list=("▊" "▉" "█")
 a_character_bar_back="-"
-filePidCommandCp="/tmp/.$USER/am-okay/pid-cp"
+a_filePidCommandCp="$HOME/.local/share/am-okay/classic/classic-pid-cp"
+
+#
+a_getThePidCommandCp=` cat $a_filePidCommandCp 2> /dev/null | tr -d "[[:space:]]" `
+
 
 
 
@@ -51,6 +56,9 @@ function __init__
 }
 
 
+
+
+
 :   '
 # @destructor
 # 
@@ -63,12 +71,16 @@ function __del__
     echo -e "\n"
 }
 
+
+
+
+
 :   '
 # @method
 # 
 # Parameter :
 # ----------
-# :param <$@> type(str) // The file or directory whom the size has to be calculated
+# :param <$1> type(str) // The file or directory whom the size has to be calculated
 # 
 # Return : 
 # -------
@@ -82,7 +94,7 @@ function get_size
 {
     # Declaration local variables
     local v_total_size=0
-    local target_elem=$@
+    local target_elem="$1"
 
     # Get the size of target dir/file
     if [[ -e "$target_elem" ]]
@@ -93,7 +105,37 @@ function get_size
     # print the total size of the directory
     printf "%d" $v_total_size
 }
+
+
+
+
+
+:   '
+/**
+* @overview The function `setFlagSIGINT` allows to change the value of the variable `flagSIGTERM` , 
+* in this sense with the `trap` command there will be a control at the level of the progress bar 
+*/
+    '
+function setFlagSIGINT
+{
+    # Change the value of the variable `flagSIGTERM` to `TRUE`
+    flagSIGTERM="TRUE"
    
+
+    #
+    kill -9 $a_getThePidCommandCp &> /dev/null
+
+    #
+    rm -rf $a_filePidCommandCp &> /dev/null
+
+    #
+    exit 1
+}
+
+
+
+
+
 :   '
 # @method
 # 
@@ -111,7 +153,7 @@ function display_progress_bar
     local decrement_bar_back=0
     local counter=0
 
-    local getPidCommandCp=` cat $filePidCommandCp 2> /dev/null `
+    local getPidCommandCp=` cat $a_filePidCommandCp 2> /dev/null `
 
     local source_dir_file=` echo $a_source_data | awk -F '/' '{ print $NF }' `
     local destination_dir_file=$a_destination_dir_target_embed
@@ -146,7 +188,7 @@ function display_progress_bar
 
 
     #
-    echo -e "   $source_dir_file      -->     $destination_dir_file"
+    echo -e "\e[1;036m Copy ~ \e[0m   $source_dir_file    -->    $destination_dir_file"
 
     # Print backward char in white color
     echo -en "\033[37m|"
@@ -168,7 +210,7 @@ function display_progress_bar
  
     #
     while [[ $a_terminate_process == "TRUE" ]]
-    do
+    do  
         # Get the size of the ongoing data
         a_length_ongoing_data=$(get_size $a_destination_dir_target_embed)
 
@@ -225,29 +267,40 @@ function display_progress_bar
             a_old_percent=$a_new_percent
         fi
 
+
         #
         if [[ ! ` ps -p "$getPidCommandCp" | grep -w -- "$getPidCommandCp" ` ]]
         then
 
             #
             a_terminate_process="FALSE"
-            
-            # Set the color to white then to green
-            echo -en "\033[37m\r|"
-            echo -en "\033[0m\033[32m"
-            
-            # Display the front character according the index and ..
-            for counter in {1..50}
-            do
-                echo -en "${a_character_bar_front_list[2]}"
-            done
-
-            # Set the color to white
-            echo -en "\033[37m"
+           
+            # Remove the file containing the `pid`
+            if [[ -e "$a_filePidCommandCp" ]]
+            then
+                rm -rf "$a_filePidCommandCp" 2> /dev/null
+            fi
             
             #
-            printf "|  %d" $(( 2 * 50 ))
-            echo -en " %"
+            if [[ $flagSIGTERM == "FALSE" ]]
+            then
+                # Set the color to white then to green
+                echo -en "\033[37m\r|"
+                echo -en "\033[0m\033[32m"
+                
+                # Display the front character according the index and ..
+                for counter in {1..50}
+                do
+                    echo -en "${a_character_bar_front_list[2]}"
+                done
+    
+                # Set the color to white
+                echo -en "\033[37m"
+                
+                #
+                printf "|  %d" $(( 2 * 50 ))
+                echo -en " %"
+            fi
 
         fi
 
@@ -258,5 +311,8 @@ function display_progress_bar
 
 }
 
+
+trap setFlagSIGINT SIGINT
+
 # Call the <<display_progress_bar>> method
-display_progress_bar $1 $2
+display_progress_bar $1 $2   

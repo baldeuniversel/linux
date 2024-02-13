@@ -8,6 +8,6 @@
 
 if [[ -e "$HOME/.local/share/am-okay" ]]
 then
-    rm -r "$HOME/.local/share/am-okay" 
+    rm -r "$HOME/.local/share/am-okay" 2> /dev/null 
 fi
 
