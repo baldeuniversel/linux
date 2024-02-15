@@ -16,8 +16,8 @@
 
     {
         package: am-okay ,
-        version: 3.1.1 ,
-        pkg-md5sum: 48508dbdb64af4acd0afb2b7d6291f86
+        version: 3.1.2 ,
+        pkg-md5sum: 5123e0b31268cae04824e54aa27fd997
     },
 
 
