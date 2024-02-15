@@ -1,143 +1,156 @@
 #!/usr/bin/bash
 
-:   ' 
-    /**
-    * @overview This program allows to an user to execute some actions(see the precondition) 
-    * that can be very useful (First of all, this program is written for the <<Ve-Quantic>> members).
-    *
-    *
-    *
-    * @requires The only options supported are [ --copy, --cut, --paste-copy, --paste-cut, --array,
-    *                                            --index, --put, --stat-copy, --stat-cut, --stat, 
-    *                                            --reset, --out, --move, --doc, --help ] 
-    * && the command <<am-okay>> has to have at least one option then(if that is the goal) the target directory/directories or 
-    * file/files. Example : am-okay --copy <myTargetDir> (for sure without the hyphens)
-    * && with the option <--index> there is a limit at the level of the indexes and the indexes have to be 
-    * a positive integer(min 0 and max 3)
-    * && the <--index>,  <--put> and <--stat> options are linked to the <--array> option
-    * && <--stat-copy> is linked to the <--copy> option 
-    * && <--stat-cut> is linked to the <--cut> option 
-    * && <--out> option is linked to the [ --copy, --move ] options
-    * && the <--reset> option has to follow by the "request" value
-    * && the files or directories do not have the character `?` at the level of their name
-    *
-    *
-    * Options :
-    * --------
-    * :option <--copy> type(string) // This option allows to copy the target file/files or 
-    *  directory/directories(that are its targets), you can use the joker <*> to indicate 
-    *  everything that is in the current directory. 
-    *                                   Ex : am-okay --copy <your-target-dir-or-file> <..>
-    *
-    * :option <--cut> type(string) // This option allows to cut the target file/files or 
-    *  directory/directories(that are its targets), you can use the joker <*> to indicate 
-    *  everything that is in the current directory. 
-    *                                   Ex : am-okay --cut <your-target-dir-or-file> <..>
-    * 
-    * :option <--paste-copy> type(string) // This option allows to paste a copy action. 
-    *  Ex : am-okay --paste-copy <your-target-directory>
-    *  You can use the dot <.> to indicate the current directory. This option(--paste-copy) is 
-    *  linked to the <--copy> option.
-    *  Use case :
-    *            Action 1 -> Ex : am-okay --copy <my-file> 
-    *            Action 2 -> Ex : am-okay --paste-copy <my-target-dir>
-    *
-    * :option <--paste-cut> type(string) // This option allows to paste a cut action. 
-    *  Ex : am-okay --paste-cut <your-target-directory>
-    *  You can use the dot <.> to indicate the current directory. This option(--paste-cut) is linked 
-    *  to the <--cut> option.
-    *  Use case :
-    *            Action 1 -> Ex : am-okay --cut <my-file> 
-    *            Action 2 -> Ex : am-okay --paste-cut <my-target-dir>
-    *
-    * :option <--array> type(String> // This option allows to copy or cut files or directories in a 
-    *  separate way(form of index). Ex : am-okay --array --index 0 --copy <file-1> <dir-1> <dir-2> <..>
-    *  For pasting according to the previous action you have to do :               
-    *                               Ex : am-okay --array --index 0 --put <your-target-dir>
-    *
-    * :option <--index> type(String> // This option allows to target the index of the array.
-    *  Use case :
-    *            Ex : am-okay --array --index 0 --copy <file-1> <dir-1> <dir-2> <..>             
-    *            Ex : am-okay --array --index 1 --put <your-target-dir>
-    *            Note : 
-    *                   1.0 You can not do this -> Ex : am-okay --array --index 0-1 --copy <your-target-dir> <..>
-    *                   1.1 You can do this     -> Ex : am-okay --array --index 0-1 --put <your-target-dir>
-    *                   1.2 In the previous action(1.1) the <--put> option will manage all actions with the 
-    *                       <--array> option that associated with the <--index>>, <--copy> and <--cut> options .
-    *
-    * :option <--put> type(string) // This option allows to put directory/directories or file/files that have
-    *  been targeted by the <--array> option associated with the <--copy> and <--cut> options.
-    *  Use case :
-    *            Ex : am-okay --array --index 0 --put <your_dir>
-    *            Ex : am-okay --array --index 0-3 --put <your_dir> // The indexes between `0` and `3`.
-    *            Ex : am-okay --array --index 0,3 --put <your_dir> // The index `0` and `3`.
-    *
-    * :option <--stat-copy> type(string) // To see the status of an action done with the <--copy> option as first
-    *  parameter.
-    *            Ex : am-okay --stat-copy
-    *
-    * :option <--stat-cut> type(string) // To see the status of an action done with the <--cut> option as first
-    *  parameter.
-    *            Ex : am-okay --stat-cut
-    *
-    * :option <--stat> type(string) // To see the status of an action done with the <--array> option as first
-    *  parameter and along with the <--copy> and <--cut> options or between them.
-    *  Use case :
-    *            Ex : am-okay --array --index 0 --stat
-    *            Ex : am-okay --array --index 0-2 --stat // The indexes between `0` and `2`.
-    *            Ex : am-okay --array --index 0,2 --stat // The index `0` and `2`.
-    *
-    * :option <--move> type(string) // An option allows to move files/directories directly
-    *
-    * :option <--out> type(string) // This option is linked to the [ --move, --copy ] options
-    *  Use case :
-    *            Ex : am-okay --copy <your_dirs/files> --out <your_target_dir>
-    *            Ex : am-okay --move <your_dirs/files> --out <your_target_dir>
-    *
-    * :option <--reset> type(string) // To reset the desired actions, a prompt will be triggered for the 
-    *  possible choices.
-    *                                                                Ex : am-okay --doc
-    *
-    * :option <--doc> type(string) // To see the documentation of the program <am-okay>
-    *                                                                Ex : am-okay --doc
-    *
-    * :option <--help> type(sting) // To get help
-    *                         Ex : am-okay --help
-    *
-    *
-    *
-    * @ensure Successfully execution if the preconditions are satisfied. That is to say, with the above options 
-    * and the appropriated sequences linked to these options.
-    *
-    *
-    *
-    * @note This program depends of some programs, these programs are required in the global
-    * package am-okay.
-    * Once you have pasted files or directories with the <--paste-copy> option, you can paste
-    * again the same files/dirs with the same option <--paste-copy>. For sure an action done
-    * by <--copy> option requires the <--paste-copy> option for pasting, and an action
-    * done by <--cut> option requires <--paste-cut> option for pasting. The two
-    * [ --copy, --cut ] options have different hash codes.
-    *
-    * The files or directories do not have the character `?` at the level of their name.
-    *
-    * When you execute the command am-okay , the command in question works with the profile
-    * it was run with. Running it with different profiles will result in different scenarios, because
-    * for the program each user is different. So when you realise an action, make sure to conserve
-    * the same profile to paste.
-    * A progress bar will be displayed to indicate the move and copy status when you execute the
-    * command am-okay with the <--paste-copy>, <--paste-cut> and <--put> options.
-    *
-    *
-    * @author <Baldé Amadou> <baldeuniversel@protonmail.com>
-    *
-    *
-    *
-    * @contributor <Diallo Ismael> <diallois@protonmail.com>
-    *
-    */
-
-    '
+:   " 
+/**
+* NAME
+* am-okay (version 3.1.2) .
+*
+* DESCRIPTION
+*        am-okay is a program that allows dynamically to copy/cut files or
+*        directories . You can initialize an action in a terminal and finalize this action
+*        in another terminal with the same user .
+* 
+* OVERVIEW
+*        @requires This program allows to execute some actions (see the precondition below)
+*        that can be very useful ( Ve-Quantic inspired ) .
+* 
+* REQUIRES
+*        @requires The only options supported are [ { --copy | -c } , { --cut | -x } , { --paste-copy |
+*                                                     --paste-c | -pc } , { --paste-cut | --paste-x |
+*                                                     -px } , { --array | -a } , { --index | -i } ,
+*                                                   { --put | -p } , { --stat-copy | --stat-c |
+*                                                     -sc } , { --stat-cut | --stat-x | -sx } ,
+*                                                   { --stat | -s } , { --reset | -r } ,
+*                                                   { --out | -o } , { --doc } ,
+*                                                   { --help } , { --version } ]
+*        && the command am-okay has to have at least one option then (if that's your goal) the target
+*        directory/directories or file/files . Example : am-okay --copy <myTargetDir>
+*                                                      (for sure without the hyphens)
+*        && with the option <--index | -i> there is a limit at the level of the indexes
+*            and the indexes have to be a positive integer (min 0 and max 3)
+*        && the [ <--index | -i>,  <--put | -p> and <--stat | -s > ] options are linked to
+*            the <--array | -a> option
+*        && <--stat-copy | --stat-c | -sc> is linked to the <--copy | -c> option
+*        && <--stat-cut | --stat-x | -sx> is linked to the <--cut> option
+*        && the <--reset | -r> option has to have request as value
+*        && <--out | -o> option is linked to the [ --copy | -c, --cut | -x ] options
+*        && the files or directories do not have the character `?` at the level of their name.
+* 
+* SYNOPSIS
+*        am-okay [option | options] [ target-dirs | target-files ]
+* 
+* OPTIONS
+*        --copy , -c   type(string) // This option allows to copy file/files or directory/directories
+*                      (that are its targets), you can use the joker <*> to indicate everything that is
+*                      in the current directory .
+*                           Ex : am-okay --copy <your-target-dir-or-file> <..>
+* 
+*        --cut , -x    type(string) // This option allows to cut file/files or directory/directories
+*                      (that are its targets), you can use the joker <*> to indicate everything that is
+*                      in the current directory .
+*                           Ex : am-okay --cut <your-target-dir-or-file> <..>
+* 
+*        --paste-copy , --paste-c , -pc type(string) // This option allows to paste a copy action .
+*                                            Ex : am-okay --paste-copy <your-target-directory>
+*                                       You can use or not the dot <.> to indicate the current directory .
+*                                       The --paste-copy option is linked to the <--copy> option .
+*                                       Use case :
+*                                           Action 1 ->  Ex : am-okay --copy <my-file>
+*                                           Action 2 ->  Ex : am-okay --paste-copy <my-target-dir>
+* 
+*        --paste-cut , --paste-x , -px  type(string) // This option allows to paste a cut action .
+*                                            Ex : am-okay --paste-cut <your-target-directory>
+*                                       You can use or not the dot <.> to indicate the current directory .
+*                                       This option `--paste-cut` is linked to the <--cut> option .
+*                                       Use case :
+*                                           Action 1 ->  Ex : am-okay --cut <my-file>
+*                                           Action 2 ->  Ex : am-okay --paste-cut <my-target-dir>
+* 
+*        --array , -a  type(string) // This option allows to copy or cut files or directories in a
+*                      separate way ( via indexes ) .
+*                           Ex : am-okay --array --index 0 --copy <file-1> <dir-1> <dir-2> <..>
+*                      For pasting according to the previous action you have to do :
+*                           Ex : am-okay --array --index 0 --put <your-target-dir>
+* 
+*        --index , -i  type(string | int) // This option allows to target the index of the array .
+*                      Use case :
+*                           Ex : am-okay --array --index 0 --copy <file-1> <dir-1> <dir-2> <..>
+*                           Ex : am-okay -a -i 1 -x <your-target-dirs-files>
+*                          Note :
+*                              1.0 You can not do this ->  Ex : am-okay --array --index 0-1 --copy <your-dir> <..>
+*                              1.1 You can do this     ->  Ex : am-okay --array --index 0-1 --put <your-dir>
+*                              1.2 In the previous action ( 1.1 ) the <--put> option has to finalize either a copy
+*                                  action or cut action .
+* 
+*        --put , -p    type(string) // This option allows to put directory/directories or file/files that have
+*                      been targeted by the <--array> option associated with the <--copy> or <--cut> option .
+*                      Use case :
+*                           Ex : am-okay --array --index 0 --put <your_dir>
+*                           Ex : am-okay --array --index 0-3 --put <your_dir>  // The indexes between `0` and `3`
+*                           Ex : am-okay --array --index 0,3 --put <your_dir>  // The indexes `0` and `3`
+* 
+*        --stat-copy , --stat-c , -sc   type(string) // To see the status of an action done with the <--copy>
+*                                       option as first parameter .
+*                                            Ex : am-okay --stat-copy
+* 
+*        --stat-cut , --stat-x , -sx    type(string) // To see the status of an action done with the <--cut>
+*                                       option as first parameter .
+*                                            Ex : am-okay --stat-cut
+* 
+*        --stat , -s   type(string) // To see the status of an action done with the <--array> option as first
+*                      parameter and along with the <--copy> or <--cut> option .
+*                      Use case :
+*                           Ex : am-okay --array --index 0 --stat
+*                           Ex : am-okay --array --index 0-2 --stat  // The indexes between `0` and `2`
+*                           Ex : am-okay --array --index 0,2 --stat  // The indexes `0` and `2`
+* 
+*        --out , -o    type(string) // This option is linked to the [ --copy , --cut ] options (direct action)
+*                           Ex : am-okay --copy <your_dirs/files> --out <your_target_dir>
+*                           Ex : am-okay --cut <your_dirs/files> --out <your_target_dir>
+* 
+*        --reset , -r  type(string) // To reset your desired action(s), there will be a prompt for the
+*                      possible choices ( note : The `request` word has to follow the --reset option ) .
+*                           Ex : am-okay --reset request
+* 
+*        --doc         type(string) // To see the documentation of the am-okay program
+*                           Ex : am-okay --doc
+* 
+*        --help        type(string) // To get help
+*                           Ex : am-okay --help
+* 
+*        --version     type(string) // To see the version of the am-okay program
+*                           Ex : am-okay --version
+* 
+* ENSURE
+*        @ensure Execution successfully if the preconditions are satisfied . That is to say, with
+*        the above options and the appropriated sequences linked to these options .
+* 
+* NOTE
+*        @note This program depends of some programs , these programs are required in the global package
+*        of am-okay .
+*        Once you have pasted files or directories with the <--paste-copy> option, you can paste again
+*        the same files/dirs with the same option <--paste-copy> . For sure an action done by
+*        <--copy> option requires the <--paste-copy> option for pasting , and an action
+*        done by <--cut> option requires <--paste-cut> option for pasting. The two
+*        [ --copy, --cut ] options have different hash codes .
+* 
+*        The files or directories do not have the character `?` at the level of their name .
+* 
+*        When you execute the command am-okay, the command in question works with the profile it was run
+*        with. Running it with different profiles will result in different scenarios, because for
+*        the program each user is different . So when you realize an action , make sure to
+*        conserve the same profile to paste .
+* 
+*        When you execute the command am-okay with the <--paste-copy>, <--paste-cut>, <--put> ,
+*        options a progress bar will be displayed to indicate the move or copy status
+* 
+* AUTHOR
+*        Author    : Baldé Amadou <baldeuniversel@protonmail.com>
+* 
+* CONTRIBUTOR
+*        Contributor    : Diallo Ismaila <diallois@protonmail.com>
+*/
+    "
 
 ##### Action linked to the command <<am-okay>> .
 #####
