@@ -12,14 +12,17 @@ repository [`https://github.com/baldeuniversel/linux.git`](https://github.com/ba
 
 Otherwise **meo** program is a package manager for all programs
 of this Github repository [`https://github.com/baldeuniversel/linux.git`](https://github.com/baldeuniversel/linux.git)
-at the level of the `main` branch. So, you could first install the
-**meo** program to manage (install, remove, update ...) the packages
+at the level of the `main` branch. So, you could first install the **meo**
+program to manage (install, remove, update ...) the packages
 that are on this Github repository (in the main branch) . 
+
 **Hash-package** : **md5sum(d86f38dcb03aa379b72133e5c9a90f04)**
+
 **Code-name** : **Ve-Quantic**
 
-After installing the **meo** program, from your terminal execute this
-command **meo --help** or **meo --doc** to see how to use the **meo** program .
+
+After installing the **meo** program, from your terminal execute this command 
+**meo --help** or **meo --doc** to see how to use the **meo** program .
 
 <br />
 
@@ -31,8 +34,11 @@ The **pdf-tool** program allows to manipulate pdf files .
 With this program you can do actions like `compress, rotate, number, stamp, 
 concatenate, extract, include, exclude, encrypt, decrypt, burst ...` on 
 **pdf files** (use from the terminal) .
+
 **Hash-package** : **md5sum(28b20c745a966a36bdd9fc1efbd6b36c)**
+
 **Code-name** : **Fatima**
+
 
 Once the program is installed, you can use the alias **pdftool** instead of **pdf-tool**
 
@@ -50,7 +56,9 @@ dirs/files (Use from the terminal) .
 
 With this program you can tag files or directories as items to copy or move via a 
 console (terminal) and paste these items via a another console (terminal) .
+
 **Hash-package** : **md5sum(5123e0b31268cae04824e54aa27fd997)**
+
 **Code-name** : **Miriam** 
 
 
@@ -65,8 +73,11 @@ directories in arrays and paste them wherever you want in your Linux system .
 
 The **lumus** program allows to manage the luminosity of the Linux system (Use from the  
 terminal) .
+
 **Hash-package** : **md5sum(5fdf5bf1e45b700481bf8a20b7c75980)**
+
 **Code-name** : **Electra**
+
 
 To see how to use **lumus** program, execute this command from a terminal (of course  
 after installing the program) **lumus --help** or **man lumus** .
@@ -77,8 +88,11 @@ after installing the program) **lumus --help** or **man lumus** .
 
 The **vimizer** program allows to install, change the shell and configure 
 the `vim` and `zsh` program on your Linux system (Use from the terminal) .
+
 **Hash-package** : **md5sum(a4d8a286615c2e14908e1f97d4f18e64)**
+
 **Code-name** : **Entity**
+
 
 After installing the **vimizer** program, you can execute (from the terminal) 
 the command **vimizer --help** or **man vimizer** to get more information 
