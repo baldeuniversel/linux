@@ -1079,22 +1079,22 @@ function pasteAction
                             #
                             echo "$!" > $fileClassicPidCommandMv
     
-                        elif [[ $indexUP == 0 ]] && [[ $arrayPut == "--put" ]]
+                        elif [[ $indexUP -eq 0 ]] && [[ $arrayPut == "--put" ]]
                         then
                             #
                             echo "$!" > $fileArrayInitCommandMvCp
     
-                        elif [[ $indexUP == 1 ]] && [[ $arrayPut == "--put" ]]
+                        elif [[ $indexUP -eq 1 ]] && [[ $arrayPut == "--put" ]]
                         then
                             #
                             echo "$!" > $fileArrayOneCommandMvCp
     
-                        elif [[ $indexUP == 2 ]] && [[ $arrayPut == "--put" ]]
+                        elif [[ $indexUP -eq 2 ]] && [[ $arrayPut == "--put" ]]
                         then
                             #
                             echo "$!" > $fileArrayTwoCommandMvCp
     
-                        elif [[ $indexUP == 3 ]] && [[ $arrayPut == "--put" ]]
+                        elif [[ $indexUP -eq 3 ]] && [[ $arrayPut == "--put" ]]
                         then
                             #
                             echo "$!" > $fileArrayThreeCommandMvCp
