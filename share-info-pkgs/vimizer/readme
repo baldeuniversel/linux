@@ -1,11 +1,14 @@
 /**
 * The <<vimizer>> program allows to install, change the shell and configure the 
-* vim and zsh program on your Linux system(Use from the terminal) .
-* 
+* vim and zsh programs on your Linux system (Use from the terminal) .
+*
+* Hash-package : md5sum(a4d8a286615c2e14908e1f97d4f18e64)
+* Code-name : Entity
+*
 * After installing the <<vimizer>> program, you can execute (from the terminal) the 
 * command `vimizer --help` or `man vimizer` to get more information 
 * about the <<vimizer>> program .
 *
-* Note : Except the options[ --version, --help ] , no input parameter is required to use this program . 
-*
+* Note : Except the options [ --version, --help ] , no input parameter is required 
+* to use this program . 
 */
