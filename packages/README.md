@@ -58,7 +58,7 @@ dirs/files (Use from the terminal) .
 With this program you can tag files or directories as items to copy or move via a 
 console (terminal) and paste these items via a another console (terminal) .
 
-**Hash-package** : **md5sum(5123e0b31268cae04824e54aa27fd997)**
+**Hash-package** : **md5sum(b4d4123170d8168a04fcc9e393155e89)**
 <br />
 **Code-name** : **Miriam** 
 
