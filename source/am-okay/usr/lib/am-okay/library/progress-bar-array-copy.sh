@@ -45,6 +45,7 @@ a_character_bar_back="-"
 tmp_sizeOfSourceData="/tmp/.$USER/am-okay/progress/$a_getThisPid/size-source-data"
 tmp_sizeOfOngoingData="/tmp/.$USER/am-okay/progress/$a_getThisPid/size-ongoing-data"
 tmp_flagSourceComputed="/tmp/.$USER/am-okay/progress/$a_getThisPid/flag-source-computed"
+tmp_flagNextOngoingComputed="/tmp/.$USER/am-okay/progress/$a_getThisPid/flag-next-ongoing-computed"
 
 
 # Create a tmp directory for this process (Goal -> running processes in parallel)
@@ -269,6 +270,8 @@ function display_progress_bar
     echo -en "|  $a_percent_stat  \033[0m"
 
 
+    # To allow the calculation (the size) of the data sent (in parallel)
+    echo "true" > "$tmp_flagNextOngoingComputed"
 
     # Get the size of the source data -> call the function <<get_size>>
     ( 
@@ -294,14 +297,24 @@ function display_progress_bar
             counterSourceComputed=$(( counterSourceComputed + 1 ))
         fi
 
-        # Get the size of the ongoing data
-        (
-            getSizeOfOngoingData=$(get_size "$a_destination_dir_target_embed")
-
+        #
+        if [[ ` cat "$tmp_flagNextOngoingComputed" 2> /dev/null | grep -w -- "true" ` ]]
+        then
             #
-            echo "$getSizeOfOngoingData" > "$tmp_sizeOfOngoingData"
+            echo "false" > "$tmp_flagNextOngoingComputed"
 
-        ) &
+            # Get the size of the ongoing data
+            (
+                getSizeOfOngoingData=$(get_size "$a_destination_dir_target_embed")
+
+                #
+                echo "$getSizeOfOngoingData" > "$tmp_sizeOfOngoingData"
+                
+                #
+                echo "true" > "$tmp_flagNextOngoingComputed"
+
+            ) &
+        fi
 
         #
         a_length_ongoing_data=` cat "$tmp_sizeOfOngoingData" 2> /dev/null | tr -d "[[:space:]]" `
