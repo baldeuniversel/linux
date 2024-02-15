@@ -93,6 +93,9 @@ function __init__
 function __del__ 
 {
     rm -rf "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null 
+    
+    #
+    rm -rf "$a_filePidCommandMv" 2> /dev/null 
 
     echo -e "\n"
 }
@@ -188,7 +191,7 @@ function setFlagSIGINT
     kill -9 $a_getThePidCommandMv &> /dev/null
 
     #
-    rm -rf $a_filePidCommandMv &> /dev/null
+    rm -rf "$a_filePidCommandMv" &> /dev/null
     
     #
     rm -rf "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null

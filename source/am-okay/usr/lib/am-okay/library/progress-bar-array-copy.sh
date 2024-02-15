@@ -129,6 +129,9 @@ function __del__
     #
     rm -rf "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null 
 
+    #
+    rm -rf "$a_filePidCommandCpMv" 2> /dev/null
+
     echo -e "\n"
 }
 
@@ -187,7 +190,7 @@ function setFlagSIGINT
     kill -9 $a_getThePidCommandCpMv &> /dev/null
 
     #
-    rm -rf $a_filePidCommandCpMv &> /dev/null
+    rm -rf "$a_filePidCommandCpMv" &> /dev/null
     
     #
     rm -rf "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null 

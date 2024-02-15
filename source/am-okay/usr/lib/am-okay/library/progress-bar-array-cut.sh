@@ -128,6 +128,9 @@ function __del__
 {
     #
     rm -fr "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null
+    
+    #
+    rm -rf "$a_filePidCommandCpMv" 2> /dev/null
 
     echo -e "\n"
 }
