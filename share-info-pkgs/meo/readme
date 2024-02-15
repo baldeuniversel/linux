@@ -1,15 +1,18 @@
 /**
-* The <<meo>> program allows to manage available packages of the
+* The <<meo>> program allows to manage the available packages of the
 * Github repository `https://github.com/baldeuniversel/linux.git` 
 * (Use from the terminal) .
 *
-* Otherwise <<meo>> program is a package manager for all programs 
-* of this Github repository `https://github.com/baldeuniversel/linux` 
-* at the level of the `main` branch. So, you could first install the 
-* <<meo>> program to manage(install, remove, update ...) the packages 
-* that are on this Github repository(in the main branch) .
+* Hash-package : md5sum(d86f38dcb03aa379b72133e5c9a90f04)
+* Code-name : Ve-Quantic
+*
+* Otherwise <<meo>> program is a package manager for all programs of this 
+* Github repository `https://github.com/baldeuniversel/linux.git` at the 
+* level of the `main` branch. So, you could first install the <<meo>> 
+* program to manage (install, remove, update ...) the packages that 
+* are on this Github repository (in the main branch) .
 *
 * After installing the <<meo>> program, from your terminal execute this 
-* command `meo --help` or `meo --doc` to see how to use the <<meo>> program .
-*
+* command `meo --help` or `meo --doc` to see how to use the <<meo>> 
+* program .
 */
