@@ -15,6 +15,15 @@ systemctl daemon-reload  &> /dev/null
 systemctl start am-okay-boot.service  &> /dev/null
 
 
+#
+ln -rs /usr/bin/am-okay /usr/bin/am-ok 
+ln -rs /usr/bin/am-okay /usr/bin/amok
+ln -rs /usr/bin/am-okay /usr/bin/amokay
+
+ln -rs /usr/share/man/man1/am-okay.1.gz /usr/share/man/man1/am-ok.1.gz
+ln -rs /usr/share/man/man1/am-okay.1.gz /usr/share/man/man1/amok.1.gz
+ln -rs /usr/share/man/man1/am-okay.1.gz /usr/share/man/man1/amokay.1.gz
+
 # Just to print the name of the author
 echo ""
 echo ""
