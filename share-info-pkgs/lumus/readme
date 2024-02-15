@@ -1,7 +1,11 @@
 /**
-* The <<lumus>> program allows to manage the luminosity of the Linux system(Use from the terminal) .
+* The <<lumus>> program allows to manage the luminosity of the Linux 
+* system (Use from the terminal) .
 *
-* To see how to use <<lumus>> program, encode from the terminal(of course after installing the program) 
-* `lumus --help` or `man lumus` .
+* Hash-package : md5sum(5fdf5bf1e45b700481bf8a20b7c75980)
+* Code-name : Electra
 *
+* To see how to use <<lumus>> program, encode from the terminal (of 
+* (course after installing the `lumus` program) `lumus --help` 
+* or `man lumus` .
 */
