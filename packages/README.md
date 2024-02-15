@@ -17,7 +17,6 @@ program to manage (install, remove, update ...) the packages
 that are on this Github repository (in the main branch) . 
 
 **Hash-package** : **md5sum(d86f38dcb03aa379b72133e5c9a90f04)**
-
 **Code-name** : **Ve-Quantic**
 
 
@@ -36,7 +35,6 @@ concatenate, extract, include, exclude, encrypt, decrypt, burst ...` on
 **pdf files** (use from the terminal) .
 
 **Hash-package** : **md5sum(28b20c745a966a36bdd9fc1efbd6b36c)**
-
 **Code-name** : **Fatima**
 
 
@@ -58,7 +56,6 @@ With this program you can tag files or directories as items to copy or move via 
 console (terminal) and paste these items via a another console (terminal) .
 
 **Hash-package** : **md5sum(5123e0b31268cae04824e54aa27fd997)**
-
 **Code-name** : **Miriam** 
 
 
@@ -75,7 +72,6 @@ The **lumus** program allows to manage the luminosity of the Linux system (Use f
 terminal) .
 
 **Hash-package** : **md5sum(5fdf5bf1e45b700481bf8a20b7c75980)**
-
 **Code-name** : **Electra**
 
 
@@ -90,7 +86,6 @@ The **vimizer** program allows to install, change the shell and configure
 the `vim` and `zsh` program on your Linux system (Use from the terminal) .
 
 **Hash-package** : **md5sum(a4d8a286615c2e14908e1f97d4f18e64)**
-
 **Code-name** : **Entity**
 
 
