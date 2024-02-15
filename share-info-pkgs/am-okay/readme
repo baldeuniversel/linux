@@ -5,7 +5,7 @@
 * With this program you can tag files or directories as items to copy or move via a
 * console (terminal), and paste these items via a another console(terminal) .
 *
-* Hash-package : md5sum(5123e0b31268cae04824e54aa27fd997)
+* Hash-package : md5sum(c39cc6ee6fd5117fb0c7ff2adad9ced5)
 * Code-name : Miriam
 *
 * Once the program is installed, you can use the aliases **[ am-ok , amok , amokay ]** 
