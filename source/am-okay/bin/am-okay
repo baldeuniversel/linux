@@ -150,7 +150,9 @@ trap "setterm --cursor on" SIGINT
 # Declaration variables
 listOfParams=("--copy" "--cut" "--paste-copy" "--paste-cut" "--array" \
     "--index" "--put" "--stat-copy" "--stat-cut" "--stat" "--reset" \
-    "--out" "--move" "--doc" "--help" "--version")
+    "--out" "-c" "-x" "-o" "-a" "-i" "-px" "-pc" "-p" "-sx" "-sc" \
+    "--stat-x" "--stat-c" "--paste-c" "--paste-x"  "-s" "-r" \
+    "--doc" "--help" "--version")
 
 counterOption=0
 
@@ -174,7 +176,7 @@ do
     fi
 
     #
-    if [[ $counterOption -eq 16  ]]
+    if [[ $counterOption -eq 31 ]]
     then
         echo "~"
         echo -e "Unknown `tput setaf 3; tput bold`$1` tput sgr0 ` option \U001F9D0 ."
@@ -182,9 +184,13 @@ do
     fi
 done
 #
-if [[ $1 != "--stat-copy" ]] && [[ $1 != "--stat-cut"  ]] \
+if [[ $1 != "--stat-copy" ]] && [[ $1 != "--stat-cut" ]] \
+    && [[ $1 != "--stat-c" ]] && [[ $1 != "-sc" ]] \
+    && [[ $1 != "--stat-x" ]] && [[ $1 != "-sx" ]] \
     && [[ $1 != "--doc" ]] && [[ $1 != "--help" ]] && [[ $1 != "--version" ]] \
     && [[ $1 != "--paste-copy" ]] && [[ $1 != "--paste-cut" ]] \
+    && [[ $1 != "--paste-c" ]] && [[ $1 != "--paste-x" ]] \
+    && [[ $1 != "-pc" ]] && [[ $1 != "-px" ]] \
     && [[ $# -lt 2 ]] 
 then
     echo "~"
@@ -477,7 +483,7 @@ function copyCutAction
                 if [[ -e "$rootDirCopyCutFiles/classic-pid-cp" ]] 
                 then
                     #
-                    if [[  ` cat  "$rootDirCopyCutFiles/classic-pid-cp" | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
+                    if [[  ` cat  "$rootDirCopyCutFiles/classic-pid-cp" 2> /dev/null | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
                     then
                         echo "~"
                         echo -e "There is a paste action in progress which is linked to the \e[1;036mcopy\e[0m "
@@ -501,7 +507,7 @@ function copyCutAction
                 if [[ -e "$rootDirCopyCutFiles/classic-pid-mv" ]] 
                 then
                     #
-                    if [[  ` cat  "$rootDirCopyCutFiles/classic-pid-mv" | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
+                    if [[  ` cat  "$rootDirCopyCutFiles/classic-pid-mv" 2> /dev/null | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
                     then
                         echo "~"
                         echo -e "There is a paste action in progress which is linked to the \e[1;036mcut\e[0m "
@@ -524,7 +530,7 @@ function copyCutAction
         if [[ -e "$arrayIndexInitDir/array-init-pid-mv-cp" ]] 
         then
             #
-            if [[  ` cat  "$arrayIndexInitDir/array-init-pid-mv-cp" | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
+            if [[  ` cat  "$arrayIndexInitDir/array-init-pid-mv-cp" 2> /dev/null | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
             then
                 echo "~"
                 echo -e "\e[1;035mIndex 0\e[0m is busy, There is a put action in progress which is "
@@ -545,7 +551,7 @@ function copyCutAction
         if [[ -e "$arrayIndex1Dir/array-one-pid-mv-cp" ]] 
         then
             #
-            if [[  ` cat  "$arrayIndex1Dir/array-one-pid-mv-cp" | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
+            if [[  ` cat  "$arrayIndex1Dir/array-one-pid-mv-cp" 2> /dev/null | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
             then
                 echo "~"
                 echo -e "\e[1;035mIndex 1\e[0m is busy, There is a put action in progress which is "
@@ -566,7 +572,7 @@ function copyCutAction
         if [[ -e "$arrayIndex2Dir/array-two-pid-mv-cp" ]] 
         then
             #
-            if [[  ` cat  "$arrayIndex2Dir/array-two-pid-mv-cp" | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
+            if [[  ` cat  "$arrayIndex2Dir/array-two-pid-mv-cp" 2> /dev/null | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
             then
                 echo "~"
                 echo -e "\e[1;035mIndex 2\e[0m is busy, There is a put action in progress which is "
@@ -587,7 +593,7 @@ function copyCutAction
         if [[ -e "$arrayIndex3Dir/array-three-pid-mv-cp" ]] 
         then
             #
-            if [[  ` cat  "$arrayIndex2Dir/array-three-pid-mv-cp" | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
+            if [[  ` cat  "$arrayIndex3Dir/array-three-pid-mv-cp" 2> /dev/null | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
             then
                 echo "~"
                 echo -e "\e[1;035mIndex 3\e[0m is busy, There is a put action in progress which is "
@@ -1526,10 +1532,11 @@ fi
 
 
 
-### Treatment the `copy` and `move` actions (directly) -> start tag[i7]
+### Treatment the `copy` and `cut` actions (directly) -> start tag[i7]
 
-if ( [[ $1 == "--copy"  ]] || [[ $1 == "--move" ]] || [[ $1 == "--cut" ]] ) \
-    && ( [[ ` echo  "$@" | grep -w -- "--out" ` ]] )
+if ( [[ $1 == "--copy"  ]] || [[ $1 == "--cut" ]] \
+    || [[ $1 == "-c"  ]] || [[ $1 == "-x"  ]] ) \
+    && ( [[ ` echo  "$@" | grep -w -- "--out" ` ]] || [[ ` echo  "$@" | grep -w -- "-o" ` ]] )
 then
 
     # Declaration/Assignation variables
@@ -1537,13 +1544,12 @@ then
     getTheFirstParam=$1
     getBeforeLastParamPos=$(( getNbOfParam - 1  ))
     getLastParam=${!getNbOfParam}
-    counterInOption=0
     tabFileDir=()
 
 
 
-    # Check to see if the first parameter is not equal to `--move` or `--copy` , then
-    if [[ $1 != "--copy" ]] &&  [[ $1 != "--move" ]]
+    # Check to see if the first parameter is not equal to `--cut` or `--copy` , then
+    if [[ $1 != "--copy" ]] && [[ $1 != "--cut" ]] && [[ $1 != "-c" ]] &&  [[ $1 != "-x" ]]
     then
         #
         echo "~"
@@ -1554,7 +1560,8 @@ then
 
 
     #
-    if [[ "${!getBeforeLastParamPos}" == "--out" ]] && ( [[ -e "${!getNbOfParam}" ]] && [[ -d "${!getNbOfParam}" ]] )
+    if ( [[ "${!getBeforeLastParamPos}" == "--out" ]] || [[ "${!getBeforeLastParamPos}" == "-o" ]] ) \
+        && ( [[ -e "${!getNbOfParam}" ]] && [[ -d "${!getNbOfParam}" ]] )
     then
         
         #
@@ -1577,7 +1584,7 @@ then
             for inputParam in "$@"
             do
                 #
-                if [[ $inputParam != "--out" ]] && [[ $counterInOption -lt 2 ]]
+                if ( [[ $inputParam != "--out" ]] && [[ $inputParam != "-o" ]] )
                 then
                     
                     #
@@ -1589,21 +1596,12 @@ then
                     else
                         echo "~"
                         echo -e "The file/directory \e[35;1m$inputParam\e[0m does not exist \U001F9D0"
+
                         exit 1
                     fi
                 else
-
                     #
-                    counterInOption=$(( counterInOption + 1 ))
-
-                    if [[ $counterInOption -gt 1 ]]
-                    then
-
-                        echo "~"
-                        echo -e "Invalid request \U001F9D0"
-
-                        exit 1
-                    fi
+                    break
                 fi
             done
  
@@ -1614,7 +1612,7 @@ then
             IFS=$getCurrentIFS
         fi
 
-    elif  [[ "${!getBeforeLastParamPos}" != "--out" ]]
+    elif [[ "${!getBeforeLastParamPos}" != "--out" ]] && [[ "${!getBeforeLastParamPos}" != "-o" ]]
     then
         echo "~"
         echo -e "Invalid request \U001F9D0, the option \e[36;1m--out\e[0m has to be in penultimate position"
@@ -1622,7 +1620,6 @@ then
 
     elif [[ -e "${!getNbOfParam}" ]] 
     then
-
         #
         if [[ ! ( -d "${!getNbOfParam}" ) ]]
         then
@@ -1636,7 +1633,7 @@ then
     then
         #
         echo "~"
-        echo -e "The target input \e[35;1m${!getNbOfParam}\e[0m was not found \U001F9D0"
+        echo -e "The target directory \e[35;1m${!getNbOfParam}\e[0m was not found \U001F9D0"
         exit 1
     else
         #
@@ -1647,10 +1644,10 @@ then
     fi
 
 
-    # Finalize the action `copy` or `move`
-    if [[ $getTheFirstParam == "--copy" ]]
+    # Finalize the action `copy` or `cut`
+    if [[ $getTheFirstParam == "--copy" ]] || [[ $getTheFirstParam == "-c" ]]
     then
-
+        #
         echo -e ""
 
         # Backup the `input field separator` , then ...
@@ -1667,8 +1664,11 @@ then
             then
                 # Call the function `pasteActionIn`
                 pasteActionIn "--copy" "$dirFile" "$getLastParam" 2> /dev/null 
+            else
+                echo "~"
+                echo -e "Action rejected same source and destination [ $dirFile -> $getLastParam ] ⚠️  "
+                echo ""
             fi
-
         done
         
         # Restore 
@@ -1677,7 +1677,7 @@ then
         #
         exit 0
 
-    elif [[ $getTheFirstParam == "--move"  ]]
+    elif [[ $getTheFirstParam == "--cut"  ]] || [[ $getTheFirstParam == "-x" ]]
     then
         echo ""
 
@@ -1695,6 +1695,10 @@ then
             then
                 # Call the function `pasteActionIn`
                 pasteActionIn "--cut" "$dirFile" "$getLastParam" 2> /dev/null 
+            else
+                echo "~"
+                echo -e "Action rejected same source and destination [ $dirFile -> $getLastParam ] ⚠️  "
+                echo ""
             fi
 
         done
@@ -1716,7 +1720,7 @@ then
     
 fi
 
-### Treatment the `copy` and `move` actions (directly) -> end tag[i7]
+### Treatment the `copy` and `cut` actions (directly) -> end tag[i7]
 
 
 
@@ -1724,11 +1728,11 @@ fi
 #   --paste-cut ] options.
 # Here is the path of the python program -> `/usr/lib/am-okay/library/progress-bar` . [tag1] 
 
-# Copy or cut action for the `--copy`, `--cut`, or `--array` option as first parameter
-if [[ $1 == "--copy" ]] || [[ $1 == "--cut" ]]
+# Copy or cut action for the `--copy || -c`, `--cut || -c`, or `--array || -a` option as first parameter
+if [[ $1 == "--copy" ]] || [[ $1 == "--cut" ]] || [[ $1 == "-c" ]] || [[ $1 == "-x" ]]
 then
     #
-    if [[ $1 == "--copy" ]]
+    if [[ $1 == "--copy" ]] || [[ $1 == "-c" ]]
     then
         # Shift one position -> `--copy`
         shift 1
@@ -1754,7 +1758,7 @@ then
         copyCutAction "--copy" "Copy Action" " ` echo ${arrayDirsFiles[@]} ` " "none"
         exit 0
 
-    elif [[ $1 == "--cut" ]]
+    elif [[ $1 == "--cut" ]] || [[ $1 == "-x" ]]
     then
         # Shift one position -> `--cut`
         shift 1
@@ -1782,14 +1786,14 @@ then
         exit 0
     fi 
 
-elif ( [[ $1 == "--array" ]] && [[ $# -lt 4 ]] ) 
+elif ( [[ $1 == "--array" ]] || [[ $1 == "-a" ]] ) && ( [[ $# -lt 4 ]] ) 
 then    
     echo "~"
     echo -e "Invalid request \U001F9D0 ."
     exit 1
 
-elif ( [[ $1 == "--array" ]] && [[ $2 == "--index" ]] ) && \
-    ( [[ $4 == "--copy" ]] || [[ $4 == "--cut" ]] ) && \
+elif ( [[ $1 == "--array" ]] || [[ $1 == "-a" ]] ) && ( [[ $2 == "--index" ]] || [[ $2 == "-i" ]] ) && \
+    ( ( [[ $4 == "--copy" ]] || [[ $4 == "-c" ]] ) || ( [[ $4 == "--cut" ]] || [[ $4 == "-x" ]] ) ) && \
     ( [[ ` echo "$3" | grep -E "^[0-3]{1,1}$" ` ]] )
 then
 
@@ -1801,11 +1805,11 @@ then
         exit 1
     fi
 
-    if [[ $2 == "--index" ]]
+    if [[ $2 == "--index" ]] || [[ $2 == "-i" ]]
     then
         if [[ $3 -eq 0 ]]
         then
-            if [[ $4 == "--copy" ]]
+            if [[ $4 == "--copy" ]] || [[ $4 == "-c" ]]
             then
                 # Shift four positions
                 shift 4
@@ -1832,7 +1836,7 @@ then
                 copyCutAction "--array" "Copy Action" "` echo ${arrayDirsFiles[@]} `" 0
                 exit 0
 
-            elif [[ $4 == "--cut" ]]
+            elif [[ $4 == "--cut" ]] || [[ $4 == "-x" ]]
             then
                 # Shift four positions
                 shift 4
@@ -1861,7 +1865,7 @@ then
             fi  
         elif [[ $3 -eq 1 ]]
         then
-            if [[ $4 == "--copy" ]]
+            if [[ $4 == "--copy" ]] || [[ $4 == "-c" ]]
             then
                 # Shift four positions
                 shift 4
@@ -1888,7 +1892,7 @@ then
                 copyCutAction "--array" "Copy Action" "` echo ${arrayDirsFiles[@]} `" 1
                 exit 0
 
-            elif [[ $4 == "--cut" ]]
+            elif [[ $4 == "--cut" ]] || [[ $4 == "-x" ]]
             then
                 # Shift four positions 
                 shift 4
@@ -1917,7 +1921,7 @@ then
             fi 
         elif [[ $3 -eq 2 ]]
         then
-            if [[ $4 == "--copy" ]]
+            if [[ $4 == "--copy" ]] || [[ $4 == "-c" ]]
             then
                 # Shift four positions
                 shift 4
@@ -1943,7 +1947,7 @@ then
                 # Call the function `copyCutAction`
                 copyCutAction "--array" "Copy Action" "` echo ${arrayDirsFiles[@]} `" 2
                 exit 0
-            elif [[ $4 == "--cut" ]]
+            elif [[ $4 == "--cut" ]] || [[ $4 == "-x" ]]
             then
                 # Shift four positions 
                 shift 4
@@ -1972,7 +1976,7 @@ then
             fi 
         elif [[ $3 -eq 3 ]]
         then
-            if [[ $4 == "--copy" ]]
+            if [[ $4 == "--copy" ]] || [[ $4 == "-c" ]]
             then
                 # Shift four positions
                 shift 4
@@ -1998,7 +2002,7 @@ then
                 # Call the function `copyCutAction`
                 copyCutAction "--array" "Copy Action" "` echo ${arrayDirsFiles[@]} `" 3
                 exit 0
-            elif [[ $4 == "--cut" ]]
+            elif [[ $4 == "--cut" ]] || [[ $4 == "-x" ]]
             then
                 # Shift four positions 
                 shift 4
@@ -2031,7 +2035,8 @@ then
             exit 1
         fi
     fi
-elif ( [[ $1 == "--array" ]] ) && ( [[ $4 == "--cut" ]] || [[ $4 == "--copy" ]] ) 
+elif ( [[ $1 == "--array" ]] || [[ $1 == "-a" ]] ) && ( ( [[ $4 == "--cut" ]] || [[ $4 == "-x" ]] ) \
+    || ( [[ $4 == "--copy" ]] || [[ $4 == "-c" ]] ) ) 
 then
     if [[  $# -lt 5  ]]
     then
@@ -2042,31 +2047,32 @@ then
 fi
 
 # Stat of the copy and cut actions done by the [ --copy, --cut, --array ] options 
-if [[ $1 == "--stat-copy"  ]]
+if [[ $1 == "--stat-copy"  ]] || [[ $1 == "--stat-c"  ]] || [[ $1 == "-sc"  ]]
 then
     # Call the function `statAction`
     statAction "--copy" "none"
     exit 0
 
-elif [[ $1 == "--stat-cut" ]]
+elif [[ $1 == "--stat-cut" ]] || [[ $1 == "--stat-x" ]] || [[ $1 == "-sx" ]]
 then
     # Call the function `statAction`
     statAction "--cut" "none"
     exit 0
 
-elif [[ $1 == "--array" ]] && [[ $# -lt 4 ]]
+elif ( [[ $1 == "--array" ]] || [[ $1 == "-a" ]] ) && ( [[ $# -lt 4 ]] )
 then    
     echo "~"
     echo -e "Invalid request \U001F9D0 ."
     exit 1
 
-elif ( [[ $1 == "--array" ]] && [[ $2 == "--index" ]] && [[ $# -eq 4 ]] && [[ $4 == "--stat" ]] ) && \
+elif ( [[ $1 == "--array" ]] || [[ $1 == "-a" ]] ) && ( [[ $2 == "--index" ]] || [[ $2 == "-i" ]] ) \
+    && ( [[ $# -eq 4 ]] ) && ( [[ $4 == "--stat" ]] || [[ $4 == "-s" ]] ) && \
     ( [[ ` echo "$3" | grep -E "^[0-3]{1,1}-[0-3]{1,1}$" ` ]] \
     || [[ ` echo "$3" | grep -E "^[0-3]{1,1},[0-3]{1,1}$" ` ]] \
     || [[ ` echo "$3" | grep -E "^[0-3]{1,1}$" ` ]] )
 
 then
-    if [[ $2 == "--index" ]]
+    if [[ $2 == "--index" ]] || [[ $2 == "-i" ]]
     then
         if [[ $3 == 0 ]] 
         then
@@ -2145,7 +2151,9 @@ then
 fi
 
 # Paste action for the `--copy`, `--paste`, `--array` options as first parameter
-if ( [[ $1 == "--paste-copy" ]] || [[ $1 == "--paste-cut" ]] ) && [[ $# -le 2 ]]
+if ( ( [[ $1 == "--paste-copy" ]] || [[ $1 == "--paste-c" ]] || [[ $1 == "-pc" ]] ) || \
+    ( [[ $1 == "--paste-cut" ]] || [[ $1 == "--paste-x" ]] || [[ $1 == "-px" ]] ) ) && \
+    ( [[ $# -le 2 ]] )
 then
     # Declaration variables
     targetDir=""
@@ -2164,7 +2172,7 @@ then
     fi
 
     
-    if [[ $1 == "--paste-copy" ]]
+    if [[ $1 == "--paste-copy" ]] || [[ $1 == "--paste-c" ]] || [[ $1 == "-pc" ]]
     then
         # Call the function `pasteAction`
         pasteAction "--paste-copy" "$targetDir" "none" "none" 2> /dev/null
@@ -2172,7 +2180,7 @@ then
         #
         exit 0
 
-    elif [[ $1 == "--paste-cut" ]]
+    elif [[ $1 == "--paste-cut" ]] || [[ $1 == "--paste-x" ]] || [[ $1 == "-px" ]]
     then
         # Call the function `pasteAction`
         pasteAction "--paste-cut" "$targetDir" "none" "none" 2> /dev/null
@@ -2180,7 +2188,8 @@ then
         #
         exit 0
     fi    
-elif ( [[ $1 == "--array" ]] && [[ $4 == "--put" ]] && [[ $2 == "--index" ]] ) && \
+elif ( [[ $1 == "--array" ]] || [[ $1 == "-a" ]] ) && ( [[ $4 == "--put" ]] || [[ $4 == "-p" ]] ) \
+    && ( [[ $2 == "--index" ]] || [[ $2 == "-i" ]] ) && \
     ( [[ ` echo "$3" | grep -E "^[0-3]{1,1}-[0-3]{1,1}$" ` ]] || \
     [[ ` echo "$3" | grep -E "^[0-3]{1,1},[0-3]{1,1}$" ` ]] || \
     [[ ` echo "$3" | grep -E "^[0-3]{1,1}$" ` ]] )
@@ -2214,7 +2223,7 @@ then
 
     
     #
-    if [[ $2 == "--index" ]]
+    if [[ $2 == "--index" ]] || [[ $2 == "-i" ]]
     then
         if [[ $3 -eq 0 ]] && [[ ` echo "$3" | grep -vE "[,-]" ` ]]
         then
@@ -2299,7 +2308,7 @@ fi
 
 
 ### Reset action . [tag2]
-if [[ $1 == "--reset" ]] && [[ $# -eq 2 ]] && [[ $2 == "request" ]]
+if ( [[ $1 == "--reset" ]] || [[ $1 == "-r" ]] ) && ( [[ $# -eq 2 ]] ) && ( [[ $2 == "request" ]] )
 then
     # Declaration variables
     choiceUP=""
