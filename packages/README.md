@@ -63,9 +63,7 @@ console (terminal) and paste these items via a another console (terminal) .
 **Code-name** : **Miriam** 
 
 
-Once the program is installed, you can use the aliases **[am-ok , amok, amokay]** 
-<br />
-instead of **am-okay** .
+Once the program is installed, you can use the aliases **[am-ok , amok, amokay]** instead of **am-okay** .
 
 After installing the **am-okay** program, you can execute (from the terminal) the command 
 **am-okay --help** or **am-okay --doc** or **man am-okay** to get more information on how 
