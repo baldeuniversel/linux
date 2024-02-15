@@ -63,34 +63,34 @@ fi
 
 
 #
-if [[ $a_arrayIndex == 0 ]]
+if [[ $a_arrayIndex -eq 0 ]]
 then
     #
-    a_filePidCommandCpMv="/home/quantium/.local/share/am-okay/array/array-init/array-init-pid-mv-cp"
+    a_filePidCommandCpMv="$HOME/.local/share/am-okay/array/array-init/array-init-pid-mv-cp"
 
     #
     a_getThePidCommandCpMv=` cat $a_filePidCommandCpMv 2> /dev/null | tr -d "[[:space:]]" `
 
-elif [[ $a_arrayIndex == 1 ]]
+elif [[ $a_arrayIndex -eq 1 ]]
 then
     #
-    a_filePidCommandCpMv="/home/quantium/.local/share/am-okay/array/array-1/array-one-pid-mv-cp"
+    a_filePidCommandCpMv="$HOME/.local/share/am-okay/array/array-1/array-one-pid-mv-cp"
 
     #
     a_getThePidCommandCpMv=` cat $a_filePidCommandCpMv 2> /dev/null | tr -d "[[:space:]]" `
 
-elif [[ $a_arrayIndex == 2 ]]
+elif [[ $a_arrayIndex -eq 2 ]]
 then
     #
-    a_filePidCommandCpMv="/home/quantium/.local/share/am-okay/array/array-2/array-two-pid-mv-cp"
+    a_filePidCommandCpMv="$HOME/.local/share/am-okay/array/array-2/array-two-pid-mv-cp"
 
     #
     a_getThePidCommandCpMv=` cat $a_filePidCommandCpMv 2> /dev/null | tr -d "[[:space:]]" `
 
-elif [[ $a_arrayIndex == 3 ]]
+elif [[ $a_arrayIndex -eq 3 ]]
 then
     #
-    a_filePidCommandCpMv="/home/quantium/.local/share/am-okay/array/array-3/array-three-pid-mv-cp"
+    a_filePidCommandCpMv="$HOME/.local/share/am-okay/array/array-3/array-three-pid-mv-cp"
 
     #
     a_getThePidCommandCpMv=` cat $a_filePidCommandCpMv 2> /dev/null | tr -d "[[:space:]]" `
