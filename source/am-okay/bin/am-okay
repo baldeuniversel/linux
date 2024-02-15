@@ -894,22 +894,22 @@ function pasteAction
                         #
                         echo "$!" > $fileClassicPidCommandCp
 
-                    elif [[ $indexUP == 0 ]] && [[ $arrayPut == "--put" ]]
+                    elif [[ $indexUP -eq 0 ]] && [[ $arrayPut == "--put" ]]
                     then
                         #
                         echo "$!" > $fileArrayInitCommandMvCp
 
-                    elif [[ $indexUP == 1 ]] && [[ $arrayPut == "--put" ]]
+                    elif [[ $indexUP -eq 1 ]] && [[ $arrayPut == "--put" ]]
                     then
                         #
                         echo "$!" > $fileArrayOneCommandMvCp
 
-                    elif [[ $indexUP == 2 ]] && [[ $arrayPut == "--put" ]]
+                    elif [[ $indexUP -eq 2 ]] && [[ $arrayPut == "--put" ]]
                     then
                         #
                         echo "$!" > $fileArrayTwoCommandMvCp
 
-                    elif [[ $indexUP == 3 ]] && [[ $arrayPut == "--put" ]]
+                    elif [[ $indexUP -eq 3 ]] && [[ $arrayPut == "--put" ]]
                     then
                         #
                         echo "$!" > $fileArrayThreeCommandMvCp
@@ -953,22 +953,22 @@ function pasteAction
                         # Display the status of the transfer
                         /usr/lib/am-okay/library/progress-bar-copy.sh "$readLine" "$targetDir/$getEndFileDir"
                     #    
-                    elif [[ $indexUP == 0 ]] &&  [[ $arrayPut == "--put" ]]
+                    elif [[ $indexUP -eq 0 ]] &&  [[ $arrayPut == "--put" ]]
                     then
                         # Display the status of the transfer
                         /usr/lib/am-okay/library/progress-bar-array-copy.sh "$readLine" "$targetDir/$getEndFileDir" 0
                     #
-                    elif [[ $indexUP == 1 ]] &&  [[ $arrayPut == "--put" ]]
+                    elif [[ $indexUP -eq 1 ]] &&  [[ $arrayPut == "--put" ]]
                     then
                         # Display the status of the transfer
                         /usr/lib/am-okay/library/progress-bar-array-copy.sh "$readLine" "$targetDir/$getEndFileDir" 1
                     #
-                    elif [[ $indexUP == 2 ]] &&  [[ $arrayPut == "--put" ]]
+                    elif [[ $indexUP -eq 2 ]] &&  [[ $arrayPut == "--put" ]]
                     then
                         # Display the status of the transfer
                         /usr/lib/am-okay/library/progress-bar-array-copy.sh "$readLine" "$targetDir/$getEndFileDir" 2
                     #
-                    elif [[ $indexUP == 3 ]] &&  [[ $arrayPut == "--put" ]]
+                    elif [[ $indexUP -eq 3 ]] &&  [[ $arrayPut == "--put" ]]
                     then
                         # Display the status of the transfer
                         /usr/lib/am-okay/library/progress-bar-array-copy.sh "$readLine" "$targetDir/$getEndFileDir" 3
@@ -1124,22 +1124,22 @@ function pasteAction
                                 # Display the status of the transfer
                                 /usr/lib/am-okay/library/progress-bar-cut.sh "$readLine" "$targetDir/$getEndFileDir"
                             #    
-                            elif [[ $indexUP == 0 ]] &&  [[ $arrayPut == "--put" ]]
+                            elif [[ $indexUP -eq 0 ]] &&  [[ $arrayPut == "--put" ]]
                             then
                                 # Display the status of the transfer
                                 /usr/lib/am-okay/library/progress-bar-array-cut.sh "$readLine" "$targetDir/$getEndFileDir" 0
                             #
-                            elif [[ $indexUP == 1 ]] &&  [[ $arrayPut == "--put" ]]
+                            elif [[ $indexUP -eq 1 ]] &&  [[ $arrayPut == "--put" ]]
                             then
                                 # Display the status of the transfer
                                 /usr/lib/am-okay/library/progress-bar-array-cut.sh "$readLine" "$targetDir/$getEndFileDir" 1
                             #
-                            elif [[ $indexUP == 2 ]] &&  [[ $arrayPut == "--put" ]]
+                            elif [[ $indexUP -eq 2 ]] &&  [[ $arrayPut == "--put" ]]
                             then
                                 # Display the status of the transfer
                                 /usr/lib/am-okay/library/progress-bar-array-cut.sh "$readLine" "$targetDir/$getEndFileDir" 2
                             #
-                            elif [[ $indexUP == 3 ]] &&  [[ $arrayPut == "--put" ]]
+                            elif [[ $indexUP -eq 3 ]] &&  [[ $arrayPut == "--put" ]]
                             then
                                 # Display the status of the transfer
                                 /usr/lib/am-okay/library/progress-bar-array-cut.sh "$readLine" "$targetDir/$getEndFileDir" 3
