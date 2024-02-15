@@ -90,7 +90,7 @@ after installing the program) **lumus --help** or **man lumus** .
 ## vimizer
 
 The **vimizer** program allows to install, change the shell and configure 
-the `vim` and `zsh` program on your Linux system (Use from the terminal) .
+the `vim` and `zsh` programs on your Linux system (Use from the terminal) .
 
 **Hash-package** : **md5sum(a4d8a286615c2e14908e1f97d4f18e64)**
 <br />
