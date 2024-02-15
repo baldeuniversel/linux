@@ -25,53 +25,74 @@ set -uo pipefail
 a_source_data=$1
 a_destination_dir_target_embed=$2
 a_arrayIndex=$3
+
 a_length_ongoing_data=0
 a_size_source=0
 a_percent_stat=0
 a_new_percent=0
 a_old_percent=0
-flagSIGTERM="FALSE"
+
+a_getThisPid="$$"
+a_flagSIGTERM="FALSE"
 a_terminate_process="TRUE"
-a_filePidCommandCp=""
-a_getThePidCommandCp=""
+
+a_filePidCommandCpMv=""
+a_getThePidCommandCpMv=""
 
 declare -a a_character_bar_front_list=("▊" "▉" "█")
 a_character_bar_back="-"
 
+tmp_sizeOfSourceData="/tmp/.$USER/am-okay/progress/$a_getThisPid/size-source-data"
+tmp_sizeOfOngoingData="/tmp/.$USER/am-okay/progress/$a_getThisPid/size-ongoing-data"
+tmp_flagSourceComputed="/tmp/.$USER/am-okay/progress/$a_getThisPid/flag-source-computed"
+
+
+# Create a tmp directory for this process (Goal -> running processes in parallel)
+if [[ -e "/tmp/.$USER/am-okay/progress/$a_getThisPid" ]]
+then
+    #
+    rm -fr "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null
+
+    #
+    mkdir -p "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null
+else
+    #
+    mkdir -p "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null
+fi
 
 
 #
 if [[ $a_arrayIndex == 0 ]]
 then
     #
-    a_filePidCommandCp="/home/quantium/.local/share/am-okay/array/array-init/array-init-pid-mv-cp"
+    a_filePidCommandCpMv="/home/quantium/.local/share/am-okay/array/array-init/array-init-pid-mv-cp"
 
     #
-    a_getThePidCommandCp=` cat $a_filePidCommandCp 2> /dev/null | tr -d "[[:space:]]" `
+    a_getThePidCommandCpMv=` cat $a_filePidCommandCpMv 2> /dev/null | tr -d "[[:space:]]" `
 
 elif [[ $a_arrayIndex == 1 ]]
 then
     #
-    a_filePidCommandCp="/home/quantium/.local/share/am-okay/array/array-1/array-one-pid-mv-cp"
+    a_filePidCommandCpMv="/home/quantium/.local/share/am-okay/array/array-1/array-one-pid-mv-cp"
 
     #
-    a_getThePidCommandCp=` cat $a_filePidCommandCp 2> /dev/null | tr -d "[[:space:]]" `
+    a_getThePidCommandCpMv=` cat $a_filePidCommandCpMv 2> /dev/null | tr -d "[[:space:]]" `
 
 elif [[ $a_arrayIndex == 2 ]]
 then
     #
-    a_filePidCommandCp="/home/quantium/.local/share/am-okay/array/array-2/array-two-pid-mv-cp"
+    a_filePidCommandCpMv="/home/quantium/.local/share/am-okay/array/array-2/array-two-pid-mv-cp"
 
     #
-    a_getThePidCommandCp=` cat $a_filePidCommandCp 2> /dev/null | tr -d "[[:space:]]" `
+    a_getThePidCommandCpMv=` cat $a_filePidCommandCpMv 2> /dev/null | tr -d "[[:space:]]" `
 
 elif [[ $a_arrayIndex == 3 ]]
 then
     #
-    a_filePidCommandCp="/home/quantium/.local/share/am-okay/array/array-3/array-three-pid-mv-cp"
+    a_filePidCommandCpMv="/home/quantium/.local/share/am-okay/array/array-3/array-three-pid-mv-cp"
 
     #
-    a_getThePidCommandCp=` cat $a_filePidCommandCp 2> /dev/null | tr -d "[[:space:]]" `
+    a_getThePidCommandCpMv=` cat $a_filePidCommandCpMv 2> /dev/null | tr -d "[[:space:]]" `
 fi
 
 
@@ -104,6 +125,9 @@ function __init__
     '
 function __del__ 
 {
+    #
+    rm -rf "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null 
+
     echo -e "\n"
 }
 
@@ -148,21 +172,24 @@ function get_size
 
 :   '
 /**
-* @overview The function `setFlagSIGINT` allows to change the value of the variable `flagSIGTERM` , 
+* @overview The function `setFlagSIGINT` allows to change the value of the variable `a_flagSIGTERM` , 
 * in this sense with the `trap` command there will be a control at the level of the progress bar 
 */
     '
 function setFlagSIGINT
 {
-    # Change the value of the variable `flagSIGTERM` to `TRUE`
-    flagSIGTERM="TRUE"
+    # Change the value of the variable `a_flagSIGTERM` to `TRUE`
+    a_flagSIGTERM="TRUE"
    
 
     #
-    kill -9 $a_getThePidCommandCp &> /dev/null
+    kill -9 $a_getThePidCommandCpMv &> /dev/null
 
     #
-    rm -rf $a_filePidCommandCp &> /dev/null
+    rm -rf $a_filePidCommandCpMv &> /dev/null
+    
+    #
+    rm -rf "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null 
 
     #
     exit 1
@@ -189,7 +216,11 @@ function display_progress_bar
     local decrement_bar_back=0
     local counter=0
 
-    local getPidCommandCp=` cat $a_filePidCommandCp 2> /dev/null `
+    local getSizeOfSourceData=0
+    local getSizeOfOngoingData=0
+    local counterSourceComputed=0
+
+    local getPidCommandCp=` cat $a_filePidCommandCpMv 2> /dev/null `
 
     local source_dir_file=` echo $a_source_data | awk -F '/' '{ print $NF }' `
     local destination_dir_file=$a_destination_dir_target_embed
@@ -240,15 +271,41 @@ function display_progress_bar
 
 
     # Get the size of the source data -> call the function <<get_size>>
-    a_size_source=$(get_size $a_source_data)
+    ( 
+        getSizeOfSourceData=$(get_size $a_source_data) 
 
+        echo "$getSizeOfSourceData" > "$tmp_sizeOfSourceData"
+
+        echo "true" > "$tmp_flagSourceComputed"
+    ) &
 
  
     #
     while [[ $a_terminate_process == "TRUE" ]]
     do
+        #
+        if [[ -e "$tmp_sizeOfSourceData" ]] && [[ ` cat "$tmp_flagSourceComputed" 2> /dev/null | grep -w -- "true" ` ]] \
+            && [[ $counterSourceComputed -eq 0 ]]
+        then
+            #
+            a_size_source=` cat "$tmp_sizeOfSourceData" 2> /dev/null | tr -d "[[:space:]]" `
+
+            #
+            counterSourceComputed=$(( counterSourceComputed + 1 ))
+        fi
+
         # Get the size of the ongoing data
-        a_length_ongoing_data=$(get_size $a_destination_dir_target_embed)
+        (
+            getSizeOfOngoingData=$(get_size "$a_destination_dir_target_embed")
+
+            #
+            echo "$getSizeOfOngoingData" > "$tmp_sizeOfOngoingData"
+
+        ) &
+
+        #
+        a_length_ongoing_data=` cat "$tmp_sizeOfOngoingData" 2> /dev/null | tr -d "[[:space:]]" `
+
 
         # Get send percentage
         if [[ $a_size_source -gt 0 ]]
@@ -270,7 +327,7 @@ function display_progress_bar
 
         
         #
-        if [[ $a_new_percent -ne $a_old_percent ]]
+        if [[ $a_new_percent -gt $a_old_percent ]]
         then
 
             # Set the color to white then to cyan
@@ -312,13 +369,13 @@ function display_progress_bar
             a_terminate_process="FALSE"
            
             # Remove the file containing the `pid`
-            if [[ -e "$a_filePidCommandCp" ]]
+            if [[ -e "$a_filePidCommandCpMv" ]]
             then
-                rm -rf "$a_filePidCommandCp" 2> /dev/null
+                rm -rf "$a_filePidCommandCpMv" 2> /dev/null
             fi
             
             #
-            if [[ $flagSIGTERM == "FALSE" ]]
+            if [[ $a_flagSIGTERM == "FALSE" ]]
             then
                 # Set the color to white then to green
                 echo -en "\033[37m\r|"

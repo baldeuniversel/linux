@@ -24,16 +24,40 @@ set -uo pipefail
 # Declaration variables
 a_source_data=$1
 a_destination_dir_target_embed=$2
+
 a_length_ongoing_data=0
 a_size_source=0
 a_percent_stat=0
 a_new_percent=0
 a_old_percent=0
-flagSIGTERM="FALSE"
+
+a_getThisPid="$$"
+
+a_flagSIGTERM="FALSE"
 a_terminate_process="TRUE"
+
 declare -a a_character_bar_front_list=("▊" "▉" "█")
 a_character_bar_back="-"
 a_filePidCommandMv="$HOME/.local/share/am-okay/classic/classic-pid-mv"
+
+tmp_sizeOfSourceData="/tmp/.$USER/am-okay/progress/$a_getThisPid/size-source-data"
+tmp_sizeOfOngoingData="/tmp/.$USER/am-okay/progress/$a_getThisPid/size-ongoing-data"
+tmp_flagSourceComputed="/tmp/.$USER/am-okay/progress/$a_getThisPid/flag-source-computed"
+
+
+# Create a tmp directory for this process (Goal -> running processes in parallel)
+if [[ -e "/tmp/.$USER/am-okay/progress/$a_getThisPid" ]]
+then
+    #
+    rm -fr "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null
+
+    #
+    mkdir -p "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null
+else
+    #
+    mkdir -p "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null
+fi
+
 
 #
 a_getThePidCommandMv=` cat $a_filePidCommandMv 2> /dev/null | tr -d "[[:space:]]" `
@@ -68,6 +92,8 @@ function __init__
     '
 function __del__ 
 {
+    rm -rf "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null 
+
     echo -e "\n"
 }
 
@@ -148,14 +174,14 @@ function isFileDirSameDisk
 
 :   '
 /**
-* @overview The function `setFlagSIGINT` allows to change the value of the variable `flagSIGTERM` , 
+* @overview The function `setFlagSIGINT` allows to change the value of the variable `a_flagSIGTERM` , 
 * in this sense with the `trap` command there will be a control at the level of the progress bar 
 */
     '
 function setFlagSIGINT
 {
-    # Change the value of the variable `flagSIGTERM` to `TRUE`
-    flagSIGTERM="TRUE"
+    # Change the value of the variable `a_flagSIGTERM` to `TRUE`
+    a_flagSIGTERM="TRUE"
    
 
     #
@@ -163,6 +189,9 @@ function setFlagSIGINT
 
     #
     rm -rf $a_filePidCommandMv &> /dev/null
+    
+    #
+    rm -rf "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null
 
     #
     exit 1
@@ -188,7 +217,10 @@ function display_progress_bar
     # Declaration variables
     local decrement_bar_back=0
     local counter=0
-    local flagSourceData="false"
+
+    local getSizeOfSourceData=0
+    local counterSourceComputed=0
+    local getSizeOfOngoingData=0
 
     local getPidCommandMv=` cat $a_filePidCommandMv 2> /dev/null `
 
@@ -239,80 +271,96 @@ function display_progress_bar
     echo -en "|  $a_percent_stat  \033[0m"
 
 
-    # Check to see if the source data is still at its place (this action will allow to avoid to compute
-    #                                                        the size of the source/destination dir/file)
-    if [[ -e "$a_source_data" ]]
-    then
-        a_size_source=$(get_size "$a_source_data")
 
-        #
-        flagSourceData="true"
-    fi
+     # Get the size of the source data -> call the function <<get_size>>
+    (
+        getSizeOfSourceData=$(get_size $a_source_data)
+
+        echo "$getSizeOfSourceData" > "$tmp_sizeOfSourceData"
+
+        echo "true" > "$tmp_flagSourceComputed"
+    ) &
+
 
  
     #
     while [[ $a_terminate_process == "TRUE" ]]
     do
         #
-        if [[ $flagSourceData == "true" ]]
+        if [[ -e "$tmp_sizeOfSourceData" ]] && [[ ` cat "$tmp_flagSourceComputed" 2> /dev/null | grep -w -- "true" ` ]] \
+            && [[ $counterSourceComputed -eq 0 ]]
         then
-
-            # Get the size of the ongoing data
-            a_length_ongoing_data=$(get_size "$a_destination_dir_target_embed")
-    
-            # Get send percentage
-            if [[ $a_size_source -gt 0 ]]
-            then
-                a_percent_stat=` echo  "( ($a_length_ongoing_data / $a_size_source) * 50 )" | bc -l `
-    
-                # Take only the part of integer
-                a_percent_stat=` echo "$a_percent_stat" | cut -d "." -f1 `
-    
-                #
-                if [[ $a_percent_stat -gt 0 ]]
-                then
-                    a_percent_stat=$(( a_percent_stat - 1  ))
-                fi
-    
-                # Update <$a_new_percent>
-                a_new_percent=$a_percent_stat
-            fi 
-    
-            
             #
-            if [[ $a_new_percent -ne $a_old_percent ]]
+            a_size_source=` cat "$tmp_sizeOfSourceData" 2> /dev/null | tr -d "[[:space:]]" `
+
+            #
+            counterSourceComputed=$(( counterSourceComputed + 1 ))
+        fi
+
+        # Get the size of the ongoing data
+        (
+            getSizeOfOngoingData=$(get_size "$a_destination_dir_target_embed")
+
+            #
+            echo "$getSizeOfOngoingData" > "$tmp_sizeOfOngoingData"
+
+        ) &
+
+        #
+        a_length_ongoing_data=` cat "$tmp_sizeOfOngoingData" 2> /dev/null | tr -d "[[:space:]]" `
+
+ 
+        # Get send percentage
+        if [[ $a_size_source -gt 0 ]]
+        then
+            a_percent_stat=` echo  "( ($a_length_ongoing_data / $a_size_source) * 50 )" | bc -l `
+
+            # Take only the part of integer
+            a_percent_stat=` echo "$a_percent_stat" | cut -d "." -f1 `
+
+            #
+            if [[ $a_percent_stat -gt 0 ]]
             then
-    
-                # Set the color to white then to cyan
-                echo -en "\033[37m\r|"
-                echo -en "\033[0m\033[36m"
-                
-                # Display the front character according the index and ..
-                for counter in `seq 1 $a_percent_stat`
-                do
-                    echo -en "${a_character_bar_front_list[2]}" 
-                done
-    
-                # Set the color to white
-                echo -en "\033[37m"
-    
-                #
-                decrement_bar_back=$(( 50 - a_percent_stat ))
-                    
-                # Decrement the backward bar
-                for counter2 in `seq 1 $decrement_bar_back`
-                do
-                    echo -en "$a_character_bar_back"
-                done
-                
-                #
-                printf "|  %d" $(( 2 * a_percent_stat ))
-                echo -en "%"
-    
-                # Update <$a_old_percent>
-                a_old_percent=$a_new_percent
+                a_percent_stat=$(( a_percent_stat - 1  ))
             fi
 
+            # Update <$a_new_percent>
+            a_new_percent=$a_percent_stat
+        fi 
+
+        
+        #
+        if [[ $a_new_percent -gt $a_old_percent ]]
+        then
+
+            # Set the color to white then to cyan
+            echo -en "\033[37m\r|"
+            echo -en "\033[0m\033[36m"
+            
+            # Display the front character according the index and ..
+            for counter in `seq 1 $a_percent_stat`
+            do
+                echo -en "${a_character_bar_front_list[2]}" 
+            done
+
+            # Set the color to white
+            echo -en "\033[37m"
+
+            #
+            decrement_bar_back=$(( 50 - a_percent_stat ))
+                
+            # Decrement the backward bar
+            for counter2 in `seq 1 $decrement_bar_back`
+            do
+                echo -en "$a_character_bar_back"
+            done
+            
+            #
+            printf "|  %d" $(( 2 * a_percent_stat ))
+            echo -en "%"
+
+            # Update <$a_old_percent>
+            a_old_percent=$a_new_percent
         fi
 
 
@@ -330,7 +378,7 @@ function display_progress_bar
             fi
             
             #
-            if [[ $flagSIGTERM == "FALSE" ]]
+            if [[ $a_flagSIGTERM == "FALSE" ]]
             then
                 # Set the color to white then to green
                 echo -en "\033[37m\r|"
