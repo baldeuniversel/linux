@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-:   " 
+:   ' 
 /**
 * NAME
 * am-okay (version 3.1.2) .
@@ -23,7 +23,7 @@
 *                                                   { --stat | -s } , { --reset | -r } ,
 *                                                   { --out | -o } , { --doc } ,
 *                                                   { --help } , { --version } ]
-*        && the command am-okay has to have at least one option then (if that's your goal) the target
+*        && the command am-okay has to have at least one option then (if that is your goal) the target
 *        directory/directories or file/files . Example : am-okay --copy <myTargetDir>
 *                                                      (for sure without the hyphens)
 *        && with the option <--index | -i> there is a limit at the level of the indexes
@@ -150,7 +150,7 @@
 * CONTRIBUTOR
 *        Contributor    : Diallo Ismaila <diallois@protonmail.com>
 */
-    "
+    '
 
 ##### Action linked to the command <<am-okay>> .
 #####
