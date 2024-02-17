@@ -27,7 +27,7 @@ a_destination_dir_target_embed=$2
 
 a_length_ongoing_data=0
 a_size_source=0
-a_percent_stat=0
+a_percent_stat_bar=0
 a_new_percent=0
 a_old_percent=0
 
@@ -128,7 +128,7 @@ function get_size
     # Get the size of target dir/file
     if [[ -e "$target_elem" ]]
     then
-        v_total_size=`du -sk "$target_elem" | tr -s "[[:space:]]" ":" | cut -d ":" -f1`
+        v_total_size=`du -sb "$target_elem" | tr -s "[[:space:]]" ":" | cut -d ":" -f1`
     fi
 
     # print the total size of the directory
@@ -205,6 +205,288 @@ function setFlagSIGINT
 
 
 :   '
+/**
+* @overview The function `byteTransformer` allows to transform bytes in kbytes 
+* or in Mbytes ... (according the size of the input)
+* 
+* @param {int} $1 // The size of the data 
+* 
+* @return {string} // A string containing a new(or not) size and a 
+* new(nor not) unit will be returned
+*/
+    '
+function byteTransformer
+{
+    # Declaration variable
+    local getTheSize="$1"
+    local theNewSize=0
+    local integerPart=0
+    local fractionalPart=0
+    local quotient=0
+
+
+    #
+    if [[ $getTheSize -lt 100 ]]
+    then   
+        #
+        echo -e "$getTheSize:B"
+    #
+    elif [[ $getTheSize -ge 100 ]] && [[ $getTheSize -lt 100000 ]]
+    then
+        #
+        quotient=` echo "$getTheSize/1000" | bc -l `
+
+        #
+        integerPart=` echo "$quotient" | cut -d "." -f 1 `
+        fractionalPart=` echo "$quotient" | cut -d "." -f 2 | awk '{ print substr($0, 1, 2) }' `
+
+        # Treatment on integer part 
+        if [[ ! ( -n $integerPart ) ]]
+        then 
+            #
+            integerPart=0
+        fi
+
+        # Treatment on the fractional part
+        if [[ ` echo "${fractionalPart:0:1}" 2> /dev/null ` -eq 0 ]] && [[ ` echo "${fractionalPart:1:1}" 2> /dev/null ` -eq 0 ]]
+        then 
+            #
+            fractionalPart="0?"
+        #
+        elif [[ ` echo "${fractionalPart:0:1}" 2> /dev/null ` -gt 0 ]] && [[ ` echo "${fractionalPart:1:1}" 2> /dev/null ` -eq 0 ]]
+        then 
+            #
+            fractionalPart="${fractionalPart:0:1}?"
+        fi
+
+        #
+        theNewSize="${integerPart}.${fractionalPart}"
+        
+        #
+        echo -e "$theNewSize:KB"
+    #
+    elif [[ $getTheSize -ge 100000 ]] && [[ $getTheSize -lt 100000000 ]]
+    then
+        #
+        quotient=` echo "$getTheSize/1000000" | bc -l `
+
+        #
+        integerPart=` echo "$quotient" | cut -d "." -f 1 `
+        fractionalPart=` echo "$quotient" | cut -d "." -f 2 | awk '{ print substr($0, 1, 2) }' `
+
+        #
+        if [[ ! ( -n $integerPart ) ]]
+        then 
+            #
+            integerPart=0
+        fi
+
+    
+        # Treatment on the fractional part
+        if [[ ` echo "${fractionalPart:0:1}" 2> /dev/null ` -eq 0 ]] && [[ ` echo "${fractionalPart:1:1}" 2> /dev/null ` -eq 0 ]]
+        then 
+            #
+            fractionalPart="0?"
+        #
+        elif [[ ` echo "${fractionalPart:0:1}" 2> /dev/null ` -gt 0 ]] && [[ ` echo "${fractionalPart:1:1}" 2> /dev/null ` -eq 0 ]]
+        then 
+            #
+            fractionalPart="${fractionalPart:0:1}?"
+        fi
+
+
+        #
+        theNewSize="${integerPart}.${fractionalPart}"
+
+        #
+        echo -e "$theNewSize:MB"
+    #
+    elif [[ $getTheSize -ge 100000000 ]] && [[ $getTheSize -lt 100000000000 ]]
+    then
+        #
+        quotient=` echo "$getTheSize/1000000000" | bc -l `
+
+        #
+        integerPart=` echo "$quotient" | cut -d "." -f 1 `
+        fractionalPart=` echo "$quotient" | cut -d "." -f 2 | awk '{ print substr($0, 1, 2) }' `
+
+        #
+        if [[ ! ( -n $integerPart ) ]]
+        then 
+            #
+            integerPart=0
+        fi
+
+        
+        # Treatment on the fractional part
+        if [[ ` echo "${fractionalPart:0:1}" 2> /dev/null ` -eq 0 ]] && [[ ` echo "${fractionalPart:1:1}" 2> /dev/null ` -eq 0 ]]
+        then 
+            #
+            fractionalPart="0?"
+        #
+        elif [[ ` echo "${fractionalPart:0:1}" 2> /dev/null ` -gt 0 ]] && [[ ` echo "${fractionalPart:1:1}" 2> /dev/null ` -eq 0 ]]
+        then 
+            #
+            fractionalPart="${fractionalPart:0:1}?"
+        fi
+
+
+        #
+        theNewSize="${integerPart}.${fractionalPart}"
+
+        #
+        echo "$theNewSize:GB"
+
+    elif [[ $getTheSize -ge 100000000000 ]] && [[ $getTheSize -lt 100000000000000 ]]
+    then
+        #
+        quotient=` echo "$getTheSize/1000000000000" | bc -l `
+
+        #
+        integerPart=` echo "$quotient" | cut -d "." -f 1 `
+        fractionalPart=` echo "$quotient" | cut -d "." -f 2 | awk '{ print substr($0, 1, 2) }' `
+
+        #
+        if [[ ! ( -n $integerPart ) ]]
+        then 
+            #
+            integerPart=0
+        fi
+
+        
+        # Treatment on the fractional part
+        if [[ ` echo "${fractionalPart:0:1}" 2> /dev/null ` -eq 0 ]] && [[ ` echo "${fractionalPart:1:1}" 2> /dev/null ` -eq 0 ]]
+        then 
+            #
+            fractionalPart="0?"
+        #
+        elif [[ ` echo "${fractionalPart:0:1}" 2> /dev/null ` -gt 0 ]] && [[ ` echo "${fractionalPart:1:1}" 2> /dev/null ` -eq 0 ]]
+        then 
+            #
+            fractionalPart="${fractionalPart:0:1}?"
+        fi
+
+
+        #
+        theNewSize="${integerPart}.${fractionalPart}"
+
+        #
+        echo "$theNewSize:TB"
+    #
+    elif [[ $getTheSize -ge 100000000000000 ]] && [[ $getTheSize -lt 100000000000000000 ]]
+    then
+        #
+        quotient=` echo "$getTheSize/1000000000000000" | bc -l `
+
+        #
+        integerPart=` echo "$quotient" | cut -d "." -f 1 `
+        fractionalPart=` echo "$quotient" | cut -d "." -f 2 | awk '{ print substr($0, 1, 2) }' `
+
+        #
+        if [[ ! ( -n $integerPart ) ]]
+        then 
+            #
+            integerPart=0
+        fi
+
+        
+        # Treatment on the fractional part
+        if [[ ` echo "${fractionalPart:0:1}" 2> /dev/null ` -eq 0 ]] && [[ ` echo "${fractionalPart:1:1}" 2> /dev/null ` -eq 0 ]]
+        then 
+            #
+            fractionalPart="0?"
+        #
+        elif [[ ` echo "${fractionalPart:0:1}" 2> /dev/null ` -gt 0 ]] && [[ ` echo "${fractionalPart:1:1}" 2> /dev/null ` -eq 0 ]]
+        then 
+            #
+            fractionalPart="${fractionalPart:0:1}?"
+        fi
+
+
+        #
+        theNewSize="${integerPart}.${fractionalPart}"
+
+        #
+        echo "$theNewSize:PB"
+    #
+    elif [[ $getTheSize -ge 100000000000000000 ]] && [[ $getTheSize -lt 100000000000000000000 ]]
+    then
+        #
+        quotient=` echo "$getTheSize/1000000000000000000" | bc -l `
+
+        #
+        integerPart=` echo "$quotient" | cut -d "." -f 1 `
+        fractionalPart=` echo "$quotient" | cut -d "." -f 2 | awk '{ print substr($0, 1, 2) }' `
+
+        #
+        if [[ ! ( -n $integerPart ) ]]
+        then 
+            #
+            integerPart=0
+        fi
+
+        
+        # Treatment on the fractional part
+        if [[ ` echo "${fractionalPart:0:1}" 2> /dev/null ` -eq 0 ]] && [[ ` echo "${fractionalPart:1:1}" 2> /dev/null ` -eq 0 ]]
+        then 
+            #
+            fractionalPart="0?"
+        #
+        elif [[ ` echo "${fractionalPart:0:1}" 2> /dev/null ` -gt 0 ]] && [[ ` echo "${fractionalPart:1:1}" 2> /dev/null ` -eq 0 ]]
+        then 
+            #
+            fractionalPart="${fractionalPart:0:1}?"
+        fi
+
+
+        #
+        theNewSize="${integerPart}.${fractionalPart}"
+
+        #
+        echo "$theNewSize:EB"
+    #
+    elif [[ $getTheSize -ge 100000000000000000000 ]]
+    then
+        #
+        quotient=` echo "$getTheSize/1000000000000000000000" | bc -l `
+
+        #
+        integerPart=` echo "$quotient" | cut -d "." -f 1 `
+        fractionalPart=` echo "$quotient" | cut -d "." -f 2 | awk '{ print substr($0, 1, 2) }' `
+
+        #
+        if [[ ! ( -n $integerPart ) ]]
+        then 
+            #
+            integerPart=0
+        fi
+
+
+        # Treatment on the fractional part
+        if [[ ` echo "${fractionalPart:0:1}" 2> /dev/null ` -eq 0 ]] && [[ ` echo "${fractionalPart:1:1}" 2> /dev/null ` -eq 0 ]]
+        then 
+            #
+            fractionalPart="0?"
+        #
+        elif [[ ` echo "${fractionalPart:0:1}" 2> /dev/null ` -gt 0 ]] && [[ ` echo "${fractionalPart:1:1}" 2> /dev/null ` -eq 0 ]]
+        then 
+            #
+            fractionalPart="${fractionalPart:0:1}?"
+        fi
+
+
+        theNewSize="${integerPart}.${fractionalPart}"
+
+        #
+        echo "$theNewSize:ZB"
+    fi
+}
+
+
+
+
+
+:   '
 # @method
 # 
 # Overview :
@@ -220,20 +502,27 @@ function display_progress_bar
     # Declaration variables
     local decrement_bar_back=0
     local counter=0
-
+    
     local getSizeOfSourceData=0
-    local counterSourceComputed=0
     local getSizeOfOngoingData=0
+    local counterSourceComputed=0
+    local percent_stat_ongoing=0
 
-    local getPidCommandMv=` cat $a_filePidCommandMv 2> /dev/null `
+    local getSizeLinkedUnitSrc=0
+    local getSizeLinkedUnitOngoing=0
+    local getUnitSrc=0
+    local getUnitOngoing=0
+    local getSizeAndUnitTmp=""
 
-    local source_dir_file=` echo "$a_source_data" | awk -F "/" '{ print $NF }' `
+    local getPidCommandMv=` cat "$a_filePidCommandMv" 2> /dev/null `
+
+    local source_dir_file=` echo "$a_source_data" | awk -F '/' '{ print $NF }' `
     local destination_dir_file="$a_destination_dir_target_embed"
 
 
     # Call the constructor <<__init__>>
     __init__
- 
+
 
 
     # Action to get the two last directories if there is more than three directories
@@ -245,7 +534,7 @@ function display_progress_bar
         fi
 
         #
-        if [[ $counter -gt 3 ]]
+        if [[ $counter -gt 2 ]]
         then
 
             destination_dir_file=` echo $destination_dir_file \
@@ -255,31 +544,30 @@ function display_progress_bar
 
             break # Stop loop
         fi
-    done
-
+    done   
 
 
     #
-    echo -e "\e[1;036m Cut ~ \e[0m   $source_dir_file    -->    $destination_dir_file"
+    echo -e "\e[1;036m Cut ~\e[0m $source_dir_file -> $destination_dir_file"
 
     # Print backward char in white color
     echo -en "\033[37m|"
     #
-    for counter in {1..50}
+    for counter in {1..20}
     do
         echo -en "$a_character_bar_back"
     done
 
     # Reset the white color
-    echo -en "|  $a_percent_stat  \033[0m"
+    echo -en "| \e[1;036m$percent_stat_ongoing%\e[0m \033[0m"
 
 
     # To allow the calculation (the size) of the data sent (in parallel)
     echo "true" > "$tmp_flagNextOngoingComputed"
 
     # Get the size of the source data -> call the function <<get_size>>
-    (
-        getSizeOfSourceData=$(get_size $a_source_data)
+    ( 
+        getSizeOfSourceData=$(get_size $a_source_data) 
 
         echo "$getSizeOfSourceData" > "$tmp_sizeOfSourceData"
 
@@ -290,7 +578,7 @@ function display_progress_bar
  
     #
     while [[ $a_terminate_process == "TRUE" ]]
-    do
+    do  
         #
         if [[ -e "$tmp_sizeOfSourceData" ]] && [[ ` cat "$tmp_flagSourceComputed" 2> /dev/null | grep -w -- "true" ` ]] \
             && [[ $counterSourceComputed -eq 0 ]]
@@ -298,10 +586,17 @@ function display_progress_bar
             #
             a_size_source=` cat "$tmp_sizeOfSourceData" 2> /dev/null | tr -d "[[:space:]]" `
 
+            # Call the function
+            getSizeAndUnitTmp=` byteTransformer $a_size_source `
+
+            #
+            getSizeLinkedUnitSrc=` echo "$getSizeAndUnitTmp" | cut -d ":" -f 1 `
+            getUnitSrc=` echo "$getSizeAndUnitTmp" | cut -d ":" -f 2 `
+
             #
             counterSourceComputed=$(( counterSourceComputed + 1 ))
         fi
-
+        
         #
         if [[ ` cat "$tmp_flagNextOngoingComputed" 2> /dev/null | grep -w -- "true" ` ]]
         then
@@ -324,36 +619,64 @@ function display_progress_bar
         #
         a_length_ongoing_data=` cat "$tmp_sizeOfOngoingData" 2> /dev/null | tr -d "[[:space:]]" `
 
- 
+
         # Get send percentage
         if [[ $a_size_source -gt 0 ]]
         then
-            a_percent_stat=` echo  "( ($a_length_ongoing_data / $a_size_source) * 50 )" | bc -l `
-
-            # Take only the part of integer
-            a_percent_stat=` echo "$a_percent_stat" | cut -d "." -f1 `
-
             #
-            if [[ $a_percent_stat -gt 0 ]]
+            a_percent_stat_bar=` echo  "( ($a_length_ongoing_data / $a_size_source) * 20 )" | bc -l `
+            percent_stat_ongoing=` echo  "( ($a_length_ongoing_data / $a_size_source) * 100 )" | bc -l `
+
+                
+            # Take only the part of integer
+            a_percent_stat_bar=` echo "$a_percent_stat_bar" | cut -d "." -f1 `
+            percent_stat_ongoing=` echo "$percent_stat_ongoing" | cut -d "." -f1 `
+
+
+            # Treatment on the percent state of the progress bar
+            if [[ $a_percent_stat_bar -ge 2 ]]
             then
-                a_percent_stat=$(( a_percent_stat - 1  ))
+                #
+                a_percent_stat_bar=$(( a_percent_stat_bar - 1 ))
             fi
 
+            # Treatment on the percent state of the ongoing data
+            if [[ $percent_stat_ongoing -ge 2  ]]
+            then
+                #
+                percent_stat_ongoing=$(( percent_stat_ongoing - 1 ))
+            fi
+            
+            
             # Update <$a_new_percent>
-            a_new_percent=$a_percent_stat
+            a_new_percent=$a_percent_stat_bar
+
+
+            # Call the function
+            getSizeAndUnitTmp=` byteTransformer $a_length_ongoing_data `
+
+            #
+            getSizeLinkedUnitOngoing=` echo "$getSizeAndUnitTmp" | cut -d ":" -f 1 `
+            getUnitOngoing=` echo "$getSizeAndUnitTmp" | cut -d ":" -f 2 `
         fi 
 
         
         #
-        if [[ $a_new_percent -gt $a_old_percent ]]
+        if [[ $a_new_percent -ge $a_old_percent ]]
         then
-
+            # Remove the content of the line
+            #printf "\033[2K\r"
+            for nbCols in ` echo "` tput cols `" `
+            do
+                echo -en " "
+            done
+            
             # Set the color to white then to cyan
             echo -en "\033[37m\r|"
-            echo -en "\033[0m\033[36m"
+            echo -en "\033[0m\033[1;36m"
             
             # Display the front character according the index and ..
-            for counter in `seq 1 $a_percent_stat`
+            for counter in `seq 1 $a_percent_stat_bar`
             do
                 echo -en "${a_character_bar_front_list[2]}" 
             done
@@ -362,7 +685,7 @@ function display_progress_bar
             echo -en "\033[37m"
 
             #
-            decrement_bar_back=$(( 50 - a_percent_stat ))
+            decrement_bar_back=$(( 20 - a_percent_stat_bar ))
                 
             # Decrement the backward bar
             for counter2 in `seq 1 $decrement_bar_back`
@@ -371,8 +694,8 @@ function display_progress_bar
             done
             
             #
-            printf "|  %d" $(( 2 * a_percent_stat ))
-            echo -en "%"
+            printf "| \033[1;036m%d\033[0m" $(( percent_stat_ongoing + 0 ))
+            echo -en "\e[1;036m%\e[0m [${getSizeLinkedUnitOngoing}${getUnitOngoing}/${getSizeLinkedUnitSrc}${getUnitSrc}]"
 
             # Update <$a_old_percent>
             a_old_percent=$a_new_percent
@@ -397,10 +720,10 @@ function display_progress_bar
             then
                 # Set the color to white then to green
                 echo -en "\033[37m\r|"
-                echo -en "\033[0m\033[32m"
+                echo -en "\033[0m\033[1;32m"
                 
                 # Display the front character according the index and ..
-                for counter in {1..50}
+                for counter in {1..20}
                 do
                     echo -en "${a_character_bar_front_list[2]}"
                 done
@@ -409,17 +732,18 @@ function display_progress_bar
                 echo -en "\033[37m"
                 
                 #
-                printf "|  %d" $(( 2 * 50 ))
-                echo -en " %"
+                printf "| \033[1;032m%d\033[0m" $(( 5 * 20 ))
+                echo -en "\e[1;032m%\e[0m [${getSizeLinkedUnitSrc}${getUnitSrc}/${getSizeLinkedUnitSrc}${getUnitSrc}]"
             fi
-
         fi
+
+        #
+        sleep 0.005
 
     done
 
     # Call the destructor <<__del__>>
-    __del__
-
+    __del__ 
 }
 
 
