@@ -273,8 +273,6 @@ fileArrayThreeCommandMvCp="$arrayIndex3Dir/array-three-pid-mv-cp"
 
 
 
-
-
 # Launch a script by an autostart event -> Remove the historical of the actions done by `am-okay` command
 if [[ ! -e "$HOME/.config/autostart/am-okay.desktop" ]]
 then
@@ -294,6 +292,50 @@ then
     
     echo -e "X-GNOME-Autostart-enabled=true" >> "$HOME/.config/autostart/am-okay.desktop" 2> /dev/null 
 fi
+
+
+
+
+
+
+:   '
+/**
+* @overview The function `increaseColsLines` allows to increase the number of cols or lines
+*/
+    '
+function increaseColsLines
+{
+    # Declaration variables
+    getColumns=` tput cols `
+    getLines=` tput lines `
+
+    #
+    if [[ $? -ne 0 ]]
+    then
+        echo "~"
+        echo -e "Missing dependency ~ \e[1;031mtput\e[0m command 🧐 "
+
+        exit 1
+    fi
+
+
+    # Increase the number of columns or lines
+    if [[ $getColumns -lt 47 ]] && [[ $getLines -ge 4 ]]
+    then
+        #
+        printf '\033[8;%s;%st' $getLines 47 2> /dev/null
+    #
+    elif [[ $getColumns -lt 47 ]] && [[ $getLines -lt 4 ]]
+    then
+        #
+        printf '\033[8;%s;%st' 4 47 2> /dev/null
+    #
+    elif [[ $getColumns -ge 47 ]] && [[ $getLines -lt 4 ]]
+    then
+        #
+        printf '\033[8;%s;%st' 4 $getColumns 2> /dev/null
+    fi
+}
 
 
 
@@ -1539,6 +1581,27 @@ then
     truncate -s 0 $fileCodeCommandReturn
 fi
 
+
+# Call the function
+(
+    while true    
+    do
+        #
+        if ps -p $getThisPid &> /dev/null
+        then
+            #
+            increaseColsLines 
+        else
+            #
+            break 
+        fi
+
+        #
+        sleep 0.005
+
+    done
+) &
+
 ### Creation some necessaries files/dirs -> end tag[e0]
 
 
@@ -2356,6 +2419,9 @@ then
             truncateFileData $copyActionFileOnly $cutActionFileOnly $copyActionFile $cutActionFile
 
             #
+            truncateFileData $fileClassicPidCommandMv $fileClassicPidCommandCp &> /dev/null 
+
+            #
             read -p "Do you want to quit [y/n] : " requestQuit
 
             #
@@ -2371,7 +2437,11 @@ then
                 $arrayIndex2CopyCutActionFileOnly $arrayIndex3CopyCutActionFileOnly \
                 $arrayIndexInitCopyCutActionFile $arrayIndex1CopyCutActionFile $arrayIndex2CopyCutActionFile \
                 $arrayIndex3CopyCutActionFile
-
+            
+            #
+            truncateFileData $fileClassicPidCommandMv $fileClassicPidCommandCp $fileArrayInitCommandMvCp \
+                $fileArrayOneCommandMvCp $fileArrayTwoCommandMvCp $fileArrayThreeCommandMvCp &> /dev/null 
+            
             #
             read -p "Do you want to quit [y/n] : " requestQuit
 
@@ -2387,10 +2457,17 @@ then
                 0)
                     # Call the function `truncateFileData`
                     truncateFileData $copyActionFileOnly  $copyActionFile
+
+                    #
+                    truncateFileData $fileClassicPidCommandCp &> /dev/null 
+
                     ;;
                 1)
                     # Call the function `truncateFileData`
                     truncateFileData $cutActionFileOnly $cutActionFile
+
+                    #
+                    truncateFileData $fileClassicPidCommandMv &> /dev/null 
             esac
 
             #
@@ -2408,18 +2485,33 @@ then
                 3)
                     # Call the function `truncateFileData`
                     truncateFileData $arrayIndexInitCopyCutActionFileOnly $arrayIndexInitCopyCutActionFile
+
+                    #
+                    truncateFileData $fileArrayInitCommandMvCp &> /dev/null 
+
                     ;;
                 4)
                     # Call the function `truncateFileData`
                     truncateFileData $arrayIndex1CopyCutActionFileOnly $arrayIndex1CopyCutActionFile
+
+                    #
+                    truncateFileData $fileArrayOneCommandMvCp &> /dev/null
+
                     ;;
                 5)
                     # Call the function `truncateFileData`
                     truncateFileData $arrayIndex2CopyCutActionFileOnly $arrayIndex2CopyCutActionFile
+
+                    #
+                    truncateFileData $fileArrayTwoCommandMvCp &> /dev/null
+
                     ;;
                 6)
                     # Call the function `truncateFileData`
                     truncateFileData $arrayIndex3CopyCutActionFileOnly $arrayIndex3CopyCutActionFile
+
+                    #
+                    truncateFileData $fileArrayThreeCommandMvCp &> /dev/null
             esac
 
             #
