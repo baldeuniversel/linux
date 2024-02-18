@@ -297,6 +297,44 @@ fi
 
 
 
+:   '
+/**
+* @overview The `removePidFile` allows to remove expressly a file containing a pid of an action, 
+* however, a file containing the pid of an action in progress cannot be removed  
+*
+* @param {string} $@ // The file or files to remove 
+* 
+*/
+    '
+function removePidFile
+{
+    # Declaration local variable 
+    local getPid=""
+
+
+
+    #
+    for inputFile in $@
+    do
+        #
+        if [[ -e "$inputFile" ]]
+        then
+            #
+            getPid=` cat $inputFile 2> /dev/null | tr -d "[[:space:]]" `
+
+            #
+            if ! ps -p $getPid &> /dev/null
+            then
+                #
+                rm -fr "$inputFile" 2> /dev/null 
+            fi
+        fi
+    done
+}
+
+
+
+
 
 :   '
 /**
@@ -871,22 +909,26 @@ function pasteAction
         then
             onlyCopyCutActionFile=$arrayIndexInitCopyCutActionFileOnly
             statusCopyCutActionFile=$arrayIndexInitCopyCutActionFile
-            getHeaderCopyCut=` cat $arrayIndexInitCopyCutActionFile | grep "Cut\|Copy" | cut -d "A" -f1 | tr -d " "  2> /dev/null `
+            getHeaderCopyCut=` cat $arrayIndexInitCopyCutActionFile 2> /dev/null | grep "Cut\|Copy" | \
+                cut -d "A" -f1 | tr -d " " `
         elif [[ $indexUP -eq 1 ]]
         then
             onlyCopyCutActionFile=$arrayIndex1CopyCutActionFileOnly 
             statusCopyCutActionFile=$arrayIndex1CopyCutActionFile
-            getHeaderCopyCut=` cat $arrayIndex1CopyCutActionFile | grep "Cut\|Copy" | cut -d "A" -f1 | tr -d " "  2> /dev/null `
+            getHeaderCopyCut=` cat $arrayIndex1CopyCutActionFile 2> /dev/null | grep "Cut\|Copy" | \
+                cut -d "A" -f1 | tr -d " " `
         elif [[ $indexUP -eq 2 ]]
         then
             onlyCopyCutActionFile=$arrayIndex2CopyCutActionFileOnly
             statusCopyCutActionFile=$arrayIndex2CopyCutActionFile
-            getHeaderCopyCut=` cat $arrayIndex2CopyCutActionFile | grep "Cut\|Copy" | cut -d "A" -f1 | tr -d " "  2> /dev/null `
+            getHeaderCopyCut=` cat $arrayIndex2CopyCutActionFile 2> /dev/null | grep "Cut\|Copy" | \
+                cut -d "A" -f1 | tr -d " " `
         elif [[ $indexUP -eq 3 ]]
         then
             onlyCopyCutActionFile=$arrayIndex3CopyCutActionFileOnly
             statusCopyCutActionFile=$arrayIndex3CopyCutActionFile
-            getHeaderCopyCut=` cat $arrayIndex3CopyCutActionFile | grep "Cut\|Copy" | cut -d "A" -f1 | tr -d " "  2> /dev/null `
+            getHeaderCopyCut=` cat $arrayIndex3CopyCutActionFile 2> /dev/null | grep "Cut\|Copy" | \
+                cut -d "A" -f1 | tr -d " " `
         fi
     fi
 
@@ -2383,7 +2425,11 @@ fi
 ### End of [tag1]
 
 
+
+
+
 ### Reset action . [tag2]
+#
 if ( [[ $1 == "--reset" ]] || [[ $1 == "-r" ]] ) && ( [[ $# -eq 2 ]] ) && ( [[ $2 == "request" ]] )
 then
     # Declaration variables
@@ -2418,9 +2464,9 @@ then
             # Call the function `truncateFileData`
             truncateFileData $copyActionFileOnly $cutActionFileOnly $copyActionFile $cutActionFile
 
-            #
-            truncateFileData $fileClassicPidCommandMv $fileClassicPidCommandCp &> /dev/null 
-
+            # Call the function
+            removePidFile $fileClassicPidCommandMv $fileClassicPidCommandCp
+            
             #
             read -p "Do you want to quit [y/n] : " requestQuit
 
@@ -2438,9 +2484,9 @@ then
                 $arrayIndexInitCopyCutActionFile $arrayIndex1CopyCutActionFile $arrayIndex2CopyCutActionFile \
                 $arrayIndex3CopyCutActionFile
             
-            #
-            truncateFileData $fileClassicPidCommandMv $fileClassicPidCommandCp $fileArrayInitCommandMvCp \
-                $fileArrayOneCommandMvCp $fileArrayTwoCommandMvCp $fileArrayThreeCommandMvCp &> /dev/null 
+            # Call the function
+            removePidFile $fileClassicPidCommandMv $fileClassicPidCommandCp $fileArrayInitCommandMvCp \
+                $fileArrayOneCommandMvCp $fileArrayTwoCommandMvCp $fileArrayThreeCommandMvCp
             
             #
             read -p "Do you want to quit [y/n] : " requestQuit
@@ -2458,16 +2504,16 @@ then
                     # Call the function `truncateFileData`
                     truncateFileData $copyActionFileOnly  $copyActionFile
 
-                    #
-                    truncateFileData $fileClassicPidCommandCp &> /dev/null 
+                    # Call the function
+                    removePidFile $fileClassicPidCommandCp
 
                     ;;
                 1)
                     # Call the function `truncateFileData`
                     truncateFileData $cutActionFileOnly $cutActionFile
 
-                    #
-                    truncateFileData $fileClassicPidCommandMv &> /dev/null 
+                    # Call the function
+                    removePidFile $fileClassicPidCommandMv
             esac
 
             #
@@ -2486,32 +2532,32 @@ then
                     # Call the function `truncateFileData`
                     truncateFileData $arrayIndexInitCopyCutActionFileOnly $arrayIndexInitCopyCutActionFile
 
-                    #
-                    truncateFileData $fileArrayInitCommandMvCp &> /dev/null 
+                    # Call the function 
+                    removePidFile $fileArrayInitCommandMvCp
 
                     ;;
                 4)
                     # Call the function `truncateFileData`
                     truncateFileData $arrayIndex1CopyCutActionFileOnly $arrayIndex1CopyCutActionFile
 
-                    #
-                    truncateFileData $fileArrayOneCommandMvCp &> /dev/null
+                    # Call the function
+                    removePidFile $fileArrayOneCommandMvCp
 
                     ;;
                 5)
                     # Call the function `truncateFileData`
                     truncateFileData $arrayIndex2CopyCutActionFileOnly $arrayIndex2CopyCutActionFile
 
-                    #
-                    truncateFileData $fileArrayTwoCommandMvCp &> /dev/null
+                    # Call the function
+                    removePidFile $fileArrayTwoCommandMvCp
 
                     ;;
                 6)
                     # Call the function `truncateFileData`
                     truncateFileData $arrayIndex3CopyCutActionFileOnly $arrayIndex3CopyCutActionFile
 
-                    #
-                    truncateFileData $fileArrayThreeCommandMvCp &> /dev/null
+                    # Call the function
+                    removePidFile $fileArrayThreeCommandMvCp
             esac
 
             #
@@ -2537,15 +2583,15 @@ fi
 
 if [[ $1 == "--doc" ]] && [[ $# -eq 1 ]]
 then
-    cat /usr/lib/am-okay/documentation/am-okay-doc
+    cat /usr/lib/am-okay/documentation/am-okay-doc 2> /dev/null 
     exit 0
 elif [[ $1 == "--help" ]] && [[ $# -eq 1 ]]
 then
-    cat /usr/lib/am-okay/documentation/am-okay-help
+    cat /usr/lib/am-okay/documentation/am-okay-help 2> /dev/null 
     exit 0
 elif [[ $1 == "--version" ]] && [[ $# -eq 1 ]]
 then
-    cat /usr/lib/am-okay/documentation/am-okay-version-pure
+    cat /usr/lib/am-okay/documentation/am-okay-version-pure 2> /dev/null
     exit 0
 fi
 
