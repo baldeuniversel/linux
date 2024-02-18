@@ -665,11 +665,12 @@ function display_progress_bar
         then
             # Remove the content of the line
             #printf "\033[2K\r"
-            for nbCols in ` echo "` tput cols `" `
+            for nbCols in {1..`tput cols`}
             do
                 echo -en " "
             done
             
+
             # Set the color to white then to cyan
             echo -en "\033[37m\r|"
             echo -en "\033[0m\033[1;36m"
@@ -704,6 +705,9 @@ function display_progress_bar
         #
         if [[ ! ` ps -p "$getPidCommandCpMv" | grep -w -- "$getPidCommandCpMv" ` ]]
         then
+            # Remove the content of the line
+            printf "\033[2K\r"
+
 
             #
             a_terminate_process="FALSE"
@@ -731,8 +735,16 @@ function display_progress_bar
                 echo -en "\033[37m"
                 
                 #
-                printf "| \033[1;032m%d\033[0m" $(( 5 * 20 ))
-                echo -en "\e[1;032m%\e[0m [${getSizeLinkedUnitSrc}${getUnitSrc}/${getSizeLinkedUnitSrc}${getUnitSrc}]"
+                if [[ $counterSourceComputed -gt 0 ]]
+                then
+                   #
+                    printf "| \033[1;032m%d\033[0m" $(( 5 * 20 ))
+                    echo -en "\e[1;032m%\e[0m [${getSizeLinkedUnitSrc}${getUnitSrc}/${getSizeLinkedUnitSrc}${getUnitSrc}]" 
+                else
+                    #
+                    printf "| \033[1;032m%d\033[0m" $(( 5 * 20 ))
+                    echo -en "\e[1;032m%\e[0m"
+                fi 
             fi
         fi
 
