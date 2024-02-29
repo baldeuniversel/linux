@@ -666,11 +666,6 @@ function display_progress_bar
         then
             # Remove the content of the line
             #printf "\033[2K\r"
-            echo -en "\r"
-            for nbCols in {1..47}
-            do
-                echo -en " "
-            done
 
 
             # Set the color to white then to cyan
