@@ -633,7 +633,7 @@ function display_progress_bar
             #printf "\033[2K\r"
             #
             echo -en "\r"
-            for nbCols in {1..`tput cols`}
+            for nbCols in {1..47}
             do
                 echo -en " "
             done

@@ -667,7 +667,7 @@ function display_progress_bar
             # Remove the content of the line
             #printf "\033[2K\r"
             echo -en "\r"
-            for nbCols in {1..`tput cols`}
+            for nbCols in {1..47}
             do
                 echo -en " "
             done
