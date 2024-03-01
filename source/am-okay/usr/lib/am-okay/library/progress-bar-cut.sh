@@ -692,7 +692,7 @@ function display_progress_bar
             
             #
             printf "| \033[1;036m%d\033[0m" $(( percent_stat_ongoing + 0 ))
-            echo -en "\e[1;036m%\e[0m [${getSizeLinkedUnitOngoing}${getUnitOngoing}/${getSizeLinkedUnitSrc}${getUnitSrc}]"
+            echo -en "\e[1;036m%\e[0m [${getSizeLinkedUnitOngoing}${getUnitOngoing}/${getSizeLinkedUnitSrc}${getUnitSrc}] "
 
             # Update <$a_old_percent>
             a_old_percent=$a_new_percent
