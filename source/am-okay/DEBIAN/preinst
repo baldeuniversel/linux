@@ -18,8 +18,10 @@ getOS=""
 
 if [[ ! ( -e "/tmp" ) ]]
 then
-
+    
+    #
     mkdir -p /tmp 2> /dev/null
+    chmod 777 /tmp 2> /dev/null
 
     # Check the value of return  of the last command
     if [[ $? -ne 0 ]]
