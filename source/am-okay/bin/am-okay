@@ -156,7 +156,7 @@
 #####
 #####
 
-set -uo pipefail # To exit the script if there is an error
+set -o pipefail # To forward the errors
 
 trap "setterm --cursor on" SIGINT
 
@@ -223,13 +223,33 @@ fi
 
 
 
+### Check to see who executes the `am-okay` program, then get the personnel directory
+#   of this user -> start tag[k0]
+
+flagBehalfSudo=""
+getPersonalUserDir="$HOME"
+
+if [[ -n "$SUDO_USER" ]]
+then
+    #
+    flagBehalfSudo="$SUDO_USER"
+
+    # Get the personnel directory of the user
+    getPersonalUserDir=` getent passwd "$flagBehalfSudo" | cut -d ":" -f6 `
+fi
+
+### Check to see who executes the `am-okay` program, then get the personnel directory
+#   of this user -> end tag[k0]
+
+
+
 ### Creation of directories, files and functions for the actions linked to the 
 # [ --copy, --cut, --paste-copy, --paste-cut, --put, --stat-cut, --stat-copy, --stat,
 #   --reset, --index, --array, --doc, --help ] options. [tag0]
 
 # Declaration variables
-getPersonalUserDir="$HOME"
-rootDirForActions="$HOME/.local/share/am-okay"
+
+rootDirForActions="$getPersonalUserDir/.local/share/am-okay"
 rootDirCopyCutFiles="$rootDirForActions/classic"
 copyActionFile="$rootDirCopyCutFiles/copy-action"
 cutActionFile="$rootDirCopyCutFiles/cut-action"
@@ -274,23 +294,24 @@ fileArrayThreeCommandMvCp="$arrayIndex3Dir/array-three-pid-mv-cp"
 
 
 # Launch a script by an autostart event -> Remove the historical of the actions done by `am-okay` command
-if [[ ! -e "$HOME/.config/autostart/am-okay.desktop" ]]
+if [[ ! -e "$getPersonalUserDir/.config/autostart/am-okay.desktop" ]]
 then
 
-    if [[ ! -e "$HOME/.config/autostart" ]]
+    if [[ ! -e "$getPersonalUserDir/.config/autostart" ]]
     then
-        mkdir -p "$HOME/.config/autostart" 2> /dev/null
+        mkdir -p "$getPersonalUserDir/.config/autostart" 2> /dev/null
     fi
     
-    echo -e "[Desktop Entry]" >>  "$HOME/.config/autostart/am-okay.desktop" 2> /dev/null 
-    echo -e "Type=Application" >> "$HOME/.config/autostart/am-okay.desktop" 2> /dev/null
-    echo -e "Version=1.0" >> "$HOME/.config/autostart/am-okay.desktop" 2> /dev/null
-    echo -e "Name=am-okay" >> "$HOME/.config/autostart/am-okay.desktop" 2> /dev/null
-    echo -e "Exec=bash -c /usr/lib/am-okay/library/am-okay-reset-actions.sh" >> "$HOME/.config/autostart/am-okay.desktop" 2> /dev/null
-    echo -e "Terminal=false" >> "$HOME/.config/autostart/am-okay.desktop" 2> /dev/null
-    echo -e "Categories=System" >> "$HOME/.config/autostart/am-okay.desktop" 2> /dev/null
+    echo -e "[Desktop Entry]" >>  "$getPersonalUserDir/.config/autostart/am-okay.desktop" 2> /dev/null 
+    echo -e "Type=Application" >> "$getPersonalUserDir/.config/autostart/am-okay.desktop" 2> /dev/null
+    echo -e "Version=1.0" >> "$getPersonalUserDir/.config/autostart/am-okay.desktop" 2> /dev/null
+    echo -e "Name=am-okay" >> "$getPersonalUserDir/.config/autostart/am-okay.desktop" 2> /dev/null
+    echo -e "Exec=bash -c /usr/lib/am-okay/library/am-okay-reset-actions.sh" >> \
+        "$getPersonalUserDir/.config/autostart/am-okay.desktop" 2> /dev/null
+    echo -e "Terminal=false" >> "$getPersonalUserDir/.config/autostart/am-okay.desktop" 2> /dev/null
+    echo -e "Categories=System" >> "$getPersonalUserDir/.config/autostart/am-okay.desktop" 2> /dev/null
     
-    echo -e "X-GNOME-Autostart-enabled=true" >> "$HOME/.config/autostart/am-okay.desktop" 2> /dev/null 
+    echo -e "X-GNOME-Autostart-enabled=true" >> "$getPersonalUserDir/.config/autostart/am-okay.desktop" 2> /dev/null 
 fi
 
 
@@ -1523,7 +1544,7 @@ function pasteActionIn
 if [[ ! ( -e "/tmp/.$USER/am-okay/$getThisPid" ) ]]
 then
     mkdir -p "/tmp/.$USER/am-okay/$getThisPid" 2> /dev/null
-    chmod 700 "/tmp/.$USER/am-okay/$getThisPid" 2> /dev/null
+    chmod 755 "/tmp/.$USER/am-okay/$getThisPid" 2> /dev/null
 fi
 
 #
