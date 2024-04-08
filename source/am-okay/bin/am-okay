@@ -599,11 +599,19 @@ function copyCutAction
                     #
                     if [[  ` cat  "$rootDirCopyCutFiles/classic-pid-cp" 2> /dev/null | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
                     then
-                        echo "~"
-                        echo -e "There is a paste action in progress which is linked to the \e[1;036mcopy\e[0m "
-                        echo -e "action (the register itself) 🧐"
+                        #
+                        getPidCommandCpMv=` cat "$rootDirCopyCutFiles/classic-pid-cp" 2> /dev/null `
 
-                        exit 1
+                        if [[ ! ` ps -p "$getPidCommandCpMv" | grep -w -- "$getPidCommandCpMv" ` ]]
+                        then
+                            rm -r "$rootDirCopyCutFiles/classic-pid-cp" 2> /dev/null
+                        else
+                            echo "~"
+                            echo -e "There is a paste action in progress which is linked to the \e[1;036mcopy\e[0m "
+                            echo -e "action (the register itself) 🧐"
+
+                            exit 1
+                        fi
                     fi
                 fi 
 
@@ -623,11 +631,19 @@ function copyCutAction
                     #
                     if [[  ` cat  "$rootDirCopyCutFiles/classic-pid-mv" 2> /dev/null | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
                     then
-                        echo "~"
-                        echo -e "There is a paste action in progress which is linked to the \e[1;036mcut\e[0m "
-                        echo -e "action (the register itself) 🧐"
+                        #
+                        getPidCommandCpMv=` cat "$rootDirCopyCutFiles/classic-pid-mv" 2> /dev/null `
 
-                        exit 1
+                        if [[ ! ` ps -p "$getPidCommandCpMv" | grep -w -- "$getPidCommandCpMv" ` ]]
+                        then
+                            rm -r "$rootDirCopyCutFiles/classic-pid-mv" 2> /dev/null
+                        else
+                            echo "~"
+                            echo -e "There is a paste action in progress which is linked to the \e[1;036mcut\e[0m "
+                            echo -e "action (the register itself) 🧐"
+
+                            exit 1
+                        fi
                     fi
                 fi 
 
@@ -646,11 +662,19 @@ function copyCutAction
             #
             if [[  ` cat  "$arrayIndexInitDir/array-init-pid-mv-cp" 2> /dev/null | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
             then
-                echo "~"
-                echo -e "\e[1;035mIndex 0\e[0m is busy, There is a put action in progress which is "
-                echo -e "linked to the register (index 0 itself) 🧐"
+                #
+                getPidCommandCpMv=` cat "$arrayIndexInitDir/array-init-pid-mv-cp" 2> /dev/null `
 
-                exit 1
+                if [[ ! ` ps -p "$getPidCommandCpMv" | grep -w -- "$getPidCommandCpMv" ` ]]
+                then
+                    rm -r "$arrayIndexInitDir/array-init-pid-mv-cp" 2> /dev/null
+                else
+                    echo "~"
+                    echo -e "\e[1;035mIndex 0\e[0m is busy, There is a put action in progress which is "
+                    echo -e "linked to the register (index 0 itself) 🧐"
+
+                    exit 1
+                fi
             fi
         fi 
 
@@ -667,11 +691,19 @@ function copyCutAction
             #
             if [[  ` cat  "$arrayIndex1Dir/array-one-pid-mv-cp" 2> /dev/null | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
             then
-                echo "~"
-                echo -e "\e[1;035mIndex 1\e[0m is busy, There is a put action in progress which is "
-                echo -e "linked to the register (index 1 itself) 🧐"
+                #
+                getPidCommandCpMv=` cat "$arrayIndex1Dir/array-one-pid-mv-cp" 2> /dev/null `
 
-                exit 1
+                if [[ ! ` ps -p "$getPidCommandCpMv" | grep -w -- "$getPidCommandCpMv" ` ]]
+                then
+                    rm -r "$arrayIndex1Dir/array-one-pid-mv-cp" 2> /dev/null
+                else
+                    echo "~"
+                    echo -e "\e[1;035mIndex 1\e[0m is busy, There is a put action in progress which is "
+                    echo -e "linked to the register (index 1 itself) 🧐"
+
+                    exit 1
+                fi
             fi
         fi 
 
@@ -688,11 +720,19 @@ function copyCutAction
             #
             if [[  ` cat  "$arrayIndex2Dir/array-two-pid-mv-cp" 2> /dev/null | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
             then
-                echo "~"
-                echo -e "\e[1;035mIndex 2\e[0m is busy, There is a put action in progress which is "
-                echo -e "linked to the register (index 2 itself) 🧐"
+                #
+                getPidCommandCpMv=` cat "$arrayIndex2Dir/array-two-pid-mv-cp" 2> /dev/null `
 
-                exit 1
+                if [[ ! ` ps -p "$getPidCommandCpMv" | grep -w -- "$getPidCommandCpMv" ` ]]
+                then
+                    rm -r "$arrayIndex2Dir/array-two-pid-mv-cp" 2> /dev/null
+                else
+                    echo "~"
+                    echo -e "\e[1;035mIndex 2\e[0m is busy, There is a put action in progress which is "
+                    echo -e "linked to the register (index 2 itself) 🧐"
+
+                    exit 1
+                fi
             fi
         fi 
 
@@ -709,11 +749,19 @@ function copyCutAction
             #
             if [[  ` cat  "$arrayIndex3Dir/array-three-pid-mv-cp" 2> /dev/null | tr -d "[[:space:]]" | wc -c ` -gt 0 ]]
             then
-                echo "~"
-                echo -e "\e[1;035mIndex 3\e[0m is busy, There is a put action in progress which is "
-                echo -e "linked to the register (index 3 itself) 🧐"
+                #
+                getPidCommandCpMv=` cat "$arrayIndex3Dir/array-three-pid-mv-cp" 2> /dev/null `
 
-                exit 1
+                if [[ ! ` ps -p "$getPidCommandCpMv" | grep -w -- "$getPidCommandCpMv" ` ]]
+                then
+                    rm -r "$arrayIndex3Dir/array-three-pid-mv-cp" 2> /dev/null
+                else
+                    echo "~"
+                    echo -e "\e[1;035mIndex 3\e[0m is busy, There is a put action in progress which is "
+                    echo -e "linked to the register (index 3 itself) 🧐"
+
+                    exit 1
+                fi
             fi
         fi 
 
