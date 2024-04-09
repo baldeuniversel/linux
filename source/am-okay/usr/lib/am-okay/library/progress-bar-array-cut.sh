@@ -18,7 +18,31 @@
 #####
 
 
-set -uo pipefail
+set -o pipefail
+
+
+
+### Check to see who executes the `am-okay` program, then get the personnel directory
+#   of this user -> start tag[k0]
+
+flagBehalfSudo=""
+getPersonalUserDir="$HOME"
+getTheRealUser="$USER"
+
+
+if [[ -n "$SUDO_USER" ]]
+then
+    #
+    flagBehalfSudo="$SUDO_USER"
+    getTheRealUser="$SUDO_USER"
+
+    # Get the personnel directory of the user
+    getPersonalUserDir=` getent passwd "$flagBehalfSudo" | cut -d ":" -f6 `
+fi
+
+### Check to see who executes the `am-okay` program, then get the personnel directory
+#   of this user -> end tag[k0]
+
 
 
 # Declaration variables
@@ -42,23 +66,23 @@ a_getThePidCommandCpMv=""
 declare -a a_character_bar_front_list=("▊" "▉" "█")
 a_character_bar_back="-"
 
-tmp_sizeOfSourceData="/tmp/.$USER/am-okay/progress/$a_getThisPid/size-source-data"
-tmp_sizeOfOngoingData="/tmp/.$USER/am-okay/progress/$a_getThisPid/size-ongoing-data"
-tmp_flagSourceComputed="/tmp/.$USER/am-okay/progress/$a_getThisPid/flag-source-computed"
-tmp_flagNextOngoingComputed="/tmp/.$USER/am-okay/progress/$a_getThisPid/flag-next-ongoing-computed"
+tmp_sizeOfSourceData="/tmp/.$getTheRealUser/am-okay/progress/$a_getThisPid/size-source-data"
+tmp_sizeOfOngoingData="/tmp/.$getTheRealUser/am-okay/progress/$a_getThisPid/size-ongoing-data"
+tmp_flagSourceComputed="/tmp/.$getTheRealUser/am-okay/progress/$a_getThisPid/flag-source-computed"
+tmp_flagNextOngoingComputed="/tmp/.$getTheRealUser/am-okay/progress/$a_getThisPid/flag-next-ongoing-computed"
 
 
 # Create a tmp directory for this process (Goal -> running processes in parallel)
-if [[ -e "/tmp/.$USER/am-okay/progress/$a_getThisPid" ]]
+if [[ -e "/tmp/.$getTheRealUser/am-okay/progress/$a_getThisPid" ]]
 then
     #
-    rm -fr "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null
+    rm -fr "/tmp/.$getTheRealUser/am-okay/progress/$a_getThisPid" 2> /dev/null
 
     #
-    mkdir -p "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null
+    mkdir -p "/tmp/.$getTheRealUser/am-okay/progress/$a_getThisPid" 2> /dev/null
 else
     #
-    mkdir -p "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null
+    mkdir -p "/tmp/.$getTheRealUser/am-okay/progress/$a_getThisPid" 2> /dev/null
 fi
 
 
@@ -66,7 +90,7 @@ fi
 if [[ $a_arrayIndex -eq 0 ]]
 then
     #
-    a_filePidCommandCpMv="$HOME/.local/share/am-okay/array/array-init/array-init-pid-mv-cp"
+    a_filePidCommandCpMv="$getPersonalUserDir/.local/share/am-okay/array/array-init/array-init-pid-mv-cp"
 
     #
     a_getThePidCommandCpMv=` cat $a_filePidCommandCpMv 2> /dev/null | tr -d "[[:space:]]" `
@@ -74,7 +98,7 @@ then
 elif [[ $a_arrayIndex -eq 1 ]]
 then
     #
-    a_filePidCommandCpMv="$HOME/.local/share/am-okay/array/array-1/array-one-pid-mv-cp"
+    a_filePidCommandCpMv="$getPersonalUserDir/.local/share/am-okay/array/array-1/array-one-pid-mv-cp"
 
     #
     a_getThePidCommandCpMv=` cat $a_filePidCommandCpMv 2> /dev/null | tr -d "[[:space:]]" `
@@ -82,7 +106,7 @@ then
 elif [[ $a_arrayIndex -eq 2 ]]
 then
     #
-    a_filePidCommandCpMv="$HOME/.local/share/am-okay/array/array-2/array-two-pid-mv-cp"
+    a_filePidCommandCpMv="$getPersonalUserDir/.local/share/am-okay/array/array-2/array-two-pid-mv-cp"
 
     #
     a_getThePidCommandCpMv=` cat $a_filePidCommandCpMv 2> /dev/null | tr -d "[[:space:]]" `
@@ -90,7 +114,7 @@ then
 elif [[ $a_arrayIndex -eq 3 ]]
 then
     #
-    a_filePidCommandCpMv="$HOME/.local/share/am-okay/array/array-3/array-three-pid-mv-cp"
+    a_filePidCommandCpMv="$getPersonalUserDir/.local/share/am-okay/array/array-3/array-three-pid-mv-cp"
 
     #
     a_getThePidCommandCpMv=` cat $a_filePidCommandCpMv 2> /dev/null | tr -d "[[:space:]]" `
@@ -127,7 +151,7 @@ function __init__
 function __del__ 
 {
     #
-    rm -fr "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null
+    rm -fr "/tmp/.$getTheRealUser/am-okay/progress/$a_getThisPid" 2> /dev/null
     
     #
     rm -rf "$a_filePidCommandCpMv" 2> /dev/null
@@ -193,7 +217,7 @@ function setFlagSIGINT
     rm -rf "$a_filePidCommandCpMv" &> /dev/null
 
     #
-    rm -fr "/tmp/.$USER/am-okay/progress/$a_getThisPid" 2> /dev/null
+    rm -fr "/tmp/.$getTheRealUser/am-okay/progress/$a_getThisPid" 2> /dev/null
 
     #
     exit 1
