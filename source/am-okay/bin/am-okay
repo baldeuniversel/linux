@@ -228,11 +228,13 @@ fi
 
 flagBehalfSudo=""
 getPersonalUserDir="$HOME"
+getTheRealUser="$USER"
 
 if [[ -n "$SUDO_USER" ]]
 then
     #
     flagBehalfSudo="$SUDO_USER"
+    getTheRealUser="$SUDO_USER"
 
     # Get the personnel directory of the user
     getPersonalUserDir=` getent passwd "$flagBehalfSudo" | cut -d ":" -f6 `
@@ -279,9 +281,9 @@ globalCounterReject="false"
 globalCounterOkay="false"
 
 getThisPid="$$"
-fileCodeCommandReturn="/tmp/.$USER/am-okay/$getThisPid/code-of-return"
-fileCodeCommandErrorMv="/tmp/.$USER/am-okay/$getThisPid/error-move"
-fileCodeCommandErrorCp="/tmp/.$USER/am-okay/$getThisPid/error-cp"
+fileCodeCommandReturn="/tmp/.$getTheRealUser/am-okay/$getThisPid/code-of-return"
+fileCodeCommandErrorMv="/tmp/.$getTheRealUser/am-okay/$getThisPid/error-move"
+fileCodeCommandErrorCp="/tmp/.$getTheRealUser/am-okay/$getThisPid/error-cp"
 
 fileClassicPidCommandMv="$rootDirCopyCutFiles/classic-pid-mv" 
 fileClassicPidCommandCp="$rootDirCopyCutFiles/classic-pid-cp"
@@ -291,28 +293,39 @@ fileArrayOneCommandMvCp="$arrayIndex1Dir/array-one-pid-mv-cp"
 fileArrayTwoCommandMvCp="$arrayIndex2Dir/array-two-pid-mv-cp"
 fileArrayThreeCommandMvCp="$arrayIndex3Dir/array-three-pid-mv-cp"
 
+fileDesktopAutostart="/tmp/.$getTheRealUser/am-okay/$getThisPid/file-desktop-autostart"
+
 
 
 # Launch a script by an autostart event -> Remove the historical of the actions done by `am-okay` command
+# -> start tag[g0]
+
+#
 if [[ ! -e "$getPersonalUserDir/.config/autostart/am-okay.desktop" ]]
 then
-
+    
+    #
     if [[ ! -e "$getPersonalUserDir/.config/autostart" ]]
     then
         mkdir -p "$getPersonalUserDir/.config/autostart" 2> /dev/null
     fi
-    
-    echo -e "[Desktop Entry]" >>  "$getPersonalUserDir/.config/autostart/am-okay.desktop" 2> /dev/null 
-    echo -e "Type=Application" >> "$getPersonalUserDir/.config/autostart/am-okay.desktop" 2> /dev/null
-    echo -e "Version=1.0" >> "$getPersonalUserDir/.config/autostart/am-okay.desktop" 2> /dev/null
-    echo -e "Name=am-okay" >> "$getPersonalUserDir/.config/autostart/am-okay.desktop" 2> /dev/null
-    echo -e "Exec=bash -c /usr/lib/am-okay/library/am-okay-reset-actions.sh" >> \
+
+    #
+    cat /usr/lib/am-okay/share/applications/am-okay.desktop > \
         "$getPersonalUserDir/.config/autostart/am-okay.desktop" 2> /dev/null
-    echo -e "Terminal=false" >> "$getPersonalUserDir/.config/autostart/am-okay.desktop" 2> /dev/null
-    echo -e "Categories=System" >> "$getPersonalUserDir/.config/autostart/am-okay.desktop" 2> /dev/null
-    
-    echo -e "X-GNOME-Autostart-enabled=true" >> "$getPersonalUserDir/.config/autostart/am-okay.desktop" 2> /dev/null 
+else
+
+    #
+    if [[ ` diff "$getPersonalUserDir/.config/autostart/am-okay.desktop" \
+                 "/usr/lib/am-okay/share/applications/am-okay.desktop" ` ]]
+    then
+        #
+        cat /usr/lib/am-okay/share/applications/am-okay.desktop > "$getPersonalUserDir/.config/autostart/am-okay.desktop"
+    fi
 fi
+
+# Launch a script by an autostart event -> Remove the historical of the actions done by `am-okay` command
+# -> end tag[g0]
 
 
 
@@ -430,11 +443,11 @@ function alertNonEffectiveAction
 
 
                 #
-                if [[ -e "/tmp/.$USER/am-okay/$getThisPid" ]]
+                if [[ -e "/tmp/.$getTheRealUser/am-okay/$getThisPid" ]]
                 then
                     
                     #
-                    rm -fr "/tmp/.$USER/am-okay/$getThisPid"
+                    rm -fr "/tmp/.$getTheRealUser/am-okay/$getThisPid"
                 fi
 
                 exit 1 
@@ -1589,14 +1602,14 @@ function pasteActionIn
 ### Creation some necessaries files/dirs -> start tag[e0]
 
 # Creation dirs where the error code will be sent
-if [[ ! ( -e "/tmp/.$USER/am-okay/$getThisPid" ) ]]
+if [[ ! ( -e "/tmp/.$getTheRealUser/am-okay/$getThisPid" ) ]]
 then
-    mkdir -p "/tmp/.$USER/am-okay/$getThisPid" 2> /dev/null
-    chmod 755 "/tmp/.$USER/am-okay/$getThisPid" 2> /dev/null
+    mkdir -p "/tmp/.$getTheRealUser/am-okay/$getThisPid" 2> /dev/null
+    chmod 755 "/tmp/.$getTheRealUser/am-okay/$getThisPid" 2> /dev/null
 fi
 
 #
-trap 'rm -r "/tmp/.$USER/am-okay/$getThisPid" 2> /dev/null' SIGINT SIGTERM EXIT 
+trap 'rm -r "/tmp/.$getTheRealUser/am-okay/$getThisPid" 2> /dev/null' SIGINT SIGTERM EXIT 
 
 # Creation the root directory for the `am-okay` actions
 if [[ ! ( -e "$rootDirForActions" ) ]]
