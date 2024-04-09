@@ -4,11 +4,11 @@
 # postinst script
 ####
 
-set -uo pipefail
+set -o pipefail
 
 
 
-### Enable the service linked to the <<am-okay>> program, and do another actions -> start tag[0]
+### Enable the service linked to the <<am-okay>> program, and do another actions -> start tag[s0]
 
 #systemctl enable am-okay-boot.service  &> /dev/null
 #systemctl daemon-reload  &> /dev/null
@@ -30,6 +30,5 @@ echo ""
 echo "~"
 
 tput setaf 6; tput bold; echo "By Baldé ~" `tput sgr0` 2> /dev/null
-
 
 ### Enable the service linked to the <<am-okay>> program, and do another actions -> end tag[s0]
