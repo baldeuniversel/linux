@@ -58,9 +58,9 @@ dirs/files (Use from the terminal) .
 With this program you can tag files or directories as items to copy or move via a 
 console (terminal) and paste these items via another console (terminal) .
 
-**Hash-package** : **md5sum(27a9ee8903d81a1ea367d2804d28659a)**
+**Hash-package** : **md5sum(724598b40c044e10c1253fb1ab844685)**
 <br />
-**Code-name** : **Entity** 
+**Code-name** : **Veronica** 
 
 
 Once the program is installed, you can use the aliases **[ am-ok , amok , amokay ]** instead of **am-okay** .
