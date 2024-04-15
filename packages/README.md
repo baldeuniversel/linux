@@ -19,7 +19,7 @@ the packages that are on this Github repository (in the main branch) .
 
 **Hash-package** : **md5sum(d86f38dcb03aa379b72133e5c9a90f04)**
 <br />
-**Code-name** : **Ve-Quantic**
+**Codename** : **ve-quantic**
 
 
 After installing the **meo** program, from your terminal execute this command 
@@ -38,7 +38,7 @@ concatenate, extract, include, exclude, encrypt, decrypt, burst ...` on
 
 **Hash-package** : **md5sum(28b20c745a966a36bdd9fc1efbd6b36c)**
 <br />
-**Code-name** : **Fatima**
+**Codename** : **fatima**
 
 
 Once the program is installed, you can use the alias **pdftool** instead of **pdf-tool**
@@ -60,7 +60,7 @@ console (terminal) and paste these items via another console (terminal) .
 
 **Hash-package** : **md5sum(979163dd3f579ba9466110ff18a26b13)**
 <br />
-**Code-name** : **Curiosity** 
+**Codename** : **curiosity** 
 
 
 Once the program is installed, you can use the aliases **[ am-ok , amok , amokay ]** instead of **am-okay** .
@@ -79,7 +79,7 @@ terminal) .
 
 **Hash-package** : **md5sum(5fdf5bf1e45b700481bf8a20b7c75980)**
 <br />
-**Code-name** : **Electra**
+**Codename** : **electra**
 
 
 To see how to use **lumus** program, execute this command from a terminal (of course  
@@ -94,7 +94,7 @@ the `vim` and `zsh` programs on your Linux system (Use from the terminal) .
 
 **Hash-package** : **md5sum(a4d8a286615c2e14908e1f97d4f18e64)**
 <br />
-**Code-name** : **Entity**
+**Codename** : **entity**
 
 
 After installing the **vimizer** program, you can execute (from the terminal) 
