@@ -107,7 +107,7 @@ about the **vimizer** program .
 is required to use this program .
 
 
-**Hash-package** : **md5sum(3a5d545dc7088b45f8744b6720e94fa9)**
+**Hash-package** : **md5sum(52bade9b7e603e8ba35f52c5d48b8822)**
 <br />
 **Codename** : **sira**
 
