@@ -1,4 +1,4 @@
-#!/usr/bin/zsh
+#!/usr/bin/bash 
 
 #####
 ##### 
@@ -77,8 +77,8 @@ fi
 
 
 
-# To see if the `zsh` and `vim` are installed and ...
-if [[ ` whereis zsh | grep "\/usr\/bin\/zsh\|\/bin\/zsh" ` ]] && [[ ` whereis vim | grep "\/usr\/bin\/vim\|\/bin\/vim" ` ]]
+# To see if the `bash` and `vim` are installed and ...
+if [[ ` whereis bash | grep "\/usr\/bin\/bash\|\/bin\/bash" ` ]] && [[ ` whereis vim | grep "\/usr\/bin\/vim\|\/bin\/vim" ` ]]
 then
 
     # Creation of temporary dir
@@ -86,7 +86,8 @@ then
     then
 
         #
-         mkdir -p  "/tmp/.vimizer/$USER" &> /dev/null
+         mkdir -p  "/tmp/.vimizer/" &> /dev/null
+         mkdir "/tmp/.vimizer/$USER" &> /dev/null
 
          chmod 700 "/tmp/.vimizer/$USER" 2> /dev/null
 
@@ -109,7 +110,7 @@ then
 else
     echo ""
     echo "~"
-    echo -e "Please install \e[32;1mvim\e[0m and \e[32;1mzsh\e[0m program "
+    echo -e "Please install \e[32;1mvim\e[0m and \e[32;1mbash\e[0m program "
     echo ""
 
     exit 1
@@ -383,7 +384,7 @@ then
         then
             echo ""
             echo "~"
-            echo -e "Hashed passwords match \U002705"
+            echo -e "Okay \U002705"
     
             #
             sleep 3
