@@ -17,9 +17,7 @@ then
 
     echo "~"
 
-    echo -e "Your are about do deploy configurations, continue ? [y/n] : \c"
-
-    read checkInput
+    read -p "Your are about do deploy configurations, continue ? [y/n] : " checkInput
 
     if [[ $checkInput != "y"  ]] && [[ $checkInput != "yes" ]]
     then
@@ -31,6 +29,8 @@ then
 fi
 
 ### Action for the deployment -> end tag[d0]
+
+
 
 
 
@@ -65,7 +65,7 @@ fi
 if [[ $# -gt 0 ]]
 then
     echo ""
-    echo -e "No input parameter is required except( --version, --help ) \U001F917"
+    echo -e "No input parameter is required except [ --version, --help ] \U001F917"
     echo ""
 
     exit 1
@@ -77,19 +77,62 @@ fi
 
 
 
-# To see if the `bash` and `vim` are installed and ...
-if [[ ` whereis bash | grep "\/usr\/bin\/bash\|\/bin\/bash" ` ]] && [[ ` whereis vim | grep "\/usr\/bin\/vim\|\/bin\/vim" ` ]]
+### Check to see who executes the `am-okay` program, then get the personnel directory
+#   of this user, then ... -> start tag[k0]
+
+flagBehalfSudo=""
+getPersonalUserDir="$HOME"
+getTheRealUser="$USER"
+getTheGroupNameUser=""
+flagSudoUser="false"
+flagRootDirForActions="false"
+
+if [[ -n "$SUDO_USER" ]]
+then
+    #
+    flagBehalfSudo="$SUDO_USER"
+    getTheRealUser="$SUDO_USER"
+    getTheGroupNameUser=` id -gn $getTheRealUser `
+    flagSudoUser="true"
+
+    # Get the personnel directory of the user
+    getPersonalUserDir=` getent passwd "$flagBehalfSudo" | cut -d ":" -f6 `
+fi
+
+### Check to see who executes the `am-okay` program, then get the personnel directory
+#   of this user, then ... -> end tag[k0]
+
+
+
+
+
+# Declaration variables
+username=$getTheRealUser
+getHomeDirUsername=$getPersonalUserDir
+tmpDirCurrentUser="/tmp/.vimizer/$getTheRealUser"
+flagShellChanged="true"
+flagCurrentShellZSh="true"
+userAsk=""
+counterRetypePasswd=0
+counter=0
+
+
+
+
+
+### To see if the `zsh` and `vim` are installed and ... -> start tag[r0]
+
+if [[ ` whereis bash | grep "\/usr\/bin\/zsh\|\/bin\/zsh" ` ]] && [[ ` whereis vim | grep "\/usr\/bin\/vim\|\/bin\/vim" ` ]]
 then
 
     # Creation of temporary dir
-    if [[ ! ( -e "/tmp/.vimizer/$USER" ) ]]
+    if [[ ! ( -e "/tmp/.vimizer/$username" ) ]]
     then
 
         #
-         mkdir -p  "/tmp/.vimizer/" &> /dev/null
-         mkdir "/tmp/.vimizer/$USER" &> /dev/null
+         mkdir -p  "/tmp/.vimizer/$username" &> /dev/null
 
-         chmod 700 "/tmp/.vimizer/$USER" 2> /dev/null
+         chmod 755 "/tmp/.vimizer/$username" &> /dev/null
 
         # 
         if [[ $? -ne 0 ]]
@@ -116,37 +159,7 @@ else
     exit 1
 fi
 
-
-
-
-
-# Declaration variables
-username=$USER
-counter=0
-getHomeDirUsername=""
-tmpDirCurrentUser="/tmp/.vimizer/$USER"
-flagShellChanged="true"
-flagCurrentShellZSh="true"
-userAsk=""
-counterRetypePasswd=0
-
-
-
-### Treatment on the user  -> start tag[d0]
-
-# Get the home directory of the user
-if [[ -e "/etc/passwd" ]]
-then
-
-    #
-    if [[ $( cat /etc/passwd | cut -d ":" -f1 | grep "$username" ) ]]
-    then
-        getHomeDirUsername=$( cat /etc/passwd | grep "^$username" | cut -d ":" -f6 ) 
-    fi
-fi
-
-### Treatment on the user  -> end tag[d0]
-
+### To see if the `zsh` and `vim` are installed and ... -> end tag[r0]
 
 
 
@@ -208,11 +221,17 @@ then
     #
     if [[ -e "$getHomeDirUsername/.vimrc" ]]
     then
+
+        #
+        if [[ -e "$tmpDirCurrentUser/new-content-vimrc" ]]
+        then
+            rm -fr "$tmpDirCurrentUser/new-content-vimrc" &> /dev/null 
+        fi
         
         # Append the content of the `vimrc` file to the `.vimrc` file of the user
         while IFS= read -r lineFile 
         do
-	        if [[ !  $( grep  "$lineFile" "$getHomeDirUsername/.vimrc" &> /dev/null ) ]]
+	        if [[ !  $( grep  "$lineFile" "$getHomeDirUsername/.vimrc" 2> /dev/null ) ]]
             then
                 echo "$lineFile" >> "$tmpDirCurrentUser/new-content-vimrc"
             fi
@@ -224,10 +243,10 @@ then
         then
 
             # Backup `.vimrc` file of the user (secure reasons)
-            mv --  "$getHomeDirUsername/.vimrc"  "$getHomeDirUsername/.backup-vimrc" 2> /dev/null
+            cp -ar  "$getHomeDirUsername/.vimrc"  "$getHomeDirUsername/.backup-vimrc" 2> /dev/null
 
 	        # Append ... 
-            cat "$tmpDirCurrentUser/new-content-vimrc" >>  "$getHomeDirUsername/.vimrc"  
+            cat "$tmpDirCurrentUser/new-content-vimrc" >>  "$getHomeDirUsername/.vimrc"  2> /dev/null 
         fi
 
     else
@@ -239,18 +258,16 @@ then
     then
         
         #
-        if [[  ! ` diff -r "/usr/lib/vimizer/library/depends/vim/vim"  "$getHomeDirUsername/.vim" &> /dev/null ` ]]
+        if [[  ` diff -r "/usr/lib/vimizer/library/depends/vim/vim"  "$getHomeDirUsername/.vim" 2> /dev/null ` ]]
         then
             cp -ar "/usr/lib/vimizer/library/depends/vim/vim"  "$getHomeDirUsername/.vim" 2> /dev/null
         fi
-
     else
         #
         cp -ar "/usr/lib/vimizer/library/depends/vim/vim"  "$getHomeDirUsername/.vim" 2> /dev/null
     fi
 
 else
-
     echo ""
     echo "~"
     echo -e "Missing files/dirs, please reinstall the \e[32;1mvimizer\e[0m program \U001F9D0 "
@@ -258,6 +275,8 @@ else
 
     exit 1
 fi
+
+
 
 # Update the `.zshrc` file ...
 if [[ -e "/usr/lib/vimizer/library/depends/zsh" ]]
@@ -283,10 +302,19 @@ then
         fi
     fi
 
+
+
+    #
+    if [[ -e "$tmpDirCurrentUser/new-content-zshrc" ]]
+    then
+        rm -fr "$tmpDirCurrentUser/new-content-zshrc" 2> /dev/null
+    fi
+
+
     #
     while IFS= read -r lineFile 
     do
-        if [[ ! $( grep  "$lineFile" "$getHomeDirUsername/.zshrc" &> /dev/null ) ]]
+        if [[ ! $( grep  "$lineFile" "$getHomeDirUsername/.zshrc" 2> /dev/null ) ]]
         then
             echo "$lineFile" >> "$tmpDirCurrentUser/new-content-zshrc"
         fi
@@ -296,10 +324,10 @@ then
     if [[ -s "$tmpDirCurrentUser/new-content-zshrc" ]]
     then
         #
-        mv --  "$getHomeDirUsername/.zshrc"  "$getHomeDirUsername/.backup-zshrc" 
+        cp -ra  "$getHomeDirUsername/.zshrc"  "$getHomeDirUsername/.backup-zshrc" 2> /dev/null
 
 	    #
-        cat "$tmpDirCurrentUser/new-content-zshrc"  2> /dev/null >>  "$getHomeDirUsername/.zshrc"  
+        cat "$tmpDirCurrentUser/new-content-zshrc" >>  "$getHomeDirUsername/.zshrc" 2> /dev/null 
     fi
 
 else
@@ -370,8 +398,7 @@ then
         #
         echo ""
         echo "~"
-        echo -en "Enter your password, then valid to change the shell : "
-        read -s passwdUser
+        read -p "Enter your password, then valid to change the shell : " -s passwdUser
     
         echo ""
         echo ""
@@ -399,16 +426,16 @@ then
     done
 fi
 
+
+
 # Verify if the shell has been changed 
 if [[ $counterRetypePasswd -eq 3 ]]
 then
     echo ""
     echo "~"
-    echo -ne "The shell has not been changed, do you want to continue the process [y/n] : "
-    read userAsk 
+    read -p "The shell has not been changed, do you want to continue the process [y/n] : " userAsk 
 
-    echo ""
-
+    #
     if [[ $userAsk != "y" ]] && [[ $userAsk != "yes" ]]
     then
         echo ""
@@ -447,13 +474,11 @@ then
         
         #
         echo "~"
-        echo "Please restart your session for the change shell to take effect "
+        echo "Please restart your session for that the change shell to take effect "
         echo ""
-        echo -ne "Do you want to restart your session [y/n] : "
-        read userAsk
+        read -p "Do you want to restart your session [y/n] : " userAsk
     
-        echo ""
-    
+        #
         if [[ $userAsk == "yes" ]] || [[ $userAsk == "y" ]]
         then
             gnome-session-quit --no-prompt 2> /dev/null
