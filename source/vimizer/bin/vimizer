@@ -122,7 +122,7 @@ counter=0
 
 ### To see if the `zsh` and `vim` are installed and ... -> start tag[r0]
 
-if [[ ` whereis bash | grep "\/usr\/bin\/zsh\|\/bin\/zsh" ` ]] && [[ ` whereis vim | grep "\/usr\/bin\/vim\|\/bin\/vim" ` ]]
+if [[ ` whereis zsh | grep "\/usr\/bin\/zsh\|\/bin\/zsh" ` ]] && [[ ` whereis vim | grep "\/usr\/bin\/vim\|\/bin\/vim" ` ]]
 then
 
     # Creation of temporary dir
@@ -166,12 +166,6 @@ fi
 
 ### Deployment files/dirs  -> start tag[a0]
 
-# Creation of the `.zshrc` file
-if [[ ! ( -e  "$getHomeDirUsername/.zshrc" ) ]]
-then
-    touch  "$getHomeDirUsername/.zshrc"
-fi
-
 # Creation the directories where the fonts will be sent
 if [[ ! ( -e "$getHomeDirUsername/.local/share/fonts" ) ]]
 then
@@ -189,7 +183,8 @@ then
     then
 
         #
-        cp -ra "/usr/lib/vimizer/library/depends/vimizer-fonts" "$getHomeDirUsername/.local/share/fonts"  2> /dev/null
+        cp -ra --backup=numbered "/usr/lib/vimizer/library/depends/vimizer-fonts" \
+            "$getHomeDirUsername/.local/share/fonts"  2> /dev/null
 
         # 
         if [[ $? -ne 0 ]]
@@ -212,59 +207,118 @@ fi
 
 
 
-# Update the `.vim` directory and `.vimrc` file ...
+# Deployment of the `.vim` directory and `.vimrc` file ...
 if [[ -e "/usr/lib/vimizer/library/depends/vim" ]]
 then
 
-    local vimrcFile="/usr/lib/vimizer/library/depends/vim/vimrc"
+    vimrcFile="/usr/lib/vimizer/library/depends/vim/vimrc"
     
+
+
     #
     if [[ -e "$getHomeDirUsername/.vimrc" ]]
     then
+        
+        #
+        mv --backup=numbered "$getHomeDirUsername/.vimrc" "$getHomeDirUsername/.vimrc_backup" 2> /dev/null 
 
         #
-        if [[ -e "$tmpDirCurrentUser/new-content-vimrc" ]]
+        if [[ $? -ne 0 ]]
         then
-            rm -fr "$tmpDirCurrentUser/new-content-vimrc" &> /dev/null 
+            echo -e "Something is wrong, make sure you have the rights to write in "
+            echo -e "your home directory  ⚠️  "
+            echo ""
+
+            exit 1
         fi
         
-        # Append the content of the `vimrc` file to the `.vimrc` file of the user
-        while IFS= read -r lineFile 
-        do
-	        if [[ !  $( grep  "$lineFile" "$getHomeDirUsername/.vimrc" 2> /dev/null ) ]]
-            then
-                echo "$lineFile" >> "$tmpDirCurrentUser/new-content-vimrc"
-            fi
+        #
+        cat $vimrcFile > "$getHomeDirUsername/.vimrc" 2> /dev/null 
 
-        done < $vimrcFile
-        
-        # If there is a new content, add them to the `.vimrc` of the user
-        if [[ -s "$tmpDirCurrentUser/new-content-vimrc" ]]
+        #
+        if [[ $? -ne 0 ]]
         then
+            echo -e "Something is wrong, make sure you have the rights to write in "
+            echo -e "your home directory  ⚠️  "
+            echo ""
 
-            # Backup `.vimrc` file of the user (secure reasons)
-            cp -ar  "$getHomeDirUsername/.vimrc"  "$getHomeDirUsername/.backup-vimrc" 2> /dev/null
-
-	        # Append ... 
-            cat "$tmpDirCurrentUser/new-content-vimrc" >>  "$getHomeDirUsername/.vimrc"  2> /dev/null 
+            exit 1
         fi
-
+        
     else
-	    cp -ar "$vimrcFile"  "$getHomeDirUsername/.vimrc"
+        #
+	    cat "$vimrcFile" >  "$getHomeDirUsername/.vimrc"
+        
+        #
+        if [[ $? -ne 0 ]]
+        then
+            echo -e "Something is wrong, make sure you have the rights to write in "
+            echo -e "your home directory  ⚠️  "
+            echo ""
+
+            exit 1
+        fi
     fi
     
+
+
     # Copy of plugins 
     if [[ -e "$getHomeDirUsername/.vim" ]]
     then
-        
+       
+        #
+        if [[ ! ( -e "/usr/lib/vimizer/library/depends/vim/vim" ) ]]
+        then
+            echo ""
+            echo "~"
+            echo -e "Missing files/dirs, please reinstall the \e[32;1mvimizer\e[0m program \U001F9D0 "
+            echo ""
+
+            exit 1
+        fi 
+
         #
         if [[  ` diff -r "/usr/lib/vimizer/library/depends/vim/vim"  "$getHomeDirUsername/.vim" 2> /dev/null ` ]]
         then
+            #
+            mv --backup=numbered "$getHomeDirUsername/.vim" "$getHomeDirUsername/.vim_backup" 2> /dev/null 
+
+            #
+            if [[ $? -ne 0 ]]
+            then
+                echo -e "Something is wrong, make sure you have the rights to write in "
+                echo -e "your home directory  ⚠️  "
+                echo ""
+
+                exit 1
+            fi
+
+            #
             cp -ar "/usr/lib/vimizer/library/depends/vim/vim"  "$getHomeDirUsername/.vim" 2> /dev/null
+
+            #
+            if [[ $? -ne 0 ]]
+            then
+                echo -e "Something is wrong, make sure you have the rights to write in "
+                echo -e "your home directory  ⚠️  "
+                echo ""
+
+                exit 1
+            fi
         fi
     else
         #
         cp -ar "/usr/lib/vimizer/library/depends/vim/vim"  "$getHomeDirUsername/.vim" 2> /dev/null
+
+        #
+        if [[ $? -ne 0 ]]
+        then
+            echo -e "Something is wrong, make sure you have the rights to write in "
+            echo -e "your home directory  ⚠️  "
+            echo ""
+
+            exit 1
+        fi
     fi
 
 else
@@ -278,17 +332,18 @@ fi
 
 
 
-# Update the `.zshrc` file ...
+# Deployment of the `.zshrc` file ...
 if [[ -e "/usr/lib/vimizer/library/depends/zsh" ]]
 then
     
-    local zshrcFile="/usr/lib/vimizer/library/depends/zsh/zshrc"
+    zshrcFile="/usr/lib/vimizer/library/depends/zsh/zshrc"
 
 
 
     #
     if [[ ! ( -e "$getHomeDirUsername/.zshrc" )  ]]
     then
+        #
         touch "$getHomeDirUsername/.zshrc" 2> /dev/null
         
         #
@@ -300,34 +355,37 @@ then
 
             exit 1
         fi
-    fi
 
-
-
-    #
-    if [[ -e "$tmpDirCurrentUser/new-content-zshrc" ]]
-    then
-        rm -fr "$tmpDirCurrentUser/new-content-zshrc" 2> /dev/null
-    fi
-
-
-    #
-    while IFS= read -r lineFile 
-    do
-        if [[ ! $( grep  "$lineFile" "$getHomeDirUsername/.zshrc" 2> /dev/null ) ]]
-        then
-            echo "$lineFile" >> "$tmpDirCurrentUser/new-content-zshrc"
-        fi
-    done < $zshrcFile
-
-    #
-    if [[ -s "$tmpDirCurrentUser/new-content-zshrc" ]]
-    then
         #
-        cp -ra  "$getHomeDirUsername/.zshrc"  "$getHomeDirUsername/.backup-zshrc" 2> /dev/null
+        cat $zshrcFile > "$getHomeDirUsername/.zshrc"
 
-	    #
-        cat "$tmpDirCurrentUser/new-content-zshrc" >>  "$getHomeDirUsername/.zshrc" 2> /dev/null 
+    else
+        
+        #
+        mv --backup=numbered "$getHomeDirUsername/.zshrc" "$getHomeDirUsername/.zshrc_backup" 2> /dev/null
+
+        #
+        if [[ $? -ne 0 ]]
+        then
+            echo -e "Something is wrong, make sure you have the rights to write in "
+            echo -e "your home directory  ⚠️  "
+            echo ""
+
+            exit 1
+        fi
+
+        #
+        cat $zshrcFile > "$getHomeDirUsername/.zshrc"
+
+        #
+        if [[ $? -ne 0 ]]
+        then
+            echo -e "Something is wrong, make sure you have the rights to write in "
+            echo -e "your home directory  ⚠️  "
+            echo ""
+
+            exit 1
+        fi
     fi
 
 else
