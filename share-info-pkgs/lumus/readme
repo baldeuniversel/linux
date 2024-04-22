@@ -3,7 +3,7 @@
 * system (Use from the terminal) .
 *
 * Hash-package : md5sum(5fdf5bf1e45b700481bf8a20b7c75980)
-* Code-name : Electra
+* Codename : electra
 *
 * To see how to use <<lumus>> program, encode from the terminal (of 
 * (course after installing the `lumus` program) `lumus --help` 
