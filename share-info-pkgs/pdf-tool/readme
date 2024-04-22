@@ -6,7 +6,7 @@
 * pdf files (use from the terminal) .
 *
 * Hash-package : md5sum(28b20c745a966a36bdd9fc1efbd6b36c)
-* Code-name : Fatima
+* Codename : fatima
 *
 * Once the package is installed you can use the alias <<pdftool>> instead of 
 * <<pdf-tool>>

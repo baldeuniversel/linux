@@ -2,7 +2,7 @@
 * The <<vimizer>> program allows to install, change the shell and configure the 
 * vim and zsh programs on your Linux system (Use from the terminal) .
 *
-* Hash-package : md5sum(3a5d545dc7088b45f8744b6720e94fa9)
+* Hash-package : md5sum(52bade9b7e603e8ba35f52c5d48b8822)
 * Codename : sira 
 *
 * After installing the <<vimizer>> program, you can execute (from the terminal) the 
