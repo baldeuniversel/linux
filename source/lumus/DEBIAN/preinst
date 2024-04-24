@@ -61,6 +61,7 @@ get_actual_brightness=""
 if [[ ` cat /sys/class/backlight/*/max_brightness 2> /dev/null ` ]] \
     && [[ ` cat /sys/class/backlight/*/brightness 2> /dev/null `  ]]
 then
+    #
     total_brightness=` cat /sys/class/backlight/*/max_brightness 2> /dev/null`
     get_actual_brightness=` cat /sys/class/backlight/*/brightness 2> /dev/null`
 else
@@ -74,93 +75,70 @@ fi
 # Check if the variables above contain something, and do ...
 if [[ -n "$get_actual_brightness" ]] && [[ -n "$total_brightness" ]]
 then
-    
+
     #
-    if  [[ ! -e "/usr/bin/lumus" ]] 
+    getGroupBrightnessFile=` stat --format=%G /sys/class/backlight/*/brightness `
+    getPermBrightnessFile=` stat --format=%a /sys/class/backlight/*/brightness `
+
+
+
+    #
+    if [[ $getPermBrightnessFile -ne 644 ]]
     then
+        #
+        chmod 644 /sys/class/backlight/*/brightness 2> /dev/null
 
-        # Allow to all the users belonging to `lumus` group to write to the target file
-        if [[ ` getent group lumus 2> /dev/null ` ]]
+        #
+        if [[ $? -ne 0 ]]
         then
-
-            #
-	        chmod 664 /sys/class/backlight/*/brightness 2> /dev/null
-            chgrp lumus /sys/class/backlight/*/brightness 2> /dev/null
-
-            #
-            usermod --append $getTheRealUser --groups lumus 2> /dev/null
-
-            #
             echo "~"
             echo -e "The \e[32;1mlumus\e[0m program is not compatible with your system ⚠️  "
             echo ""
             exit 1
-        else
-            
-            # Create the `lumus` group 
-            groupadd lumus &> /dev/null 
-
-            if [[ $? -eq 0 ]]
-            then
-                #
-                chmod 664 /sys/class/backlight/*/brightness 2> /dev/null
-                chgrp lumus /sys/class/backlight/*/brightness 2> /dev/null
-
-                #
-                usermod --append $getTheRealUser --groups lumus 2> /dev/null
-
-                #
-                echo "~"
-                echo -e "The \e[32;1mlumus\e[0m program is not compatible with your system ⚠️  "
-                echo ""
-                exit 1
-            else
-                #
-                echo "~"
-                echo -e "The \e[32;1mlumus\e[0m program is not compatible with your system ⚠️  "
-                echo ""
-                exit 1
-            fi
         fi
+    fi
+
+    # Add the real user to the `brightness` file group
+    if [[ ! ` getent group $getGroupBrightnessFile 2> /dev/null | grep -E -- "$getTheRealUser" ` ]]
+    then
+        #
+        usermod --append $getTheRealUser --groups $getGroupBrightnessFile 2> /dev/null
+
+        #
+        if [[ $? -ne 0 ]]
+        then
+            echo "~"
+            echo -e "The \e[32;1mlumus\e[0m program is not compatible with your system ⚠️  "
+            echo ""
+            exit 1
+        fi
+    fi
 
 	    
 
-        #
-        if [[ ! -e "/usr/bin" ]]
-        then
-            mkdir -p /usr/bin 2> /dev/null
-        fi
-
-        #
-        if [[ ! -e "/usr/share/lumus/doc/info" ]]
-        then
-            mkdir -p /usr/share/lumus/doc/info 2> /dev/null
-	        
-            #
-	        chmod -R 755 /usr/share/lumus/doc/info 2> /dev/null
-        fi
-
-        #
-        if [[ $? -eq 0 ]]
-        then
-	        echo ""
-	        echo "~"
-            echo "To see how to use this program, encode from your terminal -> lumus --help"
-            echo ""
-	        echo ""
-            echo "YES" >  /usr/share/lumus/doc/info/lumus_status 2> /dev/null
-	        echo ""
-
-            exit 0
-        fi
-
-    else 
-        exit 0
+    #
+    if [[ ! -e "/usr/bin" ]]
+    then
+        mkdir -p /usr/bin 2> /dev/null
     fi
 
+    #
+    if [[ ! -e "/usr/share/lumus/doc/info" ]]
+    then
+        mkdir -p /usr/share/lumus/doc/info 2> /dev/null
+	        
+        #
+	    chmod -R 755 /usr/share/lumus/doc/info 2> /dev/null
+    fi
+
+    #
+    if [[ $? -eq 0 ]]
+    then
+        echo "YES" >  /usr/share/lumus/doc/info/lumus_status 2> /dev/null
+    fi
 else
     echo ""
-    echo "This program seems to be not compatible with your system !"
+    echo "This program seems to be not compatible with your system ⚠️  "
 
     exit 1
 fi
