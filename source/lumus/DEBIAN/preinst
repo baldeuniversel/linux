@@ -2,23 +2,48 @@
 
 # preinst script for lumus
 
-set -uo pipefail
+set -o pipefail
 
 
 #####
 # Action allowing to properly use the program after deployment 
 #####
 
-# Check if bash is installed
 
+
+### Check to see who executes the `am-okay` program, then get the personnel directory
+#   of this user, then ... -> start tag[k0]
+
+flagBehalfSudo=""
+getPersonalUserDir="$HOME"
+getTheRealUser="$USER"
+getTheGroupNameUser=""
+
+if [[ -n "$SUDO_USER" ]]
+then
+    #
+    flagBehalfSudo="$SUDO_USER"
+    getTheRealUser="$SUDO_USER"
+    getTheGroupNameUser=` id -gn $getTheRealUser `
+
+    # Get the personnel directory of the user
+    getPersonalUserDir=` getent passwd "$flagBehalfSudo" | cut -d ":" -f6 `
+fi
+
+### Check to see who executes the `am-okay` program, then get the personnel directory
+#   of this user, then ... -> end tag[k0]
+
+
+
+# Check if bash is installed
 get_request=` whereis bash `
 
 if [[ ! ` echo "$get_request" | grep -i "bash" ` ]]
 then
-    
+    #
     echo "You have to install bash !"
     exit 1
-
+#
 elif [[ ! -e "/tmp" ]]
 then
 
@@ -54,10 +79,51 @@ then
     if  [[ ! -e "/usr/bin/lumus" ]] 
     then
 
-        # Allow to all the users belonging to `sudo` group to write to the target file
-	    chmod 664 /sys/class/backlight/*/brightness 2> /dev/null
-        chgrp sudo /sys/class/backlight/*/brightness 2> /dev/null
+        # Allow to all the users belonging to `lumus` group to write to the target file
+        if [[ ` getent group lumus 2> /dev/null ` ]]
+        then
 
+            #
+	        chmod 664 /sys/class/backlight/*/brightness 2> /dev/null
+            chgrp lumus /sys/class/backlight/*/brightness 2> /dev/null
+
+            #
+            usermod --append $getTheRealUser --groups lumus 2> /dev/null
+
+            #
+            echo "~"
+            echo -e "The \e[32;1mlumus\e[0m program is not compatible with your system ⚠️  "
+            echo ""
+            exit 1
+        else
+            
+            # Create the `lumus` group 
+            groupadd lumus &> /dev/null 
+
+            if [[ $? -eq 0 ]]
+            then
+                #
+                chmod 664 /sys/class/backlight/*/brightness 2> /dev/null
+                chgrp lumus /sys/class/backlight/*/brightness 2> /dev/null
+
+                #
+                usermod --append $getTheRealUser --groups lumus 2> /dev/null
+
+                #
+                echo "~"
+                echo -e "The \e[32;1mlumus\e[0m program is not compatible with your system ⚠️  "
+                echo ""
+                exit 1
+            else
+                #
+                echo "~"
+                echo -e "The \e[32;1mlumus\e[0m program is not compatible with your system ⚠️  "
+                echo ""
+                exit 1
+            fi
+        fi
+
+	    
 
         #
         if [[ ! -e "/usr/bin" ]]
@@ -69,10 +135,12 @@ then
         if [[ ! -e "/usr/share/lumus/doc/info" ]]
         then
             mkdir -p /usr/share/lumus/doc/info 2> /dev/null
-	  
+	        
+            #
 	        chmod -R 755 /usr/share/lumus/doc/info 2> /dev/null
         fi
 
+        #
         if [[ $? -eq 0 ]]
         then
 	        echo ""
