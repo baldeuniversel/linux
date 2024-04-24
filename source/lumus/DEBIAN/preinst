@@ -58,6 +58,8 @@ total_brightness=""
 get_actual_brightness=""
 
 
+
+#
 if [[ ` cat /sys/class/backlight/*/max_brightness 2> /dev/null ` ]] \
     && [[ ` cat /sys/class/backlight/*/brightness 2> /dev/null `  ]]
 then
@@ -72,6 +74,7 @@ else
 fi
 
 
+
 # Check if the variables above contain something, and do ...
 if [[ -n "$get_actual_brightness" ]] && [[ -n "$total_brightness" ]]
 then
@@ -83,10 +86,10 @@ then
 
 
     #
-    if [[ $getPermBrightnessFile -ne 644 ]]
+    if [[ $getPermBrightnessFile -ne 664 ]]
     then
         #
-        chmod 644 /sys/class/backlight/*/brightness 2> /dev/null
+        chmod 664 /sys/class/backlight/*/brightness 2> /dev/null
 
         #
         if [[ $? -ne 0 ]]

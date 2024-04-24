@@ -13,6 +13,11 @@
 # Example to know the current percent of the luminosity ---> lumus --status
 #####
 
+
+set -o pipefail
+
+
+
 # Checking if `preinst` is okay
 
 if [[ ! -e  "/usr/share/lumus/doc/info/lumus_status" ]]
@@ -28,13 +33,87 @@ then
     exit 1
 fi
 
-## Set the brightness(luminosity) according the value entered
+
 
 # Declaration variables
 total_brightness=` cat /sys/class/backlight/*/max_brightness `
 get_actual_brightness=` cat /sys/class/backlight/*/brightness `
 get_param=$1 # Input parameter
 
+
+
+### Check to see who executes the `am-okay` program, then get the personnel directory
+#   of this user, then ... -> start tag[k0]
+
+flagBehalfSudo=""
+getPersonalUserDir="$HOME"
+getTheRealUser="$USER"
+getTheGroupNameUser=""
+
+if [[ -n "$SUDO_USER" ]]
+then
+    #
+    flagBehalfSudo="$SUDO_USER"
+    getTheRealUser="$SUDO_USER"
+    getTheGroupNameUser=` id -gn $getTheRealUser `
+
+    # Get the personnel directory of the user
+    getPersonalUserDir=` getent passwd "$flagBehalfSudo" | cut -d ":" -f6 `
+fi
+
+
+#
+if [[ -n "$total_brightness" ]] && [[ -n "$get_actual_brightness" ]]
+then
+
+    #
+    getGroupBrightnessFile=` stat --format=%G /sys/class/backlight/*/brightness `
+    getPermBrightnessFile=` stat --format=%a /sys/class/backlight/*/brightness `
+
+
+
+    #
+    if [[ $getPermBrightnessFile -ne 664 ]]
+    then
+        echo "~"
+        echo -e "Something is wrong, please reinstall The \e[32;1mlumus\e[0m program ⚠️  "
+        echo ""
+        exit 1
+    fi
+
+    # Add the real user to the `brightness` file group
+    if [[ ! ` getent group $getGroupBrightnessFile 2> /dev/null | grep -E -- "$getTheRealUser" ` ]]
+    then
+        #
+        usermod --append $getTheRealUser --groups $getGroupBrightnessFile 2> /dev/null
+
+        #
+        if [[ $? -ne 0 ]]
+        then
+            echo "~"
+            echo -e "You have to add the user \e[32;1m$getTheRealUser\e[0m to the group \e[32;1m$getGroupBrightnessFile\e[0m ⚠️  "
+            echo ""
+            echo "You can perform this via the below command :"
+            echo ""
+            echo -e "sudo usermod --append $getTheRealUser --groups $getGroupBrightnessFile"
+            echo ""
+
+            exit 1
+        fi
+    fi
+else
+    echo "~"
+    echo -e "Something is wrong, please reinstall The \e[32;1mlumus\e[0m program ⚠️  "
+    echo ""
+    exit 1
+fi
+
+### Check to see who executes the `am-okay` program, then get the personnel directory
+#   of this user, then ... -> end tag[k0]
+
+
+
+## Set the brightness(luminosity) according the value entered
 
 # Checking the number of arguments that are encoded
 if [[ $# -ne 1 ]]
@@ -113,7 +192,6 @@ then
     # Check if some conditions are correct (for security and others ), if everything is okay, apply the modifications .
     if [[ $get_value_proper_decrement -le $total_brightness ]] && [[ $get_value_proper_decrement -ge $get_one_percent_from_backlight ]]
     then
-        
         #
         echo "$get_value_proper_decrement" > /sys/class/backlight/*/brightness
 
