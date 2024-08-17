@@ -44,9 +44,9 @@ command **pdf-tool --help** or **pdf-tool --doc** or **man pdf-tool** to get mor
 information on how to use the **pdf-tool** program .
 
 
-**Hash-package** : **md5sum(28b20c745a966a36bdd9fc1efbd6b36c)**
+**Hash-package** : **md5sum(81cf8f304ba38857e9bcaa6575569d63)**
 <br />
-**Codename** : **fatima**
+**Codename** : **electron**
 
 <br />
 
