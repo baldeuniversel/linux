@@ -6,7 +6,7 @@
 *        pdf‐tool is a program allows to manipulate pdf files .
 *        With this program you can do actions like compress , rotate , number ,
 *        concatenate , extract , include , exclude , encrypt , decrypt , burst ,
-*        stamp ... on pdf files (use from the terminal) .
+*        stamp , info ... on pdf files (use from the terminal) .
 * 
 * OVERVIEW
 *        @overview This program allows to execute some actions (see the preconditions below)
@@ -788,7 +788,7 @@ function getPDFInfo
 
 
     # 
-    if [[ ` pdfinfo "$getFile"  &> /dev/null ` ]]
+    if [[ ` pdfinfo "$getFile"  2> /dev/null ` ]]
     then
         #
         echo -e "~"
@@ -6293,7 +6293,7 @@ then
 
 
     #
-    if [[ "$flagIsPDF" == "$true" ]]
+    if [[ "$flagIsPDF" == "true" ]]
     then
         # Call the function
         getPDFInfo "$getPDFFile"
