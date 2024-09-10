@@ -33,7 +33,7 @@ The **pdf-tool** program allows to manipulate pdf files .
 
 
 With this program you can do actions like `compress, rotate, number, stamp, 
-concatenate, extract, include, exclude, encrypt, decrypt, burst ...` on 
+concatenate, extract, include, exclude, encrypt, decrypt, burst, info ...` on 
 **pdf files** (use from the terminal) .
 
 
@@ -44,9 +44,9 @@ command **pdf-tool --help** or **pdf-tool --doc** or **man pdf-tool** to get mor
 information on how to use the **pdf-tool** program .
 
 
-**Hash-package** : **md5sum(81cf8f304ba38857e9bcaa6575569d63)**
+**Hash-package** : **md5sum(ca1eba7a79ff56dce4bdb961ec442e72)**
 <br />
-**Codename** : **electron**
+**Codename** : **maimouna**
 
 <br />
 
