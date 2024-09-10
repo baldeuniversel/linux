@@ -6191,7 +6191,6 @@ then
 
                 elif [[ "$flagIsPDF" == "false" ]]
                 then
-                    echo "$flagIsPDF in false"
                     echo "~"
                     echo -e "This \e[1;031m$getPDFFile\e[0m file does not a pdf file or cannot be read 🧐 "
 
